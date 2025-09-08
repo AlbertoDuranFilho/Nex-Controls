@@ -38,7 +38,7 @@ export default function ProductCard({ produto }: ProductCardProps) {
         {/* Botão */}
         <Link
           href={`/catalogo/${produto.documentId}`}
-          className="block text-center bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 rounded-b-md"
+          className="block absolute bottom-0 left-0 text-center bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 rounded-b-md"
         >
           {t("learnMore")} →
         </Link>

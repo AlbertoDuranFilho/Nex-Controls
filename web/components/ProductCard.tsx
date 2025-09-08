@@ -11,17 +11,16 @@ export default function ProductCard({ produto }: ProductCardProps) {
   const t = useTranslations("catalog");
   const img = produto.imagens?.[0]?.url ?? "/placeholder.png";
 
-  const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL
-
   return (
     <div className="flex flex-col h-full bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow hover:border hover:border-blue-700 ">
-      <div className="relative w-full h-48 flex items-center justify-center p-4">
+      <div className="relative w-full h-32 flex items-center justify-center p-4">
         {img ? (
           <Image
             src={`${img}`}
             alt={produto.nome}
-            fill
-            className="object-cover"
+            width={160}
+            height={120}
+            className="object-contain"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm" />

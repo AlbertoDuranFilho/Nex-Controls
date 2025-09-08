@@ -25,10 +25,11 @@ export default function ProductCard({ produto }: ProductCardProps) {
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm" />
         )}
+
+        <h3 className="absolute z-10text-white font-bold text-lg rounded-md w-44 bg-blue-800 ">{produto.codigo}</h3>
       </div>
       {/* Conteúdo */}
       <div className="flex flex-col items-center flex-grow text-center px-4 pb-4">
-        <h3 className="text-white font-bold text-lg rounded-md w-44 bg-blue-800 ">{produto.codigo}</h3>
         <p className="text-sm text-gray-700 mt-1 flex-grow">
           {produto.nome}
         </p>

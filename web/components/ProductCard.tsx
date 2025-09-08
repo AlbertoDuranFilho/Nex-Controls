@@ -14,7 +14,7 @@ export default function ProductCard({ produto }: ProductCardProps) {
   const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL
 
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow hover:border hover:border-blue-700 ">
+    <div className="flex flex-col h-full bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow hover:border hover:border-blue-700 ">
       <div className="relative w-full h-48 flex items-center justify-center p-4">
         {img ? (
           <Image
@@ -38,7 +38,7 @@ export default function ProductCard({ produto }: ProductCardProps) {
         {/* Botão */}
         <Link
           href={`/catalogo/${produto.documentId}`}
-          className="block absolute bottom-0 left-0 text-center bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 rounded-b-md"
+          className="block text-center bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 rounded-b-md"
         >
           {t("learnMore")} →
         </Link>

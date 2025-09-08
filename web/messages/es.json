@@ -80,7 +80,10 @@
     "submit": "Entrar",
     "forgotPassword": "¿Olvidó su contraseña?",
     "recover": "Recuperar",
-    "back": "Volver"
+    "back": "Volver",
+    "loginErrorTitle": "Error de inicio de sesión",
+    "loginErrorMessage": "Correo electrónico o contraseña incorrectos. Inténtalo de nuevo.",
+    "okButton": "Ok"
   },
   "footer": {
     "rights": "Todos los derechos reservados",

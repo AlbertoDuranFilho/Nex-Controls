@@ -80,7 +80,10 @@
     "submit": "Login",
     "forgotPassword": "Forgot your password?",
     "recover": "Recover",
-    "back": "Back"
+    "back": "Back",
+    "loginErrorTitle": "Login Error",
+    "loginErrorMessage": "Incorrect email or password. Please try again.",
+    "okButton": "Ok"
   },
   "footer": {
     "rights": "All rights reserved",

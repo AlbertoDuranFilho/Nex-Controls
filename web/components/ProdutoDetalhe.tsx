@@ -10,7 +10,7 @@ import { BlocksRenderer } from "@strapi/blocks-react-renderer";
 export default function ProdutoDetalhe({ produto }: { produto: Produto }) {
   const t = useTranslations("product");
   const attr = produto;
-  const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
+  const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL
 
   // Galeria de imagens
   const imagens: string[] =

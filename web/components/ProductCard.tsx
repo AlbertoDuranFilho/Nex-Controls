@@ -11,7 +11,7 @@ export default function ProductCard({ produto }: ProductCardProps) {
   const t = useTranslations("catalog");
   const img = produto.imagens?.[0]?.url ?? "/placeholder.png";
 
-  const API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL
+  const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL
 
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow hover:border hover:border-blue-700 ">

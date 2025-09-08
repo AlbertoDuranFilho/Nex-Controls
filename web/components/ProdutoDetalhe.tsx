@@ -14,7 +14,7 @@ export default function ProdutoDetalhe({ produto }: { produto: Produto }) {
 
   // Galeria de imagens
   const imagens: string[] =
-    attr.imagens?.map((img) => `${API_URL}${img.url}`) ?? [];
+    attr.imagens?.map((img) => `${img.url}`) ?? [];
   const [imagemAtiva, setImagemAtiva] = useState(imagens[0]);
 
   // Abas

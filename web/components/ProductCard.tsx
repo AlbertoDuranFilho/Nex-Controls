@@ -18,7 +18,7 @@ export default function ProductCard({ produto }: ProductCardProps) {
       <div className="relative w-full h-48 flex items-center justify-center p-4">
         {img ? (
           <Image
-            src={`${API_URL}${img}`}
+            src={`${img}`}
             alt={produto.nome}
             fill
             className="object-cover"

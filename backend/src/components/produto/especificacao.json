@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_produto_especificacaos",
+  "info": {
+    "displayName": "Especificacao"
+  },
+  "options": {},
+  "attributes": {
+    "nome": {
+      "type": "string",
+      "required": false
+    },
+    "valor": {
+      "type": "string"
+    },
+    "icone": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  },
+  "config": {}
+}

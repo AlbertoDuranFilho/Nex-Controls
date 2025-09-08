@@ -1,0 +1,89 @@
+{
+  "navbar": {
+    "company": "Nex Controls",
+    "home": "Home",
+    "about": "About",
+    "catalog": "Catalog",
+    "contact": "Contact",
+    "email": "contact@nexcontrols.com",
+    "phone": "",
+    "clientArea": "Client Area"
+  },
+  "home": {
+    "headline": "Technology in Every Detail",
+    "subtitle": "Turning ideas into circuits",
+    "cta": "Get in Touch",
+    "appBanner": {
+      "title": "Download our App",
+      "description": "Access our catalog directly from your phone"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "description": "We are specialists in electronic boards and equipment, offering high-quality solutions for our clients. Our mission is to innovate and ensure excellence in every product delivered, focusing on durability and performance."
+  },
+  "catalog": {
+    "title": "Product Catalog",
+    "learnMore": "Learn more",
+    "backToCatalog": "Back to catalog"
+  },
+  "contact": {
+    "title": "Sign up and receive first-hand the best offers, promotions, and launches of our products",
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "message": "Message",
+      "submit": "Send"
+    },
+    "successTitle": "✅ Sent successfully!",
+    "successMessage": "We have received your message and will contact you soon.",
+    "errorTitle": "❌ Sending failed",
+    "errorMessage": "There was a problem sending your message. Please try again.",
+    "okButton": "Ok"
+  },
+  
+  "product": {
+    "compatibility": "Compatibility",
+    "requestQuote": "Request Quote",
+    "downloadManual": "Download Manual",
+    "notFound": "Product not found",
+    "noImage": "No image available",
+    "noSpecs": "This product has no specifications",
+    "noApplications": "This product has no applications listed",
+    "backToCatalog": "Back to catalog",
+    "tabs": {
+      "description": "Product description",
+      "specifications": "Technical Specifications",
+      "applications": "Applied products list"
+    }
+  },
+  
+  "banners": {
+    "app": {
+      "title": "Technology",
+      "headline": "Our App",
+      "description": "Access manuals and more resources",
+      "googlePlayAlt": "Available on Google Play",
+      "appStoreAlt": "Available on the App Store"
+    },
+    "social": {
+      "title": "Social and Environmental Responsibility",
+      "description": "Nex Controls operates with social responsibility by minimizing impacts on society and the environment. Committed to sustainability, our factory uses solar panels."
+    }
+  },
+
+  "login": {
+    "title": "Client Area",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "forgotPassword": "Forgot your password?",
+    "recover": "Recover",
+    "back": "Back"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "tagline": "Specialists in electronic boards and equipment"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "navbar": {
+    "company": "Mi Empresa",
+    "home": "Inicio",
+    "about": "Empresa",
+    "catalog": "Catálogo",
+    "contact": "Contacto",
+    "email": "contacto@nexcontrols.com",
+    "phone": "+55 (11) 9999-9999",
+    "clientArea": "Área del Cliente"
+  },
+  "home": {
+    "headline": "Tecnología en Cada Detalle",
+    "subtitle": "Convirtiendo ideas en circuitos",
+    "cta": "Póngase en Contacto",
+    "appBanner": {
+      "title": "Descarga nuestra App",
+      "description": "Accede a nuestro catálogo directamente desde tu móvil"
+    }
+  },
+  "about": {
+    "title": "Acerca de Nosotros",
+    "description": "Somos especialistas en placas y equipos electrónicos, ofreciendo soluciones de alta calidad para nuestros clientes. Nuestra misión es innovar y garantizar la excelencia en cada producto entregado, con enfoque en durabilidad y rendimiento."
+  },
+  "catalog": {
+    "title": "Catálogo de Productos",
+    "learnMore": "Saber más",
+    "backToCatalog": "Volver al catálogo"
+  },
+  "contact": {
+    "title": "Regístrate y mantente al día con las últimas novedades",
+    "form": {
+      "name": "Nombre completo",
+      "email": "Email",
+      "phone": "Teléfono",
+      "message": "Mensaje",
+      "submit": "Enviar"
+    },
+    "successTitle": "✅ ¡Enviado con éxito!",
+    "successMessage": "Hemos recibido su mensaje y nos pondremos en contacto pronto.",
+    "errorTitle": "❌ Error al enviar",
+    "errorMessage": "Hubo un problema al enviar su mensaje. Inténtelo de nuevo.",
+    "okButton": "Aceptar"
+  },
+
+  "product": {
+    "compatibility": "Compatibilidad",
+    "requestQuote": "Solicitar Cotización",
+    "downloadManual": "Descargar Manual",
+    "notFound": "Producto no encontrado",
+    "noImage": "Sin imagen disponible",
+    "backToCatalog": "Volver al catálogo",
+    "noSpecs": "Este producto no tiene especificaciones técnicas",
+    "noApplications": "Este producto no tiene lista de aplicaciones",
+    "tabs": {
+      "description": "Descripción del producto",
+      "specifications": "Especificaciones Técnicas",
+      "applications": "Lista de productos aplicados"
+    }
+  },
+
+  "banners": {
+    "app": {
+      "title": "Tecnología",
+      "headline": "Nuestra Aplicación",
+      "description": "Consulte manuales y más recursos",
+      "googlePlayAlt": "Disponible en Google Play",
+      "appStoreAlt": "Disponible en App Store"
+    },
+    "social": {
+      "title": "Responsabilidad Social y Ambiental",
+      "description": "Nex Controls actúa con responsabilidad social minimizando los impactos en la sociedad y el medio ambiente. Comprometidos con la sostenibilidad, nuestra fábrica utiliza paneles solares."
+    }
+  },
+
+  "login": {
+    "title": "Área del Cliente",
+    "email": "Email",
+    "password": "Contraseña",
+    "submit": "Entrar",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "recover": "Recuperar",
+    "back": "Volver"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados",
+    "tagline": "Especialistas en placas y equipos electrónicos"
+  }
+}

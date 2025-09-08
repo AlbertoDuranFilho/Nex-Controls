@@ -32,6 +32,13 @@ export default function ProductCard({ produto }: ProductCardProps) {
         </span>
       </div>
 
+      {/* Conteúdo */}
+      <div className="flex flex-col items-center flex-grow text-center px-4 pb-4">
+        <p className="text-sm text-gray-700 mt-1 flex-grow">
+          {produto.nome}
+        </p>
+      </div>
+
         {/* Botão */}
         <Link
           href={`/catalogo/${produto.documentId}`}

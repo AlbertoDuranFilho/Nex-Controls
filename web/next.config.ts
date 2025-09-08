@@ -6,7 +6,12 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ["localhost"], // em produção, coloque seu domínio real
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nex-controls.onrender.com',
+      },
+    ], 
   },
 };
 

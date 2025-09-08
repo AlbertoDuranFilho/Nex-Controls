@@ -15,8 +15,6 @@ export default function ContactForm() {
 
   const [captchaDone, setCaptchaDone] = useState(false);
   
-  console.log("SITE KEY carregada:", process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
-  
   // Callback quando o usuário confirma o reCAPTCHA
   function setCaptcha(value: string | null) {
     setCaptchaDone(!!value);

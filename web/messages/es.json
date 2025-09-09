@@ -5,7 +5,7 @@
     "about": "Empresa",
     "catalog": "Catálogo",
     "contact": "Contacto",
-    "email": "contacto@nexcontrols.com",
+    "email": "comercial@nexcontrols.com",
     "phone": "+55 (11) 9999-9999",
     "clientArea": "Área del Cliente"
   },
@@ -85,8 +85,19 @@
     "loginErrorMessage": "Correo electrónico o contraseña incorrectos. Inténtalo de nuevo.",
     "okButton": "Ok"
   },
+
+  "privacy": {
+    "title": "Política de Privacidad",
+    "intro": "Este sitio web recopila información personal como nombre, correo electrónico y teléfono únicamente cuando se proporciona voluntariamente a través de formularios de contacto.",
+    "cookies": "Utilizamos cookies para mejorar la experiencia de navegación y analizar el tráfico. No se venden datos a terceros.",
+    "rights": "Para consultas sobre sus datos o solicitar la eliminación, comuníquese con nosotros en ",
+    "email": "contacto@nexcontrols.com",
+    "lastUpdate": "Última actualización"
+  },
+
   "footer": {
     "rights": "Todos los derechos reservados",
-    "tagline": "Especialistas en placas y equipos electrónicos"
+    "tagline": "Especialistas en placas y equipos electrónicos",
+    "privacyLink": "Política de Privacidad"
   }
 }

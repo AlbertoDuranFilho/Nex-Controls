@@ -83,8 +83,20 @@
     "loginErrorMessage": "Email ou senha incorretos. Tente novamente.",
     "okButton": "Ok"
   },
+
+ 
+  "privacy": {
+    "title": "Política de Privacidade",
+    "intro": "Este site coleta informações pessoais como nome, e-mail e telefone apenas quando fornecidas voluntariamente através de formulários de contato.",
+    "cookies": "Utilizamos cookies para melhorar a experiência de navegação e analisar tráfego. Nenhum dado é vendido a terceiros.",
+    "rights": "Para dúvidas sobre seus dados ou solicitar remoção, entre em contato via ",
+    "email": "contato@nexcontrols.com",
+    "lastUpdate": "Última atualização"
+  },
+
   "footer": {
     "rights": "Todos os direitos reservados",
-    "tagline": "Especialistas em placas e equipamentos eletrônicos"
+    "tagline": "Especialistas em placas e equipamentos eletrônicos",
+    "privacyLink": "Política de Privacidade"
   }
 }

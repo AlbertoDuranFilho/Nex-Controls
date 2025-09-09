@@ -3,6 +3,8 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import "../globals.css"
 import Footer from "@/components/Footer"
+import CookieConsent from "@/components/CookieConsent"
+import Navbar from "@/components/Navbar"
 
 export const metadata: Metadata = {
   title: "Nex Controls - Placas e Equipamentos",
@@ -21,11 +23,17 @@ export default async function RootLayout({ children, params }: Props) {
 
   return (
     <html lang={locale}>
-      <body>
+      <body className="flex flex-col min-h-screen">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+
+          <Navbar />
+          {/* Conteúdo ocupa a tela toda */}
+          <main className="flex-grow">
+            {children}
+          </main>
+          <CookieConsent />
         </NextIntlClientProvider>
-        <Footer />
+        <Footer locale={locale} />
       </body>
     </html>
   )

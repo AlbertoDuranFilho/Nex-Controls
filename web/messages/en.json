@@ -5,7 +5,7 @@
     "about": "About",
     "catalog": "Catalog",
     "contact": "Contact",
-    "email": "contact@nexcontrols.com",
+    "email": "commercial@nexcontrols.com",
     "phone": "",
     "clientArea": "Client Area"
   },
@@ -85,8 +85,19 @@
     "loginErrorMessage": "Incorrect email or password. Please try again.",
     "okButton": "Ok"
   },
+
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This website collects personal information such as name, email, and phone number only when voluntarily provided through contact forms.",
+    "cookies": "We use cookies to improve your browsing experience and analyze traffic. No data is sold to third parties.",
+    "rights": "For questions about your data or to request removal, please contact us at ",
+    "email": "contact@nexcontrols.com",
+    "lastUpdate": "Last update"
+  },
+
   "footer": {
     "rights": "All rights reserved",
-    "tagline": "Specialists in electronic boards and equipment"
+    "tagline": "Specialists in electronic boards and equipment",
+    "privacyLink": "Privacy Policy"
   }
 }

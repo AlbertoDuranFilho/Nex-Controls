@@ -1,6 +1,5 @@
 import { getTranslations } from 'next-intl/server'
 import { getProdutos } from "@/services/strapi"
-import Navbar from "@/components/Navbar"
 import ProductCard from "@/components/ProductCard"
 import ContactForm from "@/components/ContactForm"
 import InfoBanner from "@/components/InfoBanner"
@@ -12,8 +11,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <Navbar />
-
       {/* Home */}
       <section id="home" className="h-[80vh] relative flex items-center justify-center text-center text-white overflow-hidden">
         <video 

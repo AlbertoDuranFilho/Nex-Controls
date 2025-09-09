@@ -73,6 +73,17 @@
     }
   },
 
+  "infoBanner": {
+    "appTitle": "Aplicación",
+    "appSubtitle": "Descarga nuestra App",
+    "exportTitle": "Exportamos",
+    "exportSubtitle": "A más de 10 países",
+    "supportTitle": "Atención",
+    "supportSubtitle": "Contáctanos",
+    "secureTitle": "Sitio seguro",
+    "secureSubtitle": "Tus datos están protegidos"
+  },
+
   "login": {
     "title": "Área del Cliente",
     "email": "Email",

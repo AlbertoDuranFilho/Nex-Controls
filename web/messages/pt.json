@@ -71,6 +71,17 @@
     }
   },
 
+  "infoBanner": {
+    "appTitle": "Aplicativo",
+    "appSubtitle": "Baixe nosso App",
+    "exportTitle": "Exportamos",
+    "exportSubtitle": "Para mais de 10 países",
+    "supportTitle": "Atendimento",
+    "supportSubtitle": "Entre em contato",
+    "secureTitle": "Site seguro",
+    "secureSubtitle": "Seus dados protegidos"
+  },
+
   "login": {
     "title": "Área do Cliente",
     "email": "Email",

@@ -40,7 +40,7 @@ export default function PromosSection() {
           {/* Imagem decorativa no lado direito */}
           <div className="absolute right-0 top-0 w-1/2 flex items-end justify-center opacity-90">
             <Image
-              src="/images/app_site_fundo.png" // 👉 sua arte da mão com o celular
+              src="/images/app_site_fundo.png" 
               alt="App Nex Controls"
               width={280}
               height={400}

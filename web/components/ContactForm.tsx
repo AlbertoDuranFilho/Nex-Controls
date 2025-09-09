@@ -35,7 +35,7 @@ export default function ContactForm() {
     console.log("📤 Enviando para Strapi:", payload);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/contatoes`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/contatoes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

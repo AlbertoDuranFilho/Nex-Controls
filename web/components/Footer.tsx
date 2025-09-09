@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
-export default function Footer({locale} : { locale: string}) {
+export default function Footer({locale} : { locale?: string}) {
   const t = useTranslations('footer')
   const currentYear = new Date().getFullYear()
   

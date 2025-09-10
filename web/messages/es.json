@@ -25,7 +25,8 @@
   "catalog": {
     "title": "Catálogo de Productos",
     "learnMore": "Saber más",
-    "backToCatalog": "Volver al catálogo"
+    "backToCatalog": "Volver al catálogo",
+    "unavailable": "Productos no disponibles en este momento. Inténtalo nuevamente en unos segundos."
   },
   "contact": {
     "title": "Regístrate y mantente al día con las últimas novedades",

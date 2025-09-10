@@ -1,9 +1,9 @@
 import { getTranslations } from 'next-intl/server'
 import { getProdutos } from "@/services/strapi"
-import ProductCard from "@/components/ProductCard"
 import ContactForm from "@/components/ContactForm"
 import InfoBanner from "@/components/InfoBanner"
 import PromosSection from "@/components/PromosSection"
+import CatalogoSection from '@/components/CatalogoSection'
 
 export default async function HomePage() {
   const produtos = await getProdutos();
@@ -46,14 +46,7 @@ export default async function HomePage() {
       </section>
       
       {/* Catálogo */}
-      <section id="catalogo" className="py-20 px-6 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-10">{t('catalog.title')}</h2>
-        <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {produtos.map(prod => (
-            <ProductCard key={prod.id} produto={prod} />
-          ))}
-        </div>
-      </section>
+      <CatalogoSection initialProdutos={produtos} />
 
       {/* Banner App */}
       <PromosSection/>

@@ -24,7 +24,8 @@
   },
   "catalog": {
     "title": "Catálogo de Produtos",
-    "learnMore": "Saiba mais"
+    "learnMore": "Saiba mais",
+    "unavailable": "Produtos indisponíveis no momento. Tente novamente em alguns segundos."
   },
   "contact": {
     "title": "Cadastre-se e receba em primeira mão as melhores ofertas, promoções e lançamentos dos nossos produtos",

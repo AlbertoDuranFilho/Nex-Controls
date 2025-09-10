@@ -8,7 +8,7 @@ export default function InfoBanner() {
       <div className="flex-1 flex items-center justify-center gap-2 py-4">
          <div className="text-center">
           <p className="font-bold">{t("appTitle")}</p>
-          <p className="text-sm">{t("appTitle")}</p>
+          <p className="text-sm">{t("appSubtitle")}</p>
         </div>
       </div>
 

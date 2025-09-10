@@ -25,7 +25,8 @@
   "catalog": {
     "title": "Product Catalog",
     "learnMore": "Learn more",
-    "backToCatalog": "Back to catalog"
+    "backToCatalog": "Back to catalog",
+    "unavailable": "Products unavailable at the moment. Please try again shortly."
   },
   "contact": {
     "title": "Sign up and receive first-hand the best offers, promotions, and launches of our products",

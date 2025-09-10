@@ -24,14 +24,28 @@ export default function CatalogoSection({ initialProdutos }: { initialProdutos: 
   const [produtos, setProdutos] = useState<Produto[]>(initialProdutos);
   const [loading, setLoading] = useState(!initialProdutos.length);
 
-  // ⚡ Se não recebeu produtos no SSR, tenta buscar no cliente assim que o Strapi “acordar”
+  // Retry automático: tenta a cada 5s até carregar produtos
   useEffect(() => {
-    if (!produtos.length) {
-      getProdutos().then((data) => {
-        if (data.length) setProdutos(data);
+    let interval: NodeJS.Timeout | null = null;
+
+    async function fetchProdutos() {
+      const data = await getProdutos();
+      if (data.length > 0) {
+        setProdutos(data);
         setLoading(false);
-      });
+        if (interval) clearInterval(interval); // 🚀 para retries
+      }
     }
+
+    // Se não tiver produtos → tenta imediatamente
+    if (!produtos.length) {
+      fetchProdutos();
+      interval = setInterval(fetchProdutos, 5000); // retry a cada 5s
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -39,23 +53,23 @@ export default function CatalogoSection({ initialProdutos }: { initialProdutos: 
       <h2 className="text-3xl font-bold text-center mb-10">{t("title")}</h2>
 
       {loading ? (
-        // Enquanto busca → mostrar skeletons
-        <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <ProductSkeleton key={i} />
-          ))}
+        <div>
+            <p className="text-center text-gray-500 mb-6">{t("loading")}</p>
+            <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+                <ProductSkeleton key={i} />
+            ))}
+            </div>
         </div>
-      ) : produtos.length === 0 ? (
-        // Se ainda não veio nada
+        ) : produtos.length === 0 ? (
         <div className="text-center text-gray-500 py-10">{t("unavailable")}</div>
-      ) : (
-        // Render normal dos produtos
+        ) : (
         <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {produtos.map((prod) => (
+            {produtos.map((prod) => (
             <ProductCard key={prod.id} produto={prod} />
-          ))}
+            ))}
         </div>
-      )}
+    )}
     </section>
   );
 }

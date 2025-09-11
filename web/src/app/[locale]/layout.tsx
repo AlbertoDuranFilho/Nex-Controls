@@ -5,6 +5,7 @@ import "../globals.css"
 import Footer from "@/components/Footer"
 import CookieConsent from "@/components/CookieConsent"
 import Navbar from "@/components/Navbar"
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: "Nex Controls - Placas e Equipamentos",
@@ -25,11 +26,10 @@ export default async function RootLayout({ children, params }: Props) {
     <html lang={locale}>
       <body className="flex flex-col min-h-screen">
         <NextIntlClientProvider locale={locale} messages={messages}>
-
           <Navbar />
-          {/* Conteúdo ocupa a tela toda */}
           <main className="flex-grow">
             {children}
+            <Analytics />
           </main>
           <CookieConsent />
         </NextIntlClientProvider>

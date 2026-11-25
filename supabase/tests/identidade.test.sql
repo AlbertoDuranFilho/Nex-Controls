@@ -1,6 +1,6 @@
 begin;
 \ir _helpers.psql
-select plan(28);
+select plan(29);
 
 select has_table('public', 'lojistas', 'tabela lojistas existe');
 select has_table('public', 'profiles', 'tabela profiles existe');
@@ -11,6 +11,9 @@ select ok(not has_table_privilege('anon', 'public.lojistas', 'TRUNCATE, TRIGGER,
 select ok(not has_table_privilege('authenticated', 'public.lojistas', 'TRUNCATE, TRIGGER, REFERENCES'), 'authenticated sem TRUNCATE/TRIGGER/REFERENCES em lojistas');
 select ok(not has_table_privilege('anon', 'public.profiles', 'TRUNCATE, TRIGGER, REFERENCES'), 'anon sem TRUNCATE/TRIGGER/REFERENCES em profiles');
 select ok(not has_table_privilege('authenticated', 'public.profiles', 'TRUNCATE, TRIGGER, REFERENCES'), 'authenticated sem TRUNCATE/TRIGGER/REFERENCES em profiles');
+
+select ok(not exists (select 1 from unnest(array['anon','authenticated']) r, unnest(array['USAGE','SELECT','UPDATE']) pr
+  where has_sequence_privilege(r, 'public.acessos_log_id_seq', pr)), 'ninguém acessa a sequence de acessos_log');
 
 -- cenário de log (como superusuário)
 insert into acessos_log (user_id, ip, user_agent) values (tests.id('l1'), '127.0.0.1', 'teste');

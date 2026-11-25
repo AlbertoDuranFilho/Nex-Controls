@@ -133,3 +133,5 @@ grant update (nome_fantasia, inscricao_estadual, indicador_ie, responsavel_nome,
 -- acessos_log: escrita só service role; leitura só admin (policy acima)
 revoke all on public.acessos_log from anon, authenticated;
 grant select on public.acessos_log to authenticated;
+
+revoke all on sequence public.acessos_log_id_seq from anon, authenticated;

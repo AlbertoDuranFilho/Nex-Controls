@@ -244,3 +244,6 @@ select cron.schedule(
   '0 3 * * *',
   $$delete from public.acessos_log where created_at < now() - interval '6 months'$$
 );
+
+-- sequence do identity: sem isso setval/nextval seriam liberados por default privileges
+revoke all on sequence public.pedidos_numero_seq from anon, authenticated;

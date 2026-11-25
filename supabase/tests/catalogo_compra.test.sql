@@ -1,6 +1,6 @@
 begin;
 \ir _helpers.psql
-select plan(36);
+select plan(39);
 
 -- ===== cenário (superusuário): P ativo com preço 100, Q inativo, cupom C =====
 select gen_random_uuid() as p, gen_random_uuid() as q, gen_random_uuid() as c \gset
@@ -13,7 +13,7 @@ insert into produto_especificacoes (produto_id, nome, valor) values (:'p', 'Tens
 insert into cupons (id, codigo, tipo, valor) values (:'c', 'PROMO10', 'percentual', 10);
 insert into lojista_descontos_produto (lojista_id, produto_id, desconto_percentual) values
   (tests.id('l1'), :'p', 5), (tests.id('l2'), :'p', 7);
-insert into carrinho_itens (lojista_id, produto_id, quantidade) values (tests.id('l2'), :'p', 3);
+insert into carrinho_itens (lojista_id, produto_id, quantidade) values (tests.id('l2'), :'p', 3), (tests.id('l3'), :'p', 4);
 insert into pedidos (lojista_id, cliente_tipo_pessoa, cliente_documento, cliente_nome, cliente_indicador_ie,
   entrega_cep, entrega_logradouro, entrega_numero, entrega_bairro, entrega_cidade, entrega_uf, subtotal, total)
 select l, 'PF', '11111111111', 'x', 'nao_contribuinte', '1', 'x', '1', 'x', 'x', 'PE', 1, 1
@@ -43,6 +43,9 @@ select ok(not exists (select 1 from unnest(array['produtos','produto_imagens','p
 select ok(not has_table_privilege('authenticated', 'public.pedidos', 'INSERT, UPDATE, DELETE')
   and not has_table_privilege('authenticated', 'public.pedido_itens', 'INSERT, UPDATE, DELETE'),
   'authenticated não escreve em pedidos/pedido_itens');
+
+select ok(not exists (select 1 from unnest(array['anon','authenticated']) r, unnest(array['USAGE','SELECT','UPDATE']) pr
+  where has_sequence_privilege(r, 'public.pedidos_numero_seq', pr)), 'ninguém acessa a sequence de pedidos');
 
 -- ===== visitante =====
 select tests.anonimo();
@@ -84,6 +87,10 @@ select is_empty($$with u as (update produto_precos set preco = 1 returning 1) se
 select tests.autenticar_como(tests.id('l3'));
 select is_empty($$select * from produto_precos$$, 'desativado não vê preço');
 select is_empty($$select * from carrinho_itens$$, 'desativado não vê carrinho');
+select is_empty($$with u as (update carrinho_itens set quantidade = 5 where lojista_id = tests.id('l3') returning 1) select * from u$$,
+  'desativado não altera o carrinho');
+select is_empty($$with d as (delete from carrinho_itens where lojista_id = tests.id('l3') returning 1) select * from d$$,
+  'desativado não apaga do carrinho');
 select throws_ok($$insert into carrinho_itens (lojista_id, produto_id, quantidade) values (tests.id('l3'), tests.id('p'), 1)$$,
   '42501', null, 'desativado não compra');
 

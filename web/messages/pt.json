@@ -91,6 +91,90 @@
     "mostrarSenha": "Mostrar",
     "ocultarSenha": "Ocultar"
   },
+  "conta": {
+    "nav": {
+      "aria": "Minha conta",
+      "meusDados": "Meus dados",
+      "endereco": "Endereço",
+      "seguranca": "Segurança"
+    },
+    "dados": {
+      "titulo": "Meus dados",
+      "documento": "CPF/CNPJ",
+      "nome": "Nome ou razão social",
+      "nomeFantasia": "Nome fantasia",
+      "responsavel": "Nome do responsável",
+      "telefone": "Telefone",
+      "whatsapp": "WhatsApp",
+      "indicadorIe": "Indicador de inscrição estadual",
+      "contribuinte": "Contribuinte",
+      "isento": "Isento",
+      "naoContribuinte": "Não contribuinte",
+      "inscricaoEstadual": "Inscrição estadual",
+      "salvar": "Salvar"
+    },
+    "endereco": {
+      "titulo": "Endereço",
+      "cep": "CEP",
+      "logradouro": "Logradouro",
+      "numero": "Número",
+      "complemento": "Complemento",
+      "bairro": "Bairro",
+      "cidade": "Cidade",
+      "uf": "UF",
+      "salvar": "Salvar",
+      "buscando": "Buscando CEP…",
+      "naoEncontrado": "Não encontramos o CEP, preencha manualmente."
+    },
+    "email": {
+      "titulo": "E-mail de acesso",
+      "atual": "E-mail atual",
+      "novo": "Novo e-mail",
+      "alterar": "Alterar e-mail",
+      "aguardando": "Aguardando confirmação nos dois e-mails (o atual e o novo) para:",
+      "enviado": "Pedido enviado. Confirme pelos links enviados aos dois e-mails.",
+      "retorno": {
+        "confirmado": "E-mail alterado com sucesso.",
+        "pendente": "Primeiro link confirmado. Falta confirmar no outro e-mail.",
+        "erro": "Não foi possível confirmar o e-mail. O link pode ter expirado ou já ter sido usado; confira o e-mail atual abaixo ou peça a alteração novamente."
+      }
+    },
+    "seguranca": {
+      "titulo": "Segurança",
+      "nova": "Nova senha",
+      "confirmar": "Confirmar nova senha",
+      "mostrar": "Mostrar senhas",
+      "ocultar": "Ocultar senhas",
+      "salvar": "Alterar senha",
+      "alterada": "Senha alterada"
+    },
+    "estado": {
+      "salvando": "Salvando…",
+      "salvo": "Salvo",
+      "erro": "Erro ao salvar"
+    },
+    "erros": {
+      "revise": "Revise os campos destacados.",
+      "sessao": "Sua sessão expirou. Entre novamente.",
+      "invalido": "Valor inválido.",
+      "longo": "Texto muito longo.",
+      "telefone": "Informe DDD e número válidos.",
+      "ieObrigatoria": "Informe a inscrição estadual ou escolha Isento.",
+      "salvar": "Não foi possível salvar. Tente novamente.",
+      "cep": "CEP inválido.",
+      "obrigatorio": "Campo obrigatório.",
+      "uf": "Escolha um estado.",
+      "email": "E-mail inválido.",
+      "emailIgual": "Este já é o seu e-mail atual.",
+      "emailEmUso": "Este e-mail já está em uso.",
+      "limite": "Muitos pedidos seguidos. Aguarde um pouco e tente de novo.",
+      "indisponivel": "Recurso indisponível.",
+      "senhaCurta": "A senha deve ter ao menos 8 caracteres.",
+      "senhaDiferente": "As senhas não conferem.",
+      "senhaIgual": "Escolha uma senha diferente da atual.",
+      "senhaFraca": "Senha fraca. Escolha outra."
+    }
+  },
   "privacy": {
     "title": "Política de Privacidade Nex Controls",
     "lastUpdate": "Última atualização: 09/09/2025.",

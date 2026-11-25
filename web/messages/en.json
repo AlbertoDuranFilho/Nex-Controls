@@ -92,6 +92,90 @@
     "mostrarSenha": "Show",
     "ocultarSenha": "Hide"
   },
+  "conta": {
+    "nav": {
+      "aria": "My account",
+      "meusDados": "My details",
+      "endereco": "Address",
+      "seguranca": "Security"
+    },
+    "dados": {
+      "titulo": "My details",
+      "documento": "Tax ID (CPF/CNPJ)",
+      "nome": "Name or company name",
+      "nomeFantasia": "Trade name",
+      "responsavel": "Contact name",
+      "telefone": "Phone",
+      "whatsapp": "WhatsApp",
+      "indicadorIe": "State registration status",
+      "contribuinte": "Taxpayer",
+      "isento": "Exempt",
+      "naoContribuinte": "Non-taxpayer",
+      "inscricaoEstadual": "State registration number",
+      "salvar": "Save"
+    },
+    "endereco": {
+      "titulo": "Address",
+      "cep": "Postal code (CEP)",
+      "logradouro": "Street",
+      "numero": "Number",
+      "complemento": "Complement",
+      "bairro": "Neighborhood",
+      "cidade": "City",
+      "uf": "State",
+      "salvar": "Save",
+      "buscando": "Looking up postal code…",
+      "naoEncontrado": "We could not find this postal code, please fill in manually."
+    },
+    "email": {
+      "titulo": "Login email",
+      "atual": "Current email",
+      "novo": "New email",
+      "alterar": "Change email",
+      "aguardando": "Waiting for confirmation in both emails (current and new) for:",
+      "enviado": "Request sent. Confirm using the links sent to both emails.",
+      "retorno": {
+        "confirmado": "Email changed successfully.",
+        "pendente": "First link confirmed. The other email still needs to be confirmed.",
+        "erro": "We could not confirm the email. The link may have expired or already been used; check your current email below or request the change again."
+      }
+    },
+    "seguranca": {
+      "titulo": "Security",
+      "nova": "New password",
+      "confirmar": "Confirm new password",
+      "mostrar": "Show passwords",
+      "ocultar": "Hide passwords",
+      "salvar": "Change password",
+      "alterada": "Password changed"
+    },
+    "estado": {
+      "salvando": "Saving…",
+      "salvo": "Saved",
+      "erro": "Error while saving"
+    },
+    "erros": {
+      "revise": "Please review the highlighted fields.",
+      "sessao": "Your session has expired. Please sign in again.",
+      "invalido": "Invalid value.",
+      "longo": "Text is too long.",
+      "telefone": "Enter a valid area code and number.",
+      "ieObrigatoria": "Enter the state registration number or choose Exempt.",
+      "salvar": "Could not save. Please try again.",
+      "cep": "Invalid postal code.",
+      "obrigatorio": "Required field.",
+      "uf": "Choose a state.",
+      "email": "Invalid email.",
+      "emailIgual": "This is already your current email.",
+      "emailEmUso": "This email is already in use.",
+      "limite": "Too many requests. Wait a moment and try again.",
+      "indisponivel": "Feature unavailable.",
+      "senhaCurta": "Password must be at least 8 characters.",
+      "senhaDiferente": "Passwords do not match.",
+      "senhaIgual": "Choose a password different from the current one.",
+      "senhaFraca": "Weak password. Choose another one."
+    }
+  },
   "privacy": {
     "title": "Nex Controls Privacy Policy",
     "lastUpdate": "Last updated: 09/09/2025.",

@@ -92,6 +92,90 @@
     "mostrarSenha": "Mostrar",
     "ocultarSenha": "Ocultar"
   },
+  "conta": {
+    "nav": {
+      "aria": "Mi cuenta",
+      "meusDados": "Mis datos",
+      "endereco": "Dirección",
+      "seguranca": "Seguridad"
+    },
+    "dados": {
+      "titulo": "Mis datos",
+      "documento": "CPF/CNPJ",
+      "nome": "Nombre o razón social",
+      "nomeFantasia": "Nombre comercial",
+      "responsavel": "Nombre del responsable",
+      "telefone": "Teléfono",
+      "whatsapp": "WhatsApp",
+      "indicadorIe": "Indicador de inscripción estatal",
+      "contribuinte": "Contribuyente",
+      "isento": "Exento",
+      "naoContribuinte": "No contribuyente",
+      "inscricaoEstadual": "Inscripción estatal",
+      "salvar": "Guardar"
+    },
+    "endereco": {
+      "titulo": "Dirección",
+      "cep": "Código postal (CEP)",
+      "logradouro": "Calle",
+      "numero": "Número",
+      "complemento": "Complemento",
+      "bairro": "Barrio",
+      "cidade": "Ciudad",
+      "uf": "Estado",
+      "salvar": "Guardar",
+      "buscando": "Buscando código postal…",
+      "naoEncontrado": "No encontramos el CEP, complete manualmente."
+    },
+    "email": {
+      "titulo": "Correo de acceso",
+      "atual": "Correo actual",
+      "novo": "Nuevo correo",
+      "alterar": "Cambiar correo",
+      "aguardando": "Esperando confirmación en los dos correos (el actual y el nuevo) para:",
+      "enviado": "Solicitud enviada. Confirme con los enlaces enviados a ambos correos.",
+      "retorno": {
+        "confirmado": "Correo cambiado con éxito.",
+        "pendente": "Primer enlace confirmado. Falta confirmar en el otro correo.",
+        "erro": "No fue posible confirmar el correo. El enlace puede haber expirado o ya haberse usado; revise su correo actual abajo o solicite el cambio de nuevo."
+      }
+    },
+    "seguranca": {
+      "titulo": "Seguridad",
+      "nova": "Nueva contraseña",
+      "confirmar": "Confirmar nueva contraseña",
+      "mostrar": "Mostrar contraseñas",
+      "ocultar": "Ocultar contraseñas",
+      "salvar": "Cambiar contraseña",
+      "alterada": "Contraseña cambiada"
+    },
+    "estado": {
+      "salvando": "Guardando…",
+      "salvo": "Guardado",
+      "erro": "Error al guardar"
+    },
+    "erros": {
+      "revise": "Revise los campos destacados.",
+      "sessao": "Su sesión expiró. Ingrese de nuevo.",
+      "invalido": "Valor no válido.",
+      "longo": "Texto demasiado largo.",
+      "telefone": "Ingrese un código de área y número válidos.",
+      "ieObrigatoria": "Ingrese la inscripción estatal o elija Exento.",
+      "salvar": "No fue posible guardar. Intente de nuevo.",
+      "cep": "CEP no válido.",
+      "obrigatorio": "Campo obligatorio.",
+      "uf": "Elija un estado.",
+      "email": "Correo no válido.",
+      "emailIgual": "Este ya es su correo actual.",
+      "emailEmUso": "Este correo ya está en uso.",
+      "limite": "Demasiadas solicitudes. Espere un momento e intente de nuevo.",
+      "indisponivel": "Recurso no disponible.",
+      "senhaCurta": "La contraseña debe tener al menos 8 caracteres.",
+      "senhaDiferente": "Las contraseñas no coinciden.",
+      "senhaIgual": "Elija una contraseña distinta de la actual.",
+      "senhaFraca": "Contraseña débil. Elija otra."
+    }
+  },
   "privacy": {
     "title": "Política de Privacidad Nex Controls",
     "lastUpdate": "Última actualización: 09/09/2025.",

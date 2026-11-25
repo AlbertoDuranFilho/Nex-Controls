@@ -110,7 +110,9 @@ Workflows em `.github/workflows/`:
 3. Em **Settings → Environments**, crie o environment `production` e marque
    **Required reviewers**. É isso que exige aprovação manual antes de aplicar
    migrations em produção.
-4. Abra um PR de teste e confirme o `ci` verde. Depois rode `keepalive` e
+4. Recomendado: ative branch protection em `main` exigindo o check `ci` antes do merge,
+   pois o `deploy-db` roda no push em `main` sem esperar o `ci`.
+5. Abra um PR de teste e confirme o `ci` verde. Depois rode `keepalive` e
    `backup` manualmente (**Actions → Run workflow**).
 
 ### Restaurar um backup
@@ -119,10 +121,17 @@ Baixe o artefato `backup-producao` (arquivos `.sql.gpg`) e, em uma máquina segu
 
 ```bash
 gpg --decrypt dump-AAAAMMDD.sql.gpg > dump.sql          # pede a BACKUP_PASSPHRASE
+gpg --decrypt dump-auth-AAAAMMDD.sql.gpg > dump-auth.sql
 gpg --decrypt dump-data-AAAAMMDD.sql.gpg > dump-data.sql
+# Ordem: schema, depois dados de auth (auth.users), depois dados de public
 psql "$DB_URL_DESTINO" -f dump.sql
+psql "$DB_URL_DESTINO" -f dump-auth.sql
 psql "$DB_URL_DESTINO" -f dump-data.sql
 ```
+
+O dump padr�o n�o inclui `auth.users`; por isso h� um arquivo separado `dump-auth`
+(`profiles` e `lojistas` dependem dele). Em um projeto Supabase novo, o schema `auth`
+j� existe; se houver conflito de linhas, restaure em um banco vazio.
 
 Apague os `.sql` em claro depois: contêm dados pessoais (LGPD).
 

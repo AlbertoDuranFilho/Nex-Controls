@@ -26,13 +26,15 @@ jobs:
         run: |
           set -euo pipefail
           npx supabase db dump --db-url "$PROD_DB_URL" -f dump.sql
-          npx supabase db dump --db-url "$PROD_DB_URL" --data-only -f dump-data.sql
+          npx supabase db dump --db-url "$PROD_DB_URL" --data-only -x auth.audit_log_entries,auth.flow_state -f dump-data.sql
+          # O dump padrao exclui schemas gerenciados: auth.users (identidade dos clientes) fica de fora.
+          npx supabase db dump --db-url "$PROD_DB_URL" --data-only --use-copy --schema auth -f dump-auth.sql
 
       - name: Criptografar e remover texto claro
         run: |
           set -euo pipefail
           stamp=$(date -u +%Y%m%d)
-          for f in dump dump-data; do
+          for f in dump dump-data dump-auth; do
             printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
               --symmetric --cipher-algo AES256 --passphrase-fd 0 \
               -o "$f-$stamp.sql.gpg" "$f.sql"

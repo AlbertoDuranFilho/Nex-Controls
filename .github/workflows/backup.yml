@@ -26,9 +26,10 @@ jobs:
         run: |
           set -euo pipefail
           npx supabase db dump --db-url "$PROD_DB_URL" -f dump.sql
-          npx supabase db dump --db-url "$PROD_DB_URL" --data-only -x auth.audit_log_entries,auth.flow_state -f dump-data.sql
+          npx supabase db dump --db-url "$PROD_DB_URL" --data-only -f dump-data.sql
           # O dump padrao exclui schemas gerenciados: auth.users (identidade dos clientes) fica de fora.
-          npx supabase db dump --db-url "$PROD_DB_URL" --data-only --use-copy --schema auth -f dump-auth.sql
+          # Sem audit_log_entries (IPs e e-mails, inclusive de anonimizados) nem flow_state (transitorio).
+          npx supabase db dump --db-url "$PROD_DB_URL" --data-only --use-copy --schema auth -x auth.audit_log_entries,auth.flow_state -f dump-auth.sql
 
       - name: Criptografar e remover texto claro
         run: |

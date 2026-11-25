@@ -37,8 +37,8 @@ create table public.lojistas (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   check ((documento is null and anonimizado_em is not null)
-      or (tipo_pessoa = 'PF' and documento is not null and length(documento) = 11)
-      or (tipo_pessoa = 'PJ' and documento is not null and length(documento) = 14))
+      or (tipo_pessoa = 'PF' and documento is not null and documento ~ '^\d{11}$')
+      or (tipo_pessoa = 'PJ' and documento is not null and documento ~ '^\d{14}$'))
 );
 
 -- Registro de acessos (Marco Civil, art. 15 — guardar 6 meses)
@@ -125,8 +125,9 @@ create policy acessos_log_select_admin on public.acessos_log
   using (public.is_admin());
 
 -- ===== Grants =====
-revoke insert, update, delete on public.profiles from anon, authenticated;
-revoke insert, update, delete on public.lojistas from anon, authenticated;
+-- revoke all tira também TRUNCATE (ignora RLS), TRIGGER e REFERENCES; anon fica sem nada.
+revoke all on public.profiles, public.lojistas from anon, authenticated;
+grant select on public.profiles, public.lojistas to authenticated;
 grant update (nome_fantasia, inscricao_estadual, indicador_ie, responsavel_nome, telefone, whatsapp,
   cep, logradouro, numero, complemento, bairro, cidade, uf) on public.lojistas to authenticated;
 -- acessos_log: escrita só service role; leitura só admin (policy acima)

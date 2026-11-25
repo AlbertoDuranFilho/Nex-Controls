@@ -1,15 +1,25 @@
 begin;
 \ir _helpers.psql
-select plan(21);
+select plan(28);
 
 select has_table('public', 'lojistas', 'tabela lojistas existe');
 select has_table('public', 'profiles', 'tabela profiles existe');
 select has_table('public', 'acessos_log', 'tabela acessos_log existe');
 
+-- privilégios de tabela (TRUNCATE ignora RLS; TRIGGER/REFERENCES não devem existir)
+select ok(not has_table_privilege('anon', 'public.lojistas', 'TRUNCATE, TRIGGER, REFERENCES'), 'anon sem TRUNCATE/TRIGGER/REFERENCES em lojistas');
+select ok(not has_table_privilege('authenticated', 'public.lojistas', 'TRUNCATE, TRIGGER, REFERENCES'), 'authenticated sem TRUNCATE/TRIGGER/REFERENCES em lojistas');
+select ok(not has_table_privilege('anon', 'public.profiles', 'TRUNCATE, TRIGGER, REFERENCES'), 'anon sem TRUNCATE/TRIGGER/REFERENCES em profiles');
+select ok(not has_table_privilege('authenticated', 'public.profiles', 'TRUNCATE, TRIGGER, REFERENCES'), 'authenticated sem TRUNCATE/TRIGGER/REFERENCES em profiles');
+
+-- cenário de log (como superusuário)
+insert into acessos_log (user_id, ip, user_agent) values (tests.id('l1'), '127.0.0.1', 'teste');
+
 -- visitante
 select tests.anonimo();
-select is_empty($$select * from lojistas$$, 'anon não lê lojistas');
-select is_empty($$select * from profiles$$, 'anon não lê profiles');
+select throws_ok($$select * from lojistas$$, '42501', null, 'anon não lê lojistas');
+select throws_ok($$select * from profiles$$, '42501', null, 'anon não lê profiles');
+select throws_ok($$select * from acessos_log$$, '42501', null, 'anon não lê acessos_log');
 
 -- lojista L1
 select tests.autenticar_como(tests.id('l1'));
@@ -37,11 +47,15 @@ select ok(not public.is_lojista_ativo(), 'L3 desativado');
 -- admin
 select tests.autenticar_como(tests.id('a'));
 select results_eq($$select count(*)::int from lojistas$$, array[3], 'admin vê todos');
+select results_eq($$select count(*)::int from acessos_log$$, array[1], 'admin lê acessos_log');
 
 -- constraints e triggers (precisam de superusuário: auth.users)
 select tests.como_superuser();
 select throws_ok($$insert into lojistas(id, tipo_pessoa, documento, nome, email)
   values (tests.criar_usuario('z@z'), 'PF', '123', 'x', 'z@z')$$, '23514', null, 'CPF com tamanho errado');
+select throws_ok($$insert into lojistas(id, tipo_pessoa, documento, nome, email)
+  values (tests.criar_usuario('d@d'), 'PF', '123.456.789', 'x', 'd@d')$$, '23514', null,
+  'documento com pontuação (11 chars, não só dígitos) é rejeitado');
 select throws_ok($$insert into lojistas(id, tipo_pessoa, documento, nome, email)
   values (tests.criar_usuario('n@n'), 'PF', null, 'x', 'n@n')$$, '23514', null,
   'documento nulo sem anonimização é rejeitado');

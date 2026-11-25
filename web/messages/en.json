@@ -43,7 +43,6 @@
     "errorMessage": "There was a problem sending your message. Please try again.",
     "okButton": "Ok"
   },
-  
   "product": {
     "compatibility": "Compatibility",
     "requestQuote": "Request Quote",
@@ -59,7 +58,6 @@
       "applications": "Applied products list"
     }
   },
-  
   "banners": {
     "app": {
       "title": "Technology",
@@ -73,7 +71,6 @@
       "description": "Nex Controls operates with social responsibility by minimizing impacts on society and the environment. Committed to sustainability, our factory uses solar panels."
     }
   },
-
   "infoBanner": {
     "appTitle": "Application",
     "appSubtitle": "Download our App",
@@ -84,20 +81,16 @@
     "secureTitle": "Secure Site",
     "secureSubtitle": "Your data is protected"
   },
-
   "login": {
     "title": "Client Area",
     "email": "Email",
     "password": "Password",
-    "submit": "Login",
-    "forgotPassword": "Forgot your password?",
-    "recover": "Recover",
+    "submit": "Sign in",
     "back": "Back",
-    "loginErrorTitle": "Login Error",
-    "loginErrorMessage": "Incorrect email or password. Please try again.",
-    "okButton": "Ok"
+    "erroCredenciais": "Invalid email or password.",
+    "mostrarSenha": "Show",
+    "ocultarSenha": "Hide"
   },
- 
   "privacy": {
     "title": "Nex Controls Privacy Policy",
     "lastUpdate": "Last updated: 09/09/2025.",
@@ -149,11 +142,16 @@
     "section8Para2": "If significant changes occur, Nex Controls will inform users through appropriate means — such as platform notifications, emails, or other official communication channels — ensuring transparency during the update process.",
     "section8Para3": "The most recent version of the Policy will always be available on this page, with a clear indication of the effective date. We recommend checking this document periodically to stay informed about how your personal data is handled."
   },
-
-
   "footer": {
     "rights": "All rights reserved",
     "tagline": "Specialists in electronic boards and equipment",
     "privacyLink": "Privacy Policy"
+  },
+  "menuUsuario": {
+    "entrar": "Sign in",
+    "ola": "Hello, {nome}",
+    "minhaConta": "My account",
+    "admin": "Admin",
+    "sair": "Sign out"
   }
 }

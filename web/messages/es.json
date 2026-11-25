@@ -43,7 +43,6 @@
     "errorMessage": "Hubo un problema al enviar su mensaje. Inténtelo de nuevo.",
     "okButton": "Aceptar"
   },
-
   "product": {
     "compatibility": "Compatibilidad",
     "requestQuote": "Solicitar Cotización",
@@ -59,7 +58,6 @@
       "applications": "Lista de productos aplicados"
     }
   },
-
   "banners": {
     "app": {
       "title": "Tecnología",
@@ -73,7 +71,6 @@
       "description": "Nex Controls actúa con responsabilidad social minimizando los impactos en la sociedad y el medio ambiente. Comprometidos con la sostenibilidad, nuestra fábrica utiliza paneles solares."
     }
   },
-
   "infoBanner": {
     "appTitle": "Aplicación",
     "appSubtitle": "Descarga nuestra App",
@@ -84,20 +81,16 @@
     "secureTitle": "Sitio seguro",
     "secureSubtitle": "Tus datos están protegidos"
   },
-
   "login": {
     "title": "Área del Cliente",
     "email": "Email",
     "password": "Contraseña",
     "submit": "Entrar",
-    "forgotPassword": "¿Olvidó su contraseña?",
-    "recover": "Recuperar",
     "back": "Volver",
-    "loginErrorTitle": "Error de inicio de sesión",
-    "loginErrorMessage": "Correo electrónico o contraseña incorrectos. Inténtalo de nuevo.",
-    "okButton": "Ok"
+    "erroCredenciais": "Correo o contraseña no válidos.",
+    "mostrarSenha": "Mostrar",
+    "ocultarSenha": "Ocultar"
   },
-
   "privacy": {
     "title": "Política de Privacidad Nex Controls",
     "lastUpdate": "Última actualización: 09/09/2025.",
@@ -149,11 +142,16 @@
     "section8Para2": "En caso de cambios relevantes, Nex Controls comunicará a los usuarios a través de medios apropiados —como notificaciones en la plataforma, envío de correos electrónicos u otros canales oficiales de comunicación—, garantizando la transparencia en el proceso de actualización.",
     "section8Para3": "La versión más reciente de la Política estará siempre disponible en esta página, con indicación clara de la fecha de vigencia. Recomendamos consultar este documento periódicamente para mantenerse informado sobre cómo se tratan sus datos personales."
   },
-
-
   "footer": {
     "rights": "Todos los derechos reservados",
     "tagline": "Especialistas en placas y equipos electrónicos",
     "privacyLink": "Política de Privacidad"
+  },
+  "menuUsuario": {
+    "entrar": "Entrar",
+    "ola": "Hola, {nome}",
+    "minhaConta": "Mi cuenta",
+    "admin": "Admin",
+    "sair": "Salir"
   }
 }

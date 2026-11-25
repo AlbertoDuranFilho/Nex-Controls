@@ -46,7 +46,7 @@
     "compatibility": "Compatibilidade",
     "requestQuote": "Solicitar Orçamento",
     "downloadManual": "Baixar Manual",
-    "noImage": "Sem imagem disponível",        
+    "noImage": "Sem imagem disponível",
     "noSpecs": "Este produto não possui especificações técnicas",
     "noApplications": "Este produto não possui lista de aplicações",
     "notFound": "Produto não encontrado",
@@ -57,7 +57,6 @@
       "applications": "Lista de produtos aplicados"
     }
   },
-  
   "banners": {
     "app": {
       "title": "Tecnologia",
@@ -71,7 +70,6 @@
       "description": "A Nex Controls atua com responsabilidade social minimizando impactos na sociedade e no meio ambiente. Comprometidos com a sustentabilidade, nossa fábrica utiliza painéis de energia solar."
     }
   },
-
   "infoBanner": {
     "appTitle": "Aplicativo",
     "appSubtitle": "Baixe nosso App",
@@ -82,20 +80,16 @@
     "secureTitle": "Site seguro",
     "secureSubtitle": "Seus dados protegidos"
   },
-
   "login": {
     "title": "Área do Cliente",
     "email": "Email",
     "password": "Senha",
     "submit": "Entrar",
-    "forgotPassword": "Esqueceu sua senha?",
-    "recover": "Recuperar",
     "back": "Voltar",
-    "loginErrorTitle": "Erro no Login",
-    "loginErrorMessage": "Email ou senha incorretos. Tente novamente.",
-    "okButton": "Ok"
+    "erroCredenciais": "E-mail ou senha inválidos.",
+    "mostrarSenha": "Mostrar",
+    "ocultarSenha": "Ocultar"
   },
-  
   "privacy": {
     "title": "Política de Privacidade Nex Controls",
     "lastUpdate": "Última atualização: 09/09/2025.",
@@ -147,10 +141,16 @@
     "section8Para2": "Em caso de alterações relevantes, a Nex Controls comunicará os usuários por meio apropriado — como notificações na própria plataforma, envio de e-mail ou outros canais oficiais de comunicação —, garantindo a transparência no processo de atualização.",
     "section8Para3": "A versão mais recente da Política estará sempre disponível nesta página, com indicação clara da data de vigência. Recomendamos que você consulte este documento periodicamente para se manter informado sobre como seus dados pessoais estão sendo tratados."
   },
-
   "footer": {
     "rights": "Todos os direitos reservados",
     "tagline": "Especialistas em placas e equipamentos eletrônicos",
     "privacyLink": "Política de Privacidade"
+  },
+  "menuUsuario": {
+    "entrar": "Entrar",
+    "ola": "Olá, {nome}",
+    "minhaConta": "Minha conta",
+    "admin": "Admin",
+    "sair": "Sair"
   }
 }

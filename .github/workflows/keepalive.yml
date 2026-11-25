@@ -1,0 +1,26 @@
+name: keepalive
+
+on:
+  schedule:
+    - cron: "0 12 */3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      STAGING_URL: ${{ secrets.STAGING_URL }}
+      STAGING_ANON_KEY: ${{ secrets.STAGING_ANON_KEY }}
+      PROD_URL: ${{ secrets.PROD_URL }}
+      PROD_ANON_KEY: ${{ secrets.PROD_ANON_KEY }}
+    steps:
+      # anon pode ler produtos ativos, entao funciona mesmo com a tabela vazia.
+      - name: Staging
+        run: |
+          curl -fsS -o /dev/null "$STAGING_URL/rest/v1/produtos?select=id&limit=1" -H "apikey: $STAGING_ANON_KEY"
+      - name: Producao
+        run: |
+          curl -fsS -o /dev/null "$PROD_URL/rest/v1/produtos?select=id&limit=1" -H "apikey: $PROD_ANON_KEY"

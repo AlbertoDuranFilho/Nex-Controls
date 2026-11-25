@@ -87,6 +87,45 @@ Ajustes importantes:
 O plano gratuito pausa o projeto após 7 dias sem atividade. Um workflow
 agendado no GitHub Actions fará uma consulta periódica para evitar a pausa.
 
+## CI e automações (GitHub Actions)
+
+Workflows em `.github/workflows/`:
+
+| Arquivo | Quando roda | O que faz |
+|---|---|---|
+| `ci.yml` | PR e push em `main` | Sobe o Supabase local, pgTAP, Vitest, Playwright e `check:secrets` |
+| `deploy-db.yml` | push em `main` com mudanças em `supabase/**` | `supabase db push` em staging e, após aprovação, em produção |
+| `keepalive.yml` | a cada 3 dias (`0 12 */3 * *`) e manual | Consulta leve nos dois projetos para evitar a pausa do plano gratuito |
+| `backup.yml` | domingos 06:00 UTC e manual | Dump da produção (schema e dados), criptografado com gpg, artefato por 90 dias |
+
+### Configuração (uma vez)
+
+1. Crie os projetos de staging e produção (ver seção anterior).
+2. Em **Settings → Secrets and variables → Actions**, cadastre os secrets:
+   `SUPABASE_ACCESS_TOKEN`, `STAGING_PROJECT_REF`, `STAGING_DB_PASSWORD`,
+   `PROD_PROJECT_REF`, `PROD_DB_PASSWORD`, `STAGING_URL`, `STAGING_ANON_KEY`,
+   `PROD_URL`, `PROD_ANON_KEY`, `PROD_DB_URL` (string de conexão do Postgres de
+   produção, de preferência o pooler) e `BACKUP_PASSPHRASE` (senha longa; guarde
+   também em um gerenciador de senhas: sem ela os backups não abrem).
+3. Em **Settings → Environments**, crie o environment `production` e marque
+   **Required reviewers**. É isso que exige aprovação manual antes de aplicar
+   migrations em produção.
+4. Abra um PR de teste e confirme o `ci` verde. Depois rode `keepalive` e
+   `backup` manualmente (**Actions → Run workflow**).
+
+### Restaurar um backup
+
+Baixe o artefato `backup-producao` (arquivos `.sql.gpg`) e, em uma máquina segura:
+
+```bash
+gpg --decrypt dump-AAAAMMDD.sql.gpg > dump.sql          # pede a BACKUP_PASSPHRASE
+gpg --decrypt dump-data-AAAAMMDD.sql.gpg > dump-data.sql
+psql "$DB_URL_DESTINO" -f dump.sql
+psql "$DB_URL_DESTINO" -f dump-data.sql
+```
+
+Apague os `.sql` em claro depois: contêm dados pessoais (LGPD).
+
 ## Primeiro admin
 
 1. No painel do Supabase (Auth → Users), crie o usuário (e-mail e senha).

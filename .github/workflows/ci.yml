@@ -1,0 +1,83 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+
+      - name: Instalar dependencias (raiz e web)
+        run: |
+          npm ci
+          npm ci --prefix web
+
+      - name: Subir Supabase local
+        run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor
+
+      - name: Testes de banco (pgTAP)
+        run: npx supabase test db
+
+      - name: Gerar web/.env.local a partir do Supabase local
+        run: |
+          set -euo pipefail
+          npx supabase status -o env > "$RUNNER_TEMP/supabase.env"
+          # Extrai o valor de uma chave KEY="valor" sem expor nada no log.
+          get() { grep "^$1=" "$RUNNER_TEMP/supabase.env" | head -n1 | cut -d= -f2- | sed 's/^"//;s/"$//'; }
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(get API_URL)"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(get ANON_KEY)"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$(get SERVICE_ROLE_KEY)"
+            echo "FEATURE_TROCA_SENHA=false"
+          } > web/.env.local
+          rm "$RUNNER_TEMP/supabase.env"
+          # Falha cedo se algum valor ficou vazio (sem imprimir valores).
+          for v in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY; do
+            grep -q "^$v=.\+" web/.env.local || { echo "variavel $v vazia"; exit 1; }
+          done
+
+      - name: Testes unitarios (Vitest)
+        run: npm test
+        working-directory: web
+
+      - name: Instalar Chromium (Playwright)
+        run: npx playwright install --with-deps chromium
+        working-directory: web
+
+      # O webServer do Playwright roda o build de producao (.next), reaproveitado abaixo.
+      - name: E2E (Playwright)
+        run: npm run e2e
+        working-directory: web
+        env:
+          CI: "true"
+
+      - name: Scan de segredos no build
+        run: npm run check:secrets
+        working-directory: web
+
+      - name: Enviar resultados do Playwright (falha)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            web/test-results/
+            web/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

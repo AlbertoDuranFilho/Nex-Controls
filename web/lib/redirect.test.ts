@@ -1,0 +1,22 @@
+import { describe, expect, it } from "vitest";
+import { destinoSeguro } from "@/lib/redirect";
+
+describe("destinoSeguro", () => {
+  it("aceita caminho interno do mesmo locale", () => {
+    expect(destinoSeguro("/pt/cliente/endereco", "pt")).toBe("/pt/cliente/endereco");
+  });
+
+  it.each([
+    "//evil.com",
+    "https://evil.com",
+    "/\\evil.com",
+    "/pt//evil.com",
+    "/en/cliente",
+    "javascript:alert(1)",
+    null,
+    undefined,
+    "",
+  ])("cai no padrão para entrada %j", (mal) => {
+    expect(destinoSeguro(mal, "pt")).toBe("/pt/cliente");
+  });
+});

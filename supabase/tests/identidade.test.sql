@@ -49,8 +49,10 @@ select ok(not public.is_lojista_ativo(), 'L3 desativado');
 
 -- admin
 select tests.autenticar_como(tests.id('a'));
-select results_eq($$select count(*)::int from lojistas$$, array[3], 'admin vê todos');
-select results_eq($$select count(*)::int from acessos_log$$, array[1], 'admin lê acessos_log');
+select results_eq($$select count(*)::int from lojistas where id in (tests.id('l1'), tests.id('l2'), tests.id('l3'))$$,
+  array[3], 'admin vê todos');
+select results_eq($$select count(*)::int from acessos_log where user_id in (tests.id('l1'), tests.id('l2'), tests.id('l3'))$$,
+  array[1], 'admin lê acessos_log');
 
 -- constraints e triggers (precisam de superusuário: auth.users)
 select tests.como_superuser();

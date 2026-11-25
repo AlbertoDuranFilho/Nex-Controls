@@ -19,7 +19,7 @@ insert into pedidos (lojista_id, cliente_tipo_pessoa, cliente_documento, cliente
 select l, 'PF', '11111111111', 'x', 'nao_contribuinte', '1', 'x', '1', 'x', 'x', 'PE', 1, 1
 from unnest(array[tests.id('l1'), tests.id('l2')]) l;
 insert into pedido_itens (pedido_id, produto_id, produto_nome, produto_codigo, quantidade, preco_tabela, preco_unitario)
-select id, :'p', 'Produto P', 'P1', 1, 100, 100 from pedidos;
+select id, :'p', 'Produto P', 'P1', 1, 100, 100 from pedidos where lojista_id in (tests.id('l1'), tests.id('l2'));
 select set_config('tests.p', :'p', true), set_config('tests.q', :'q', true), set_config('tests.c', :'c', true);
 
 -- ===== estrutura e privilégios =====
@@ -49,9 +49,11 @@ select ok(not exists (select 1 from unnest(array['anon','authenticated']) r, unn
 
 -- ===== visitante =====
 select tests.anonimo();
-select results_eq($$select id from produtos$$, array[tests.id('p')], 'anon vê só produtos ativos');
-select results_eq($$select produto_id from produto_imagens$$, array[tests.id('p')], 'anon vê só imagens de ativos');
-select results_eq($$select produto_id from produto_especificacoes$$, array[tests.id('p')], 'anon vê só specs de ativos');
+select results_eq($$select id from produtos where id in (tests.id('p'), tests.id('q'))$$, array[tests.id('p')], 'anon vê só produtos ativos');
+select results_eq($$select produto_id from produto_imagens where produto_id in (tests.id('p'), tests.id('q'))$$, array[tests.id('p')],
+  'anon vê só imagens de ativos');
+select results_eq($$select produto_id from produto_especificacoes where produto_id in (tests.id('p'), tests.id('q'))$$, array[tests.id('p')],
+  'anon vê só specs de ativos');
 select throws_ok($$select * from produto_precos$$, '42501', null, 'anon não lê preço');
 select throws_ok($$select * from cupons$$, '42501', null, 'anon não lê cupons');
 select throws_ok($$select * from pedidos$$, '42501', null, 'anon não lê pedidos');
@@ -60,7 +62,7 @@ select throws_ok($$select * from pedidos$$, '42501', null, 'anon não lê pedido
 select tests.autenticar_como(tests.id('l1'));
 select results_eq($$select preco from produto_precos where produto_id = tests.id('p')$$, array[100.00::numeric],
   'lojista ativo vê preço');
-select results_eq($$select id from produtos$$, array[tests.id('p')], 'lojista vê só produtos ativos');
+select results_eq($$select id from produtos where id in (tests.id('p'), tests.id('q'))$$, array[tests.id('p')], 'lojista vê só produtos ativos');
 select is_empty($$select * from cupons$$, 'lojista não lista cupons');
 select results_eq($$select desconto_percentual from lojista_descontos_produto$$, array[5.00::numeric],
   'lojista vê só o próprio desconto');
@@ -97,9 +99,11 @@ select throws_ok($$insert into carrinho_itens (lojista_id, produto_id, quantidad
 -- ===== admin =====
 select tests.autenticar_como(tests.id('a'));
 select lives_ok($$insert into produtos(nome, codigo) values ('Novo', 'N1')$$, 'admin cria produto');
-select results_eq($$select count(*)::int from produtos$$, array[3], 'admin vê produtos inativos também');
-select results_eq($$select count(*)::int from pedidos$$, array[2], 'admin lê todos os pedidos');
-select results_eq($$select count(*)::int from cupons$$, array[1], 'admin lê cupons');
+select results_eq($$select count(*)::int from produtos where id in (tests.id('p'), tests.id('q')) or codigo = 'N1'$$, array[3],
+  'admin vê produtos inativos também');
+select results_eq($$select count(*)::int from pedidos where lojista_id in (tests.id('l1'), tests.id('l2'))$$, array[2],
+  'admin lê todos os pedidos');
+select results_eq($$select count(*)::int from cupons where id = tests.id('c')$$, array[1], 'admin lê cupons');
 
 -- ===== cron (superusuário) =====
 select tests.como_superuser();

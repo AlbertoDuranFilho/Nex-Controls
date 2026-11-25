@@ -6,7 +6,7 @@ test("rodape legal identifica a empresa", async ({ page }) => {
   await page.goto("/pt");
   const rodape = page.locator("footer");
   await expect(rodape).toContainText("Nex Controls do Brasil LTDA");
-  await expect(rodape).toContainText("CNPJ: TODO_CNPJ");
+  await expect(rodape).toContainText("CNPJ: 61.697.615/0001-03 · IE: 1261377-06");
   await expect(rodape).toContainText("TODO_ENDERECO");
   await expect(rodape).toContainText(EMAIL);
 });

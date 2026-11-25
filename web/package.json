@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "e2e": "playwright test",
-    "check:secrets": "node scripts/check-secrets.mjs"
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "prebuild": "node scripts/verificar-producao.mjs"
   },
   "dependencies": {
     "@strapi/blocks-react-renderer": "^1.0.2",

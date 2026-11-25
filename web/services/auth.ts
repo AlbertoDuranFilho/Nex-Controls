@@ -9,13 +9,6 @@ import { destinoSeguro } from "@/lib/redirect";
 
 export type EstadoLogin = { erro: string | null };
 
-export type UsuarioAtual = {
-  id: string;
-  email: string;
-  papel: "admin" | "lojista";
-  nome: string;
-};
-
 const LOCALES = ["pt", "en", "es"];
 
 function localeValido(l: FormDataEntryValue | null): string {
@@ -62,19 +55,4 @@ export async function sair(locale: string): Promise<never> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect(`/${localeValido(locale)}`);
-}
-
-export async function getUsuarioAtual(): Promise<UsuarioAtual | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-  const meta = user.app_metadata ?? {};
-  return {
-    id: user.id,
-    email: user.email ?? "",
-    papel: meta.papel === "admin" ? "admin" : "lojista",
-    nome: typeof meta.nome === "string" ? meta.nome : "",
-  };
 }

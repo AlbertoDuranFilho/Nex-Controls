@@ -21,11 +21,13 @@ function daSessao(
 }
 
 // Ilha client: o layout nao le cookies. getSession() e local (sem rede).
-export default function MenuUsuario({ className = "" }: { className?: string }) {
+// `onNavegar` avisa o pai (ex.: drawer mobile) quando um link e clicado.
+export default function MenuUsuario({ onNavegar }: { onNavegar?: () => void }) {
   const t = useTranslations("menuUsuario");
   const locale = useLocale();
   const pathname = usePathname();
-  const [sessao, setSessao] = useState<Sessao>(null);
+  // undefined = ainda nao sabemos (evita piscar "Entrar" para quem esta logado)
+  const [sessao, setSessao] = useState<Sessao | undefined>(undefined);
 
   useEffect(() => {
     const supabase = createClient();
@@ -43,13 +45,21 @@ export default function MenuUsuario({ className = "" }: { className?: string }) 
     };
   }, [pathname]);
 
-  const base = "flex min-h-9 min-w-44 items-center gap-3 text-sm";
+  // Caixa reservada, alinhada a direita: a troca de conteudo nao move os vizinhos.
+  const base = "flex min-h-9 min-w-72 items-center justify-end gap-3 text-sm";
+  const link =
+    "text-marca-cinza-600 underline-offset-2 hover:text-marca-preto hover:underline";
+
+  if (sessao === undefined) {
+    return <div className={base} aria-hidden="true" />;
+  }
 
   if (!sessao) {
     return (
-      <div className={`${base} justify-end ${className}`}>
+      <div className={base}>
         <Link
           href={`/${locale}/cliente/login`}
+          onClick={onNavegar}
           className="border border-marca-preto px-3 py-1.5 font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco"
         >
           {t("entrar")}
@@ -59,19 +69,17 @@ export default function MenuUsuario({ className = "" }: { className?: string }) 
   }
 
   return (
-    <div className={`${base} ${className}`}>
+    <div className={base}>
       <span className="font-medium text-marca-preto">{t("ola", { nome: sessao.nome })}</span>
       <Link
         href={sessao.admin ? `/${locale}/admin/lojistas` : `/${locale}/cliente`}
-        className="text-marca-cinza-600 underline-offset-2 hover:text-marca-preto hover:underline"
+        onClick={onNavegar}
+        className={link}
       >
         {sessao.admin ? t("admin") : t("minhaConta")}
       </Link>
       <form action={() => sair(locale)}>
-        <button
-          type="submit"
-          className="text-marca-cinza-600 underline-offset-2 hover:text-marca-preto hover:underline"
-        >
+        <button type="submit" className={link}>
           {t("sair")}
         </button>
       </form>

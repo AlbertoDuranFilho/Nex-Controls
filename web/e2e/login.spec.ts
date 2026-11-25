@@ -97,6 +97,22 @@ test("login grava acessos_log", async ({ page }) => {
   expect(await contarAcessos(u.id)).toBe(1);
 });
 
+test.describe("menu mobile", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("sair no menu mobile encerra a sessão", async ({ page }) => {
+    const u = await criarLojista();
+    await page.goto("/pt/cliente/login");
+    await preencherELogar(page, u);
+    await expect(page).toHaveURL("/pt/cliente");
+    await page.getByRole("button", { name: "Abrir menu" }).click();
+    await page.getByRole("button", { name: "Sair" }).click();
+    await expect(page).toHaveURL("/pt");
+    await page.goto("/pt/cliente");
+    await expect(page).toHaveURL(/\/pt\/cliente\/login/);
+  });
+});
+
 test("token expirado com refresh válido renova a sessão no middleware", async ({
   page,
   context,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -37,7 +37,12 @@ export default function Navbar() {
     }, 300); // tempo igual da animação (0.3s)
   }
 
-  const handleChange = (lang: string) => {
+  // Fecha o drawer ao navegar (inclui o redirect do Sair, feito por Server Action).
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  const handleChange =(lang: string) => {
     const segments = pathname.split("/");
     segments[1] = lang;
     router.push(segments.join("/") || "/");
@@ -102,6 +107,7 @@ export default function Navbar() {
       {/* Botão Hamburguer Mobile */}
         <button
           onClick={() => setMenuOpen(true)}
+          aria-label={t("abrirMenu")}
           className="md:hidden p-2 rounded focus:outline-none"
         >
           <svg
@@ -169,8 +175,8 @@ export default function Navbar() {
             </div>
 
             {/* Área do Cliente */}
-            <div onClick={() => setMenuOpen(false)} className="mt-4">
-              <MenuUsuario />
+            <div className="mt-4">
+              <MenuUsuario onNavegar={() => setMenuOpen(false)} />
             </div>
           </div>
         </div>

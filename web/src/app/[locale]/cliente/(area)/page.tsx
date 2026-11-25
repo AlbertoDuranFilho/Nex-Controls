@@ -1,5 +1,5 @@
 // Placeholder: a Task 7 substitui esta pagina pela area do cliente real.
-import { getUsuarioAtual } from "@/services/auth";
+import { getUsuarioAtual } from "@/lib/auth/usuario-atual";
 
 export default async function AreaClientePage() {
   const usuario = await getUsuarioAtual();

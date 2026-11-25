@@ -1,6 +1,6 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
-import { admin, criarAdmin, criarLojista, limparUsuarios } from "./fixtures";
+import { admin, criarAdmin, criarLojista, limparUsuarios, sql } from "./fixtures";
 
 const CNPJ = "11.222.333/0001-81";
 const CNPJ_DIGITOS = "11222333000181";
@@ -168,6 +168,12 @@ test("anonimizar: login falha, CPF fica livre para novo cadastro", async ({ page
   await expect(page).toHaveURL(/\/pt\/admin\/lojistas\/[0-9a-f-]{36}$/);
   const id = page.url().split("/").pop()!;
 
+  // O lojista entra antes: precisa existir uma sessão viva para provar a revogação.
+  const viva = await tentarLogin(browser, { email, senha });
+  await expect(viva.p).toHaveURL("/pt/cliente");
+  const sessoesAntes = await sql("select 1 from auth.sessions where user_id = $1", [id]);
+  expect(sessoesAntes.length).toBeGreaterThan(0);
+
   const botao = page.getByRole("button", { name: "Anonimizar", exact: true });
   await expect(botao).toBeDisabled();
   await page.getByLabel("Digite o CPF/CNPJ para confirmar").fill("00.000.000/0000-00");
@@ -185,6 +191,45 @@ test("anonimizar: login falha, CPF fica livre para novo cadastro", async ({ page
     email: `anonimizado-${id}@invalid`,
   });
   expect(data!.anonimizado_em).not.toBeNull();
+  const pessoais = [
+    "documento",
+    "nome_fantasia",
+    "inscricao_estadual",
+    "responsavel_nome",
+    "telefone",
+    "whatsapp",
+    "cep",
+    "logradouro",
+    "numero",
+    "complemento",
+    "bairro",
+    "cidade",
+    "uf",
+  ] as const;
+  for (const col of pessoais) {
+    expect(data![col], col).toBeNull();
+  }
+
+  // Schema auth: banido, sem o e-mail antigo em lugar nenhum, sem sessões.
+  const [usuario] = await sql<{ banned_until: Date | null; linha: string }>(
+    "select banned_until, u::text as linha from auth.users u where id = $1",
+    [id],
+  );
+  expect(usuario.banned_until).not.toBeNull();
+  expect(usuario.banned_until!.getTime()).toBeGreaterThan(Date.now());
+  expect(usuario.linha).not.toContain(email);
+  const identidades = await sql<{ linha: string }>(
+    "select i::text as linha from auth.identities i where user_id = $1",
+    [id],
+  );
+  for (const i of identidades) expect(i.linha).not.toContain(email);
+  expect(await sql("select 1 from auth.sessions where user_id = $1", [id])).toHaveLength(0);
+  expect(await sql("select 1 from auth.audit_log_entries where payload::text like $1", [`%${email}%`])).toHaveLength(0);
+
+  // A sessão que estava aberta foi revogada: recarregar a área do cliente cai no login.
+  await viva.p.goto("/pt/cliente");
+  await expect(viva.p).toHaveURL(/\/pt\/cliente\/login/);
+  await viva.ctx.close();
 
   const { p, ctx } = await tentarLogin(browser, { email, senha });
   await expect(p.getByText("E-mail ou senha inválidos.")).toBeVisible();

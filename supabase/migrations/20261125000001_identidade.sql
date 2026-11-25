@@ -115,10 +115,12 @@ create policy lojistas_select on public.lojistas
   for select to authenticated
   using (id = auth.uid() or public.is_admin());
 
+-- Anonimizado não escreve: o JWT dele pode seguir válido até expirar (o ban só
+-- vale na emissão de tokens), então a checagem precisa estar na policy.
 create policy lojistas_update_proprio on public.lojistas
   for update to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
+  using (id = auth.uid() and anonimizado_em is null)
+  with check (id = auth.uid() and anonimizado_em is null);
 
 create policy acessos_log_select_admin on public.acessos_log
   for select to authenticated
@@ -135,3 +137,45 @@ revoke all on public.acessos_log from anon, authenticated;
 grant select on public.acessos_log to authenticated;
 
 revoke all on sequence public.acessos_log_id_seq from anon, authenticated;
+
+-- ===== LGPD: anonimização no schema auth =====
+-- O updateUserById (GoTrue) troca o e-mail e bane, mas deixa PII em
+-- raw_user_meta_data, identities.identity_data, tokens pendentes, sessões e
+-- audit_log_entries. Esta função limpa o resto. Chamada só pela service role
+-- (Server Action anonimizarLojista), depois do updateUserById.
+-- Tokens/e-mail pendente viram '' (o GoTrue lê essas colunas como string e
+-- quebra com NULL); phone vira NULL (default da coluna e índice único).
+create function public.anonimizar_auth(uid uuid, email_anonimo text) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  update auth.users set
+    email = email_anonimo,
+    raw_user_meta_data = '{}'::jsonb,
+    email_change = '',
+    email_change_token_new = '',
+    email_change_token_current = '',
+    confirmation_token = '',
+    recovery_token = '',
+    reauthentication_token = '',
+    phone_change_token = '',
+    phone = null,
+    phone_change = ''
+  where id = uid;
+
+  -- identities.email é coluna gerada a partir de identity_data
+  update auth.identities set
+    identity_data = pg_catalog.jsonb_build_object('sub', uid::text, 'email', email_anonimo)
+  where user_id = uid;
+
+  -- refresh_tokens caem em cascata com sessions; o delete direto cobre os antigos sem session_id
+  delete from auth.sessions where user_id = uid;
+  delete from auth.refresh_tokens where user_id = uid::text;
+  delete from auth.one_time_tokens where user_id = uid;
+  delete from auth.audit_log_entries
+  where payload->>'actor_id' = uid::text
+     or payload->'traits'->>'user_id' = uid::text;
+end;
+$$;
+
+revoke execute on function public.anonimizar_auth(uuid, text) from public, anon, authenticated;
+grant execute on function public.anonimizar_auth(uuid, text) to service_role;

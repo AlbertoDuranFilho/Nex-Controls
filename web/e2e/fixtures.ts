@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
+import { Client } from "pg";
 
 loadEnvConfig(process.cwd());
 
@@ -81,4 +82,18 @@ export async function contarAcessos(userId: string) {
   const { data, error } = await admin().from("acessos_log").select("user_id").eq("user_id", userId);
   if (error) throw error;
   return data.length;
+}
+
+// O schema auth não é exposto pelo PostgREST: consultas diretas ao Postgres local
+// (mesma URL no CI, onde o Supabase também roda local). Só para asserções de e2e.
+const DB_URL = process.env.SUPABASE_DB_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+
+export async function sql<T extends Record<string, unknown>>(texto: string, params: unknown[] = []) {
+  const c = new Client({ connectionString: DB_URL });
+  await c.connect();
+  try {
+    return (await c.query<T>(texto, params)).rows;
+  } finally {
+    await c.end();
+  }
 }

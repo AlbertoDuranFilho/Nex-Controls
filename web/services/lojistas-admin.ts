@@ -186,7 +186,7 @@ export async function atualizarLojista(id: string, form: FormData): Promise<Resu
   }
 
   // O e-mail em lojistas é espelhado do Auth por trigger.
-  const { error: eUpdate } = await db
+  const { data: atualizados, error: eUpdate } = await db
     .from("lojistas")
     .update({
       nome,
@@ -205,8 +205,12 @@ export async function atualizarLojista(id: string, form: FormData): Promise<Resu
       uf,
       desconto_percentual: desconto,
     })
-    .eq("id", id);
+    .eq("id", id)
+    // anonimizado entre a leitura e o update: não regrava dados pessoais
+    .is("anonimizado_em", null)
+    .select("id");
   if (eUpdate) return erro(MSG_GENERICA);
+  if (atualizados.length === 0) return erro("Cliente não encontrado ou já anonimizado.");
 
   revalidar();
   return ok(undefined);
@@ -266,6 +270,15 @@ export async function anonimizarLojista(id: string): Promise<ResultadoAdmin> {
     app_metadata: { nome: "Cliente anonimizado", papel: "lojista" },
   });
   if (eAuth) return erro(MSG_GENERICA);
+
+  // Limpa o resto da PII no schema auth (metadados, identities, tokens) e
+  // revoga as sessões: o ban acima só vale na emissão de novos tokens.
+  // Idempotente: repetir a anonimização refaz este passo sem efeito colateral.
+  const { error: eAuthPii } = await db.rpc("anonimizar_auth", {
+    uid: id,
+    email_anonimo: emailAnonimo,
+  });
+  if (eAuthPii) return erro("Acesso bloqueado, mas os dados não foram apagados. Tente novamente.");
 
   const { error: eUpdate } = await db
     .from("lojistas")

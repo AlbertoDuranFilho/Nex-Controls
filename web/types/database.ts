@@ -283,7 +283,10 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "is_admin":
+            "anonimizar_auth":
+{ Args: { "email_anonimo": string,"uid": string }; Returns: undefined
+                           },
+"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "is_lojista_ativo":

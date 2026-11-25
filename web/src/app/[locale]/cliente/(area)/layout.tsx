@@ -15,7 +15,10 @@ export default async function AreaClienteLayout({ children, params }: Props) {
   const usuario = await getUsuarioAtual();
   if (!usuario) redirect(`/${locale}/cliente/login`);
   if (usuario.papel === "admin") redirect(`/${locale}/admin/lojistas`);
-  if (!(await buscarMeuCadastro())) redirect(`/${locale}`);
+  const cadastro = await buscarMeuCadastro();
+  if (!cadastro) redirect(`/${locale}`);
+  // Anonimizado com JWT ainda válido (o ban só barra novos tokens): fora da área.
+  if (cadastro.anonimizado_em) redirect(`/${locale}`);
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 pt-32 pb-16 md:flex-row md:gap-10">

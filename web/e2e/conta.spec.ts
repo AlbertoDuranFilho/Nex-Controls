@@ -146,15 +146,25 @@ test("troca de e-mail pede confirmação nos dois", async ({ page }) => {
   const linkAntigo = await linkPara(u.email);
   const linkNovo = await linkPara(novo);
 
-  // Com "confirmar nos dois" ligado (produção) o primeiro link deixa a troca pendente. A stack
-  // local roda com autoconfirm, que conclui a troca no primeiro link; o segundo então expira.
-  // O resultado final tem de ser o mesmo nos dois cenários: e-mail novo ativo.
+  async function emailNoAuth() {
+    const { data, error } = await admin().auth.admin.getUserById(u.id);
+    if (error) throw error;
+    return data.user.email;
+  }
+
+  // Primeiro link: só um lado confirmado. O e-mail antigo continua valendo em todo lugar.
   await page.goto(linkAntigo);
-  await expect(page).toHaveURL(/\/pt\/cliente\?email=(pendente|confirmado)/);
+  await expect(page).toHaveURL(/\/pt\/cliente\?email=pendente$/);
+  await expect(page.getByText("Primeiro link confirmado. Falta confirmar no outro e-mail.")).toBeVisible();
+  expect(await emailNoAuth()).toBe(u.email);
+  expect((await lojistaNoBanco(u.id)).email).toBe(u.email);
+
+  // Segundo link: conclui a troca.
   await page.goto(linkNovo);
-  await expect(page).toHaveURL(/\/pt\/cliente\?email=(confirmado|erro)/);
-  await page.goto("/pt/cliente");
+  await expect(page).toHaveURL(/\/pt\/cliente\?email=confirmado$/);
+  await expect(page.getByText("E-mail alterado com sucesso.")).toBeVisible();
   await expect(page.getByText(novo, { exact: true })).toBeVisible();
+  expect(await emailNoAuth()).toBe(novo);
   expect((await lojistaNoBanco(u.id)).email).toBe(novo);
 
   await page.getByRole("button", { name: "Sair" }).click();

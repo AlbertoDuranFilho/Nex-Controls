@@ -9,6 +9,7 @@ import { flags } from "@/lib/flags";
 import { normalizarEmail } from "@/lib/admin/formulario";
 import { normalizarCep } from "@/lib/validacao/cep";
 import { validarTelefone } from "@/lib/validacao/telefone";
+import { resolverOrigem } from "@/lib/conta/origem";
 import { indicadorValido, lerCampos, localeValido, ufValida } from "@/lib/conta/campos";
 
 export type EstadoForm = {
@@ -138,16 +139,15 @@ export async function salvarEndereco(_prev: EstadoForm, form: FormData): Promise
   return { status: "ok" };
 }
 
-// Origem do site para o link do e-mail. Nunca vem do formulário.
+// Origem do site para o link do e-mail. Nunca vem do formulário; falha fechado (ver resolverOrigem).
 async function origemDoSite(): Promise<string | null> {
-  const configurada = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "");
-  if (configurada && /^https?:\/\/[^\s/]+$/i.test(configurada)) return configurada;
   const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (!host || !/^[a-z0-9.-]+(:\d{1,5})?$/i.test(host)) return null;
-  const proto = h.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  const local = /^(localhost|127\.0\.0\.1)(:|$)/i.test(host);
-  return `${proto === "http" || proto === "https" ? proto : local ? "http" : "https"}://${host}`;
+  return resolverOrigem({
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+    producao: process.env.NODE_ENV === "production",
+    host: h.get("x-forwarded-host") ?? h.get("host"),
+    proto: h.get("x-forwarded-proto"),
+  });
 }
 
 export async function alterarEmail(_prev: EstadoForm, form: FormData): Promise<EstadoForm> {
@@ -163,10 +163,14 @@ export async function alterarEmail(_prev: EstadoForm, form: FormData): Promise<E
   if (novo === usuario.email.toLowerCase()) return erroCampos(t, { email: t("emailIgual") });
 
   const origem = await origemDoSite();
+  if (!origem) {
+    console.error("alterarEmail: origem do site indisponivel; defina NEXT_PUBLIC_SITE_URL.");
+    return { status: "erro", mensagem: t("salvar") };
+  }
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser(
     { email: novo },
-    origem ? { emailRedirectTo: `${origem}/${locale}/auth/confirm` } : undefined,
+    { emailRedirectTo: `${origem}/${locale}/auth/confirm` },
   );
   if (error) {
     if (error.code === "email_exists") return erroCampos(t, { email: t("emailEmUso") });

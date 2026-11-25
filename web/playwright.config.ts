@@ -11,6 +11,8 @@ export default defineConfig({
   webServer: {
     command: "npm run build && npm run start",
     url: "http://localhost:3000/pt",
+    // O servidor de e2e roda em modo production: a origem do link de e-mail tem de ser explicita.
+    env: { NEXT_PUBLIC_SITE_URL: "http://localhost:3000" },
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
   },

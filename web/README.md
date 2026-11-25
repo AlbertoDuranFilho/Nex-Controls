@@ -84,8 +84,8 @@ Ajustes importantes:
    (Database → Extensions) e rode de novo.
 6. Defina as variáveis de ambiente na Vercel (inclusive `NEXT_PUBLIC_SITE_URL` antes do build).
 
-O plano gratuito pausa o projeto após 7 dias sem atividade. Um workflow de
-keep-alive no GitHub Actions será adicionado na Task 9 (detalhes lá).
+O plano gratuito pausa o projeto após 7 dias sem atividade. Um workflow
+agendado no GitHub Actions fará uma consulta periódica para evitar a pausa.
 
 ## Primeiro admin
 

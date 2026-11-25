@@ -66,8 +66,8 @@ duplicada no cliente.
 - **Staging**: projeto Supabase separado (`sa-east-1`, plano gratuito), usado pelos previews da Vercel.
   Previews nunca apontam para produção.
 - **Produção**: projeto Supabase próprio, usado só pelo deploy de `main`.
-- O plano gratuito pausa após 7 dias sem atividade; o keep-alive no GitHub Actions
-  entra na Task 9.
+- O plano gratuito pausa após 7 dias sem atividade; um workflow agendado no GitHub
+  Actions fará uma consulta periódica para evitar a pausa.
 
 Passo a passo de configuração (SMTP Resend, redirect URLs, primeiro admin) em
 [`web/README.md`](../web/README.md).

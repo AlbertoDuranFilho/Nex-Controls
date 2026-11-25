@@ -1,0 +1,16 @@
+{
+  "name": "nexcontrols",
+  "version": "1.0.0",
+  "scripts": {
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:types": "supabase gen types typescript --local > web/types/database.ts"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "supabase": "^3.4.0"
+  },
+  "private": true
+}

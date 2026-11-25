@@ -22,7 +22,7 @@ supabase/                  compartilhado por web e mobile
   functions/               Edge Functions (fases 4–5)
 web/                       site Next.js (ver web/README.md)
   lib/supabase/            client.ts (browser, anon), server.ts (cookies), admin.ts (service role, server-only)
-  services/                auth.ts, lojistas.ts
+  services/                auth.ts, lojistas-admin.ts, minha-conta.ts
 mobile/                    app (consome o mesmo projeto Supabase)
 ```
 

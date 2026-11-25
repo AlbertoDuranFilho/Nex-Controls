@@ -83,6 +83,50 @@ Ajustes importantes:
    Se a migration falhar na criação do agendamento, habilite a extensão `pg_cron`
    (Database → Extensions) e rode de novo.
 6. Defina as variáveis de ambiente na Vercel (inclusive `NEXT_PUBLIC_SITE_URL` antes do build).
+7. Configure o Auth no painel (ver abaixo). **Faça nos dois projetos.**
+
+### Auth nos projetos hospedados (obrigatório, nos DOIS projetos)
+
+`supabase/config.jsonc` vale **só para o Supabase local**: `supabase db push` não leva
+essas opções. Um projeto hospedado novo nasce com **cadastro aberto** (qualquer pessoa
+criaria conta pela API pública com a chave anon). Em staging **e** em produção:
+
+1. **Authentication → Sign In / Providers**:
+   - desligue **Allow new users to sign up** (clientes só são criados pelo admin);
+   - provider **Email** habilitado;
+   - **Confirm email** ligado;
+   - **Secure email change** ligado (troca de e-mail confirmada nos dois endereços).
+2. **JWT expiry** (*Access token expiry time*, em Project Settings → JWT Keys) = `3600`
+   segundos. É o prazo em que um JWT já emitido segue válido depois de um ban; não aumente.
+3. **Minimum password length**: no mínimo `12` (as senhas provisórias geradas pelo admin
+   têm 12+ caracteres). Em **Password requirements**, exigir letras e números é recomendado.
+4. **Rate limits**: ver "Limites de requisição do Auth" abaixo.
+5. Confira depois: `curl -s https://<ref>.supabase.co/auth/v1/settings` deve mostrar
+   `"disable_signup":true` e `"mailer_autoconfirm":false`.
+
+Alternativa: `npx supabase config push --project-ref <ref>` envia as opções de
+`supabase/config.jsonc` para o projeto hospedado. **Atenção:** o arquivo foi escrito para
+o ambiente local (ex.: `minimum_password_length` 6, `site_url` de localhost, SMTP do
+Mailpit, limites de e-mail baixos). Revise o diff que o comando mostra antes de confirmar
+e, depois, confira cada item acima no painel.
+
+### Troca de senha pelo cliente (`FEATURE_TROCA_SENHA`)
+
+Antes de ligar `FEATURE_TROCA_SENHA=true`, habilite **Secure password change**
+(`secure_password_change`, reautenticação por código enviado ao e-mail) em
+Authentication → Sign In / Providers → Email, nos dois projetos. Sem isso, quem tiver
+uma sessão aberta (ex.: computador compartilhado) troca a senha sem saber a atual.
+
+### Limites de requisição do Auth (rate limits)
+
+O GoTrue limita login (`sign_in_sign_ups`) e renovação de sessão (`token_refresh`)
+**por IP**. Como o login e o refresh são feitos no servidor (Server Actions e middleware
+na Vercel), as requisições saem de IPs da Vercel: **todos os clientes dividem o mesmo
+limite**. Antes de abrir as vendas:
+
+- aumente os valores em **Authentication → Rate Limits** (nos dois projetos);
+- considere um limite por cliente na própria aplicação (ex.: por e-mail/IP real do
+  `x-forwarded-for`) para conter força bruta sem depender só do limite global.
 
 O plano gratuito pausa o projeto após 7 dias sem atividade. Um workflow
 agendado no GitHub Actions fará uma consulta periódica para evitar a pausa.
@@ -129,9 +173,9 @@ psql "$DB_URL_DESTINO" -f dump-auth.sql
 psql "$DB_URL_DESTINO" -f dump-data.sql
 ```
 
-O dump padr�o n�o inclui `auth.users`; por isso h� um arquivo separado `dump-auth`
+O dump padrão não inclui `auth.users`; por isso há um arquivo separado `dump-auth`
 (`profiles` e `lojistas` dependem dele). Em um projeto Supabase novo, o schema `auth`
-j� existe; se houver conflito de linhas, restaure em um banco vazio.
+já existe; se houver conflito de linhas, restaure em um banco vazio.
 
 Apague os `.sql` em claro depois: contêm dados pessoais (LGPD).
 
@@ -153,6 +197,19 @@ Preencha os placeholders `TODO_*` (busque por `TODO_CNPJ` e `TODO_ENDERECO`):
 
 - rodapé: `footer.cnpj` e `footer.address` em `web/messages/{pt,en,es}.json`;
 - confirme também a política de privacidade (`/privacy-policy`) com os dados da empresa.
+
+### Guard de build
+
+`npm run build` roda antes o `prebuild` (`web/scripts/verificar-producao.mjs`). Quando
+`VERCEL_ENV=production` (build de produção na Vercel), ele **falha o build** (exit 1) se:
+
+- alguma string de `web/messages/{pt,en,es}.json` contiver `TODO_`; ou
+- faltar `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` ou `SUPABASE_SERVICE_ROLE_KEY`.
+
+A mensagem lista o arquivo/chave ou o nome da variável (nunca o valor). Em preview, dev,
+CI e e2e (`VERCEL_ENV` diferente de `production`) ele não faz nada. As regras ficam em
+`web/lib/build/verificar-producao.mjs` (testadas pelo Vitest).
 
 ## Conformidade
 

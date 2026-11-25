@@ -26,6 +26,7 @@
   "catalog": {
     "title": "Product Catalog",
     "learnMore": "Learn more",
+    "loading": "Loading products...",
     "backToCatalog": "Back to catalog",
     "unavailable": "Products unavailable at the moment. Please try again shortly."
   },

@@ -69,7 +69,24 @@ export default function PrivacyPolicyPage() {
       </ul>
       <p className="mb-8">{t("section7Para2")}</p>
 
-      <h2 className="text-xl font-semibold mt-8 mb-4">8. {t("section8Title")}</h2>
+      <h2 className="text-xl font-semibold mt-8 mb-4">8. {t("sectionCadTitle")}</h2>
+      <p className="mb-4">{t("sectionCadPara1")}</p>
+      <p className="mb-2">{t("sectionCadPara2")}</p>
+      <ul className="list-disc pl-6 mb-4">
+        <li>{t("sectionCadItem1")}</li>
+        <li>{t("sectionCadItem2")}</li>
+        <li>{t("sectionCadItem3")}</li>
+        <li>{t("sectionCadItem4")}</li>
+        <li>{t("sectionCadItem5")}</li>
+        <li>{t("sectionCadItem6")}</li>
+      </ul>
+      <p className="mb-4">{t("sectionCadPara3")}</p>
+      <p className="mb-4">{t("sectionCadPara4")}</p>
+      <p className="mb-4">{t("sectionCadPara5")}</p>
+      <p className="mb-4">{t("sectionCadPara6")}</p>
+      <p className="mb-8">{t("sectionCadPara7")}</p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-4">9. {t("section8Title")}</h2>
       <p className="mb-4">{t("section8Para1")}</p>
       <p className="mb-4">{t("section8Para2")}</p>
       <p className="mb-8">{t("section8Para3")}</p>

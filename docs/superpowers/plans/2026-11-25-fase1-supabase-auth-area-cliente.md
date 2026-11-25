@@ -23,6 +23,7 @@
 - Páginas públicas (home, catálogo, privacidade) continuam estáticas: o layout raiz não lê cookies; o menu do usuário no cabeçalho é ilha client que lê a sessão localmente (`auth.getSession()`, sem rede).
 - Nome e papel exibidos no cabeçalho vêm de `app_metadata` (`{ nome: string, papel: "admin" | "lojista" }`), gravado só pela service role. Autorização NUNCA usa `app_metadata` — só RLS/`profiles.is_admin`.
 - Dados da empresa: razão social "Nex Controls do Brasil LTDA", UF PE, contato de privacidade `contato@nexcontrols.com`; CNPJ e endereço = placeholder `TODO_CNPJ` / `TODO_ENDERECO`.
+- Visual das telas novas (login, área do cliente, admin, menu do usuário): paleta da marca **preto e branco** + cinzas neutros, sem azul. Cores definidas uma vez como tokens no `@theme` do Tailwind 4 em `web/src/app/globals.css` (`--color-marca-preto: #000`, `--color-marca-branco: #fff`, cinzas `--color-marca-cinza-50…900`) e usadas pelas classes (`bg-marca-preto` etc.); nenhum hex solto nos componentes. Um redesign "premium" completo virá como projeto separado, trocando só os tokens e estilos.
 - Metas de desempenho p75 mobile: LCP < 2,5 s, INP < 200 ms, CLS < 0,1.
 - Commits seguem o padrão do repo: `:sparkles: feat: ...`, `:white_check_mark: test: ...`, `:memo: docs: ...`, `:construction_worker: ci: ...`.
 

@@ -7,6 +7,11 @@ export type EstadoAuth = {
   papel: "admin" | "lojista" | null;
 };
 
+export function ehAreaProtegida(pathname: string): boolean {
+  const [locale, area] = pathname.split("/").filter(Boolean);
+  return !!locale && LOCALES.includes(locale) && (area === "cliente" || area === "admin");
+}
+
 export function decidirRedirect(
   pathname: string,
   search: string,

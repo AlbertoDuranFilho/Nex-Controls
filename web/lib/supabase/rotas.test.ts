@@ -1,5 +1,46 @@
 import { describe, expect, it } from "vitest";
-import { decidirRedirect } from "./rotas";
+import { NextRequest, NextResponse } from "next/server";
+import { decidirRedirect, ehAreaProtegida } from "./rotas";
+import { propagarCookiesParaRequest } from "./cookies";
+
+describe("ehAreaProtegida", () => {
+  it.each(["/pt/cliente", "/pt/cliente/login", "/en/admin", "/es/admin/lojistas/1"])(
+    "%s e protegida",
+    (p) => expect(ehAreaProtegida(p)).toBe(true),
+  );
+  it.each(["/pt", "/pt/catalogo/1", "/pt/clientela", "/fr/cliente", "/pt/privacy-policy"])(
+    "%s e publica",
+    (p) => expect(ehAreaProtegida(p)).toBe(false),
+  );
+});
+
+describe("propagarCookiesParaRequest", () => {
+  it("expoe cookies renovados ao request downstream preservando overrides do next-intl", () => {
+    const req = new NextRequest("http://localhost/pt/cliente", {
+      headers: { cookie: "sb=velho; outro=1", "x-a": "1" },
+    });
+    const res = NextResponse.next({ request: { headers: new Headers(req.headers) } });
+    req.cookies.set("sb", "novo");
+    propagarCookiesParaRequest(req, res);
+    expect(res.headers.get("x-middleware-request-cookie")).toBe("sb=novo; outro=1");
+    expect(res.headers.get("x-middleware-override-headers")?.split(",")).toContain("cookie");
+    expect(res.headers.get("x-middleware-request-x-a")).toBe("1");
+  });
+
+  it("cria a lista de overrides quando a resposta nao tem", () => {
+    const req = new NextRequest("http://localhost/pt/cliente", {
+      headers: { cookie: "sb=velho", "x-a": "1" },
+    });
+    const res = NextResponse.next();
+    req.cookies.set("sb", "novo");
+    propagarCookiesParaRequest(req, res);
+    expect(res.headers.get("x-middleware-request-cookie")).toBe("sb=novo");
+    expect(res.headers.get("x-middleware-request-x-a")).toBe("1");
+    expect(res.headers.get("x-middleware-override-headers")?.split(",")).toEqual(
+      expect.arrayContaining(["cookie", "x-a"]),
+    );
+  });
+});
 
 const anon = { logado: false, papel: null } as const;
 const lojista = { logado: true, papel: "lojista" } as const;

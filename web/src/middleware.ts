@@ -2,15 +2,20 @@ import createMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from './i18n/routing';
 import { updateSession } from '../lib/supabase/middleware';
-import { decidirRedirect } from '../lib/supabase/rotas';
+import { decidirRedirect, ehAreaProtegida } from '../lib/supabase/rotas';
 
 const intlMiddleware = createMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
-  const { response, user, papel } = await updateSession(request, intlResponse);
-
   const { pathname, search } = request.nextUrl;
+
+  // Paginas publicas nao precisam de getUser() (round-trip ao Supabase Auth);
+  // tambem pula quando o next-intl ja redirecionou (ex.: / -> /pt).
+  const ehRedirect = intlResponse.status >= 300 && intlResponse.status < 400;
+  if (ehRedirect || !ehAreaProtegida(pathname)) return intlResponse;
+
+  const { response, user, papel } = await updateSession(request, intlResponse);
   const destino = decidirRedirect(pathname, search, { logado: !!user, papel });
   if (!destino) return response;
 

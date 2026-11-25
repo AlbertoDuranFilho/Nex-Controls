@@ -37,8 +37,8 @@ create table public.lojistas (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   check ((documento is null and anonimizado_em is not null)
-      or (tipo_pessoa = 'PF' and length(documento) = 11)
-      or (tipo_pessoa = 'PJ' and length(documento) = 14))
+      or (tipo_pessoa = 'PF' and documento is not null and length(documento) = 11)
+      or (tipo_pessoa = 'PJ' and documento is not null and length(documento) = 14))
 );
 
 -- Registro de acessos (Marco Civil, art. 15 — guardar 6 meses)

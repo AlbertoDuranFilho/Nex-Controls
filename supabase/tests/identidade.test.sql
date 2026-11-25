@@ -1,10 +1,10 @@
 begin;
 \ir _helpers.psql
-select plan(20);
+select plan(21);
 
-select has_table('public', 'lojistas');
-select has_table('public', 'profiles');
-select has_table('public', 'acessos_log');
+select has_table('public', 'lojistas', 'tabela lojistas existe');
+select has_table('public', 'profiles', 'tabela profiles existe');
+select has_table('public', 'acessos_log', 'tabela acessos_log existe');
 
 -- visitante
 select tests.anonimo();
@@ -42,6 +42,9 @@ select results_eq($$select count(*)::int from lojistas$$, array[3], 'admin vê t
 select tests.como_superuser();
 select throws_ok($$insert into lojistas(id, tipo_pessoa, documento, nome, email)
   values (tests.criar_usuario('z@z'), 'PF', '123', 'x', 'z@z')$$, '23514', null, 'CPF com tamanho errado');
+select throws_ok($$insert into lojistas(id, tipo_pessoa, documento, nome, email)
+  values (tests.criar_usuario('n@n'), 'PF', null, 'x', 'n@n')$$, '23514', null,
+  'documento nulo sem anonimização é rejeitado');
 select lives_ok($$update auth.users set email = 'novo@l1.com' where id = tests.id('l1')$$);
 select is((select email from lojistas where id = :'l1'), 'novo@l1.com', 'trigger copia e-mail para lojistas');
 

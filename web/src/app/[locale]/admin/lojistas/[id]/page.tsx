@@ -2,6 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import AcoesLojista from "@/components/admin/AcoesLojista";
 import { FormEditarLojista } from "@/components/admin/FormLojista";
+import DescontosProduto from "@/components/admin/DescontosProduto";
+import { listarDescontosProduto } from "@/services/descontos-admin";
+import { listarProdutosAdmin } from "@/services/produtos-admin";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { UUID } from "@/lib/admin/formulario";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -62,6 +65,16 @@ export default async function EditarLojistaPage({ params }: Props) {
             uf: l.uf,
           }}
         />
+      )}
+
+      {anonimizado ? null : (
+        <div className="border-t border-marca-cinza-200 pt-8">
+          <DescontosProduto
+            lojistaId={l.id}
+            descontos={await listarDescontosProduto(l.id)}
+            produtos={(await listarProdutosAdmin()).map((p) => ({ id: p.id, codigo: p.codigo, nome: p.nome }))}
+          />
+        </div>
       )}
 
       <div className={anonimizado ? "" : "border-t border-marca-cinza-200 pt-8"}>

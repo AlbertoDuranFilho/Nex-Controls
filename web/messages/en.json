@@ -362,6 +362,7 @@
     "observacao": "Note",
     "entrega": "Delivery",
     "notaFiscal": "View invoice",
+    "notaCancelada": "Invoice cancelled",
     "historico": "History",
     "historicoVazio": "No status changes yet.",
     "deAte": "{de} to {para}",

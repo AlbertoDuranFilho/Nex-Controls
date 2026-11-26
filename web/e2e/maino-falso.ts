@@ -81,7 +81,8 @@ export function iniciarMainoFalso(): Promise<() => Promise<void>> {
       }
       if (metodo === "DELETE") {
         nota.cancelada = true;
-        return json(200, {});
+        res.writeHead(204); // documentado: cancelamento responde 204 sem corpo
+        return res.end();
       }
     }
     return json(404, { error: "rota desconhecida" });

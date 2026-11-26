@@ -98,7 +98,11 @@ export default async function PedidoPage({ params, searchParams }: Props) {
         ) : null}
       </section>
 
-      {pedido.maino_nota_url ? (
+      {pedido.nfe_status === "CANCELADA" ? (
+        <p data-testid="nota-cancelada" className="text-sm text-marca-cinza-800">
+          {t("notaCancelada")}
+        </p>
+      ) : pedido.maino_nota_url ? (
         <p>
           <a
             href={pedido.maino_nota_url}

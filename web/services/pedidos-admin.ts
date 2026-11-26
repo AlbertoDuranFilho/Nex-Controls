@@ -48,7 +48,7 @@ export type PedidoAdminDetalhe = {
   nfe_status: string | null;
   nfe_erro: string | null;
   itens: { codigo: string; nome: string; quantidade: number; preco_unitario: number; total_linha: number }[];
-  eventos: { id: string; status_de: PedidoStatus | null; status_para: PedidoStatus; criado_em: string; admin_nome: string | null }[];
+  eventos: { id: string; status_de: PedidoStatus | null; status_para: PedidoStatus; criado_em: string; admin_nome: string | null; sistema: boolean }[];
 };
 
 const erro = (mensagem: string) => ({ ok: false as const, erro: mensagem });
@@ -156,6 +156,9 @@ export async function obterPedidoAdmin(numero: number): Promise<PedidoAdminDetal
       status_para: e.status_para,
       criado_em: e.criado_em,
       admin_nome: e.admin_id ? (nomes.get(e.admin_id) ?? null) : null,
+      // Sem admin_id em pago→faturado: faturamento automático pela NF-e da Mainô.
+      // (admin_id também vira null se o admin for apagado; nos demais casos segue "admin".)
+      sistema: !e.admin_id && e.status_de === "pago" && e.status_para === "faturado",
     })),
   };
 }

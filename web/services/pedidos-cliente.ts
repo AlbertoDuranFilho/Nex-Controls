@@ -15,6 +15,8 @@ export type PedidoDetalhe = PedidoResumo & {
   frete_valor: number;
   observacao: string | null;
   maino_nota_url: string | null;
+  /** Situação da NF-e na Mainô (CANCELADA esconde o link da DANFE). */
+  nfe_status: string | null;
   entrega: string;
   itens: { codigo: string; nome: string; quantidade: number; preco_unitario: number; total_linha: number }[];
   eventos: { id: string; status_de: PedidoStatus | null; status_para: PedidoStatus; criado_em: string }[];
@@ -39,7 +41,7 @@ export async function obterMeuPedido(numero: number): Promise<PedidoDetalhe | nu
   const { data, error } = await supabase
     .from("pedidos")
     .select(
-      "id, numero, created_at, status, total, subtotal, desconto_valor, desconto_origem, frete_valor, observacao, maino_nota_url, " +
+      "id, numero, created_at, status, total, subtotal, desconto_valor, desconto_origem, frete_valor, observacao, maino_nota_url, nfe_status, " +
         "entrega_logradouro, entrega_numero, entrega_complemento, entrega_bairro, entrega_cidade, entrega_uf, entrega_cep, " +
         "pedido_itens(produto_codigo, produto_nome, quantidade, preco_unitario)",
     )
@@ -60,6 +62,7 @@ export async function obterMeuPedido(numero: number): Promise<PedidoDetalhe | nu
     frete_valor: number;
     observacao: string | null;
     maino_nota_url: string | null;
+    nfe_status: string | null;
     entrega_logradouro: string;
     entrega_numero: string;
     entrega_complemento: string | null;
@@ -98,6 +101,7 @@ export async function obterMeuPedido(numero: number): Promise<PedidoDetalhe | nu
     frete_valor: Number(p.frete_valor),
     observacao: p.observacao,
     maino_nota_url: p.maino_nota_url,
+    nfe_status: p.nfe_status ?? null,
     entrega: `${p.entrega_logradouro}, ${p.entrega_numero}${complemento} — ${p.entrega_bairro}, ${p.entrega_cidade}/${p.entrega_uf} — CEP ${p.entrega_cep}`,
     itens,
     eventos: ev ?? [],

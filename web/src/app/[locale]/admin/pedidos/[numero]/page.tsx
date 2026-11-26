@@ -7,7 +7,7 @@ import { formatarMoeda } from "@/lib/formatar";
 import { STATUS_PEDIDO } from "@/lib/pedidos/transicoes";
 import { formatarDocumento } from "@/lib/validacao/documento";
 import { flags } from "@/lib/flags";
-import { sincronizarSePendente } from "@/services/nfe-sincronizar";
+import { nfePendente, sincronizarSePendente } from "@/services/nfe-sincronizar";
 import { obterPedidoAdmin } from "@/services/pedidos-admin";
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Recife" });
@@ -22,8 +22,9 @@ export default async function PedidoAdminPage({ params }: Props) {
   let p = await obterPedidoAdmin(Number(numero));
   if (!p) notFound();
 
-  // Nota ainda em andamento: consulta a Mainô antes de renderizar. Falha não quebra a página.
-  if (flags.nfeAutomatica && (p.nfe_status === "NAO_TRANSMITIDA" || p.nfe_status === "EM_TRANSMISSAO")) {
+  // Nota ainda em andamento (ou aceita sem DANFE): consulta a Mainô antes de renderizar, no
+  // máximo a cada 30 s e com timeout curto. Falha não quebra a página.
+  if (flags.nfeAutomatica && p.maino_pedido_id && nfePendente(p)) {
     await sincronizarSePendente(p.id); // não lança e não revalida (render)
     p = (await obterPedidoAdmin(Number(numero))) ?? p;
   }
@@ -136,7 +137,7 @@ export default async function PedidoAdminPage({ params }: Props) {
             {p.eventos.map((e) => (
               <li key={e.id}>
                 {dataHora.format(new Date(e.criado_em))} — {e.status_de ? STATUS_PEDIDO[e.status_de] : "—"} →{" "}
-                {STATUS_PEDIDO[e.status_para]} por {e.admin_nome ?? "admin"}
+                {STATUS_PEDIDO[e.status_para]} por {e.sistema ? "sistema (Mainô)" : (e.admin_nome ?? "admin")}
               </li>
             ))}
           </ul>

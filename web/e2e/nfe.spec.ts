@@ -87,6 +87,9 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
   );
   await expect(a.getByRole("button", { name: "Cancelar NF-e" })).toBeVisible();
   await expect(a.getByRole("button", { name: "Emitir NF-e" })).toHaveCount(0);
+  // Com DANFE presente, não há o que atualizar; o faturamento aparece como feito pelo sistema.
+  await expect(a.getByRole("button", { name: "Atualizar situação" })).toHaveCount(0);
+  await expect(a.getByTestId("historico")).toContainText("Pago → Faturado por sistema (Mainô)");
 
   // A Mainô recebeu o pedido com numero SITE-<n> e itens com código.
   const reqs = (await (await request.get(`${URL_MAINO_FALSA}/__requisicoes`)).json()) as Requisicao[];
@@ -96,7 +99,6 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
   expect(corpo).toContain(`"numero":"SITE-${numero}"`);
   expect(corpo).toContain(`"codigo":"${codigo}"`);
   expect(reqs.some((r) => r.metodo === "POST" && r.caminho === `/api/v2/pedidos/${maino_pedido_id}/nota_fiscal`)).toBe(true);
-  await ctxAdmin.close();
 
   // Área do cliente: link da nota e status Faturado.
   const ctxCliente = await browser.newContext();
@@ -108,5 +110,16 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
     "href",
     `https://maino.test/danfe/${maino_pedido_id}.pdf`,
   );
+
+  // Admin cancela a NF-e (a Mainô responde 204): o cliente não vê mais a DANFE como a nota do pedido.
+  a.on("dialog", (d) => d.accept());
+  await a.getByRole("button", { name: "Cancelar NF-e" }).click();
+  await expect(a.getByTestId("nfe-status")).toHaveText("Cancelada");
+  await expect(a.getByRole("link", { name: "DANFE (PDF, nota cancelada)" })).toBeVisible();
+  await ctxAdmin.close();
+
+  await c.reload();
+  await expect(c.getByTestId("nota-cancelada")).toHaveText("Nota fiscal cancelada");
+  await expect(c.getByRole("link", { name: /nota fiscal/i })).toHaveCount(0);
   await ctxCliente.close();
 });

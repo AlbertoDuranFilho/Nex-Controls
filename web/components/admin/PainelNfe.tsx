@@ -8,8 +8,8 @@ import {
   emitirNfeMaino,
   enviarPedidoMaino,
   sincronizarNfeMaino,
-  type SituacaoNfe,
 } from "@/services/nfe-admin";
+import type { SituacaoNfe } from "@/services/nfe-sincronizar";
 import type { PedidoStatus } from "@/lib/pedidos/transicoes";
 
 type Props = {
@@ -45,7 +45,10 @@ export default function PainelNfe({ pedidoId, status, mainoPedidoId, nfeStatus, 
     iniciar(async () => {
       try {
         const r = await acao(pedidoId);
-        setMensagem(r.ok ? { ok: true, texto: "Situação atualizada." } : { ok: false, texto: r.erro });
+        if (!r.ok) setMensagem({ ok: false, texto: r.erro });
+        else if (r.dados.nfe_status !== nfeStatus || r.dados.maino_pedido_id !== mainoPedidoId) {
+          setMensagem({ ok: true, texto: "Situação atualizada." });
+        } else setMensagem({ ok: true, texto: "Sem mudanças." });
       } catch {
         setMensagem({ ok: false, texto: "Não foi possível concluir a operação. Tente novamente." });
       }

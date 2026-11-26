@@ -7,7 +7,7 @@ import { formatarMoeda } from "@/lib/formatar";
 import { STATUS_PEDIDO } from "@/lib/pedidos/transicoes";
 import { formatarDocumento } from "@/lib/validacao/documento";
 import { flags } from "@/lib/flags";
-import { sincronizarNfeMaino } from "@/services/nfe-admin";
+import { sincronizarSePendente } from "@/services/nfe-sincronizar";
 import { obterPedidoAdmin } from "@/services/pedidos-admin";
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Recife" });
@@ -24,12 +24,8 @@ export default async function PedidoAdminPage({ params }: Props) {
 
   // Nota ainda em andamento: consulta a Mainô antes de renderizar. Falha não quebra a página.
   if (flags.nfeAutomatica && (p.nfe_status === "NAO_TRANSMITIDA" || p.nfe_status === "EM_TRANSMISSAO")) {
-    try {
-      await sincronizarNfeMaino(p.id);
-      p = (await obterPedidoAdmin(Number(numero))) ?? p;
-    } catch {
-      // segue com os dados já lidos
-    }
+    await sincronizarSePendente(p.id); // não lança e não revalida (render)
+    p = (await obterPedidoAdmin(Number(numero))) ?? p;
   }
 
   return (

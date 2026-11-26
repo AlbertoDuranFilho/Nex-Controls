@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+const revalidatePath = vi.fn();
+vi.mock("next/cache", () => ({ revalidatePath: (...a: unknown[]) => revalidatePath(...a) }));
 
 const after = vi.fn();
 vi.mock("next/server", () => ({ after: (fn: () => unknown) => after(fn) }));
@@ -26,6 +27,7 @@ vi.mock("@/lib/maino/ibge", () => ({ buscarIbgePorCep: (c: string) => buscarIbge
 const enviarEmail = vi.fn();
 vi.mock("@/lib/email/enviar", () => ({ enviarEmail: (m: unknown) => enviarEmail(m) }));
 
+import { sincronizarSePendente } from "./nfe-sincronizar";
 import { cancelarNfeMaino, emitirNfeMaino, enviarPedidoMaino, sincronizarNfeMaino } from "./nfe-admin";
 
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -327,5 +329,30 @@ describe("cancelarNfeMaino", () => {
     expect(r).toEqual({ ok: false, erro: "Prazo expirado" });
     expect(argsRpc(rpc).p_nfe_status).toBeUndefined();
     expect(argsRpc(rpc).p_erro).toBe("Prazo expirado");
+  });
+});
+
+describe("sincronizarSePendente (núcleo usado pela página)", () => {
+  it("sincroniza sem chamar revalidatePath e sem lançar", async () => {
+    const { rpc } = bancoFalso([pedido({ maino_pedido_id: "m-9", nfe_status: "EM_TRANSMISSAO" })]);
+    chamarMaino.mockResolvedValue({
+      ok: true,
+      status: 200,
+      dados: { nota_fiscal: { chave_acesso: "K", status: "ACEITA", danfe_url: "https://d.test/x.pdf" } },
+    });
+    await sincronizarSePendente(ID);
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("não faz nada com nota já resolvida ou erro da Mainô", async () => {
+    bancoFalso([pedido({ maino_pedido_id: "m-9", nfe_status: "ACEITA" })]);
+    await sincronizarSePendente(ID);
+    expect(chamarMaino).not.toHaveBeenCalled();
+    createAdminClient.mockImplementation(() => {
+      throw new Error("banco fora");
+    });
+    await expect(sincronizarSePendente(ID)).resolves.toBeUndefined();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

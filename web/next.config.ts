@@ -8,10 +8,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'nex-controls.onrender.com',
-      },
-      {
       protocol: "https",
       hostname: "res.cloudinary.com",
       },

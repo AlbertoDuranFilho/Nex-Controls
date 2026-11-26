@@ -2,115 +2,123 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { Produto } from "@/types/Produto";
 import Link from "next/link";
-import { BlocksRenderer } from "@strapi/blocks-react-renderer";
+import { useLocale, useTranslations } from "next-intl";
+import PrecoProduto from "@/components/catalogo/PrecoProduto";
+import TextoProduto from "@/components/catalogo/TextoProduto";
+import type { ProdutoPublico } from "@/services/catalogo";
 
-export default function ProdutoDetalhe({ produto }: { produto: Produto }) {
+const tabs = ["description", "specifications", "applications"] as const;
+type Tab = (typeof tabs)[number];
+
+export default function ProdutoDetalhe({ produto }: { produto: ProdutoPublico }) {
   const t = useTranslations("product");
-  const attr = produto;
+  const locale = useLocale();
 
-  // Galeria de imagens
-  const imagens: string[] =
-    attr.imagens?.map((img) => `${img.url}`) ?? [];
-  const [imagemAtiva, setImagemAtiva] = useState(imagens[0]);
-
-  // Abas
-  const tabs = ["description", "specifications", "applications"] as const;
-  type Tab = typeof tabs[number];
+  const [imagemAtiva, setImagemAtiva] = useState(produto.imagens[0]);
   const [aba, setAba] = useState<Tab>("description");
 
   return (
     <div>
-      {/* BOTÃO VOLTAR */}
       <div className="mb-6 pt-20">
-        <Link href="/#catalogo" className="text-blue-800 hover:underline text-sm">
+        <Link
+          href={`/${locale}/catalogo`}
+          className="text-sm text-marca-cinza-700 underline-offset-2 hover:text-marca-preto hover:underline"
+        >
           ← {t("backToCatalog")}
         </Link>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* Galeria */}
+      <div className="grid gap-10 md:grid-cols-2">
         <div>
-          <div className="relative w-full h-80 border rounded-lg overflow-hidden">
+          <div className="relative h-80 w-full overflow-hidden border border-marca-cinza-200">
             {imagemAtiva ? (
               <Image
-                src={imagemAtiva}
-                alt={attr.nome}
+                src={imagemAtiva.url}
+                alt={imagemAtiva.alt ?? produto.nome}
                 fill
                 className="object-contain"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+              <div className="flex h-full w-full items-center justify-center bg-marca-cinza-100 text-marca-cinza-500">
                 {t("noImage")}
               </div>
             )}
           </div>
-          {imagens.length > 1 && (
-            <div className="flex gap-3 mt-4">
-              {imagens.map((img, i) => (
-                <div key={i} className="relative w-20 h-20">
+          {produto.imagens.length > 1 && (
+            <div className="mt-4 flex gap-3">
+              {produto.imagens.map((img, i) => (
+                <button
+                  key={img.url}
+                  type="button"
+                  onClick={() => setImagemAtiva(img)}
+                  className={`relative h-20 w-20 border ${
+                    imagemAtiva?.url === img.url
+                      ? "border-marca-preto"
+                      : "border-marca-cinza-200 hover:border-marca-cinza-500"
+                  }`}
+                >
                   <Image
-                    src={img}
-                    alt={`${attr.nome} ${i + 1}`}
+                    src={img.url}
+                    alt={img.alt ?? `${produto.nome} ${i + 1}`}
                     fill
-                    className={`object-cover border rounded cursor-pointer transition-all ${
-                      imagemAtiva === img
-                        ? "ring-2 ring-blue-500"
-                        : "hover:opacity-80"
-                    }`}
-                    onClick={() => setImagemAtiva(img)}
+                    className="object-cover"
                   />
-                </div>
+                </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Infos */}
         <div>
-          <span className="bg-blue-900 text-white px-3 py-1 rounded text-sm font-semibold">
-            {attr.codigo}
+          <span className="bg-marca-preto px-3 py-1 text-sm font-semibold text-marca-branco">
+            {produto.codigo}
           </span>
-          <h1 className="text-3xl font-bold mt-4 text-gray-800">
-            {attr.nome}
-          </h1>
-          {attr.destaque && (
-            <p className="mt-2 text-gray-600 italic">{attr.destaque}</p>
+          <h1 className="mt-4 text-3xl font-bold text-marca-preto">{produto.nome}</h1>
+          {produto.destaque && (
+            <p className="mt-2 italic text-marca-cinza-600">{produto.destaque}</p>
+          )}
+          {produto.compatibilidade && (
+            <p className="mt-2 text-sm text-marca-cinza-600">
+              {t("compatibility")}: {produto.compatibilidade}
+            </p>
           )}
 
-          <div className="flex gap-4 mt-8">
+          <div className="mt-6">
+            <PrecoProduto produtoId={produto.id} />
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-4">
             <Link
-              href="/#contato"
-              className="bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold transition-colors"
+              href={`/${locale}#contato`}
+              className="border border-marca-preto px-6 py-3 font-semibold text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco"
             >
               {t("requestQuote")}
             </Link>
-            {attr.manual && (
+            {produto.manual_url && (
               <a
-                href={attr.manual.url}
-                download
-                className="border border-gray-300 px-6 py-3 rounded-lg hover:bg-gray-100 font-semibold transition-colors"
+                href={produto.manual_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border border-marca-cinza-300 px-6 py-3 font-semibold text-marca-preto transition-colors hover:bg-marca-cinza-100"
               >
-                📄 {t("downloadManual")}
+                {t("downloadManual")}
               </a>
             )}
           </div>
         </div>
       </div>
 
-      {/* Abas */}
       <div className="mt-12">
-        {/* Header */}
-        <div className="flex gap-6 border-b border-gray-200">
+        <div className="flex gap-6 border-b border-marca-cinza-200">
           {tabs.map((tab) => (
             <button
               key={tab}
+              type="button"
               className={`pb-3 font-semibold transition-colors ${
                 aba === tab
-                  ? "border-b-2 border-blue-800 text-blue-800"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "border-b-2 border-marca-preto text-marca-preto"
+                  : "text-marca-cinza-500 hover:text-marca-cinza-800"
               }`}
               onClick={() => setAba(tab)}
             >
@@ -119,33 +127,32 @@ export default function ProdutoDetalhe({ produto }: { produto: Produto }) {
           ))}
         </div>
 
-        {/* Conteúdo */}
-        <div className="mt-6 text-gray-700 leading-relaxed">
-          {aba === "description" && produto.descricao && (
-           <BlocksRenderer content={produto.descricao}/>
-          )}
+        <div className="mt-6 leading-relaxed text-marca-cinza-700">
+          {aba === "description" && <TextoProduto texto={produto.descricao} />}
 
-          {aba === "specifications" && (
-            <div className="bg-gray-50 border rounded-lg">
-              {attr.especificacoes.length ? (
-                attr.especificacoes.map((esp) => (
+          {aba === "specifications" &&
+            (produto.especificacoes.length ? (
+              <div className="border border-marca-cinza-200 bg-marca-cinza-50">
+                {produto.especificacoes.map((esp, i) => (
                   <div
-                    key={esp.id}
-                    className="flex justify-between px-4 py-2 border-b last:border-b-0"
+                    key={`${esp.nome}-${i}`}
+                    className="flex justify-between border-b border-marca-cinza-200 px-4 py-2 last:border-b-0"
                   >
-                    <span className="font-medium text-gray-700">{esp.nome}</span>
-                    <span className="text-gray-600">{esp.valor}</span>
+                    <span className="font-medium text-marca-cinza-800">{esp.nome}</span>
+                    <span className="text-marca-cinza-600">{esp.valor}</span>
                   </div>
-                ))
-              ) : (
-                <p className="p-4 text-gray-500">{t("noSpecs")}</p>
-              )}
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <p className="p-4 text-marca-cinza-500">{t("noSpecs")}</p>
+            ))}
 
-          {aba === "applications" && attr.aplicacoes && (
-            <BlocksRenderer content={attr.aplicacoes}/>
-          )}
+          {aba === "applications" &&
+            (produto.aplicacoes ? (
+              <TextoProduto texto={produto.aplicacoes} />
+            ) : (
+              <p className="p-4 text-marca-cinza-500">{t("noApplications")}</p>
+            ))}
         </div>
       </div>
     </div>

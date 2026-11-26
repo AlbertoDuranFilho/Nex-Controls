@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
 import MenuUsuario from "./MenuUsuario";
+import IconeCarrinho from "./carrinho/IconeCarrinho";
 import { usePathname, useRouter } from "next/navigation";
 
 
@@ -100,6 +101,7 @@ export default function Navbar() {
           {/* Select Idioma */}
           <LanguageSwitcher />
 
+          <IconeCarrinho />
           <MenuUsuario />
         </div>
       
@@ -175,7 +177,8 @@ export default function Navbar() {
             </div>
 
             {/* Área do Cliente */}
-            <div className="mt-4">
+            <div className="mt-4 flex flex-col gap-4">
+              <IconeCarrinho onNavegar={() => setMenuOpen(false)} />
               <MenuUsuario onNavegar={() => setMenuOpen(false)} />
             </div>
           </div>

@@ -97,3 +97,44 @@ export async function sql<T extends Record<string, unknown>>(texto: string, para
     await c.end();
   }
 }
+
+type DadosProduto = {
+  codigo: string;
+  nome: string;
+  preco: number;
+  manual_url?: string | null;
+  especificacoes?: { nome: string; valor: string }[];
+  ativo?: boolean;
+};
+
+// Grava via service role (RLS ignorada). O slug vem do trigger; lê de volta.
+export async function criarProduto(dados: DadosProduto) {
+  const db = admin();
+  const { codigo, nome, preco, manual_url = null, especificacoes = [], ativo = true } = dados;
+  const { data, error } = await db
+    .from("produtos")
+    .insert({ codigo, nome, manual_url, ativo, slug: "" })
+    .select("id, slug")
+    .single();
+  if (error) throw error;
+  const { error: e2 } = await db.from("produto_precos").insert({ produto_id: data.id, preco });
+  if (e2) throw e2;
+  if (especificacoes.length) {
+    const { error: e3 } = await db
+      .from("produto_especificacoes")
+      .insert(especificacoes.map((e, ordem) => ({ ...e, ordem, produto_id: data.id })));
+    if (e3) throw e3;
+  }
+  return { id: data.id, slug: data.slug };
+}
+
+export async function darDesconto(lojistaId: string, produtoId: string, pct: number) {
+  const { error } = await admin()
+    .from("lojista_descontos_produto")
+    .insert({ lojista_id: lojistaId, produto_id: produtoId, desconto_percentual: pct });
+  if (error) throw error;
+}
+
+export async function removerProdutos(codigos: string[]) {
+  await admin().from("produtos").delete().in("codigo", codigos);
+}

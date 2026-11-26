@@ -1,11 +1,14 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { salvarEndereco, type EstadoForm } from "@/services/minha-conta";
 import { buscarCep, normalizarCep } from "@/lib/validacao/cep";
 import { mascaraCep, UFS, ufValida } from "@/lib/conta/campos";
-import { Campo, Retorno, Seletor, estiloBotao } from "@/components/conta/Campo";
+import { Save } from "lucide-react";
+import { Campo, Retorno, Seletor } from "@/components/conta/Campo";
+import Botao from "@/components/ui/Botao";
 
 export type DadosEndereco = {
   cep: string | null;
@@ -21,7 +24,7 @@ const inicial: EstadoForm = { status: "idle" };
 
 export default function FormEndereco({ locale, dados }: { locale: string; dados: DadosEndereco }) {
   const t = useTranslations("conta.endereco");
-  const [estado, action, pendente] = useActionState(salvarEndereco, inicial);
+  const [estado, action, pendente] = useAcao(salvarEndereco, inicial);
   const [v, setV] = useState({
     cep: mascaraCep(dados.cep),
     logradouro: dados.logradouro ?? "",
@@ -158,9 +161,9 @@ export default function FormEndereco({ locale, dados }: { locale: string; dados:
       </div>
 
       <Retorno estado={estado} pendente={pendente} />
-      <button type="submit" disabled={pendente} className={estiloBotao}>
+      <Botao type="submit" carregando={pendente} icone={Save} className="px-6">
         {t("salvar")}
-      </button>
+      </Botao>
     </form>
   );
 }

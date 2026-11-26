@@ -2,13 +2,15 @@
   "navbar": {
     "company": "Nex Controls",
     "home": "Home",
-    "about": "Empresa",
     "catalog": "Catálogo",
     "contact": "Contato",
     "email": "comercial@nexcontrols.com",
     "phone": "(11) 9999-9999",
-    "clientArea": "Área do Cliente",
-    "abrirMenu": "Abrir menu"
+    "abrirMenu": "Abrir menu",
+    "fecharMenu": "Fechar menu",
+    "atendimento": "Atendimento",
+    "idioma": "Idioma",
+    "menuPrincipal": "Menu principal"
   },
   "home": {
     "headline": "Tecnologia em Cada Detalhe",
@@ -25,7 +27,6 @@
   },
   "catalog": {
     "title": "Catálogo de Produtos",
-    "learnMore": "Saiba mais",
     "verCatalogoCompleto": "Ver catálogo completo",
     "buscar": "Buscar produto",
     "buscaPlaceholder": "Buscar por nome ou código",
@@ -42,9 +43,31 @@
     "erroLogin": "Sua sessão expirou. Entre novamente.",
     "erroIndisponivel": "Não foi possível adicionar este produto agora.",
     "carrinho": "Carrinho",
-    "loading": "Carregando produtos...",
-    "backToCatalog": "Voltar ao catálogo",
-    "unavailable": "Produtos indisponíveis no momento. Tente novamente em alguns segundos."
+    "unavailable": "Produtos indisponíveis no momento. Tente novamente em alguns segundos.",
+    "entrarParaVerPrecos": "Entre para ver preços",
+    "sobConsultaCurto": "Sob consulta",
+    "adicionarCurto": "Adicionar",
+    "adicionarProduto": "Adicionar {nome} ao carrinho",
+    "adicionadoCurto": "Adicionado",
+    "quantidadeDe": "Quantidade de {nome}",
+    "diminuir": "Diminuir",
+    "aumentar": "Aumentar",
+    "verDetalhes": "Ver detalhes",
+    "contagem": "{count, plural, =0 {Nenhum produto} one {# produto} other {# produtos}}",
+    "ordenar": "Ordenar por",
+    "ordemNome": "Nome (A–Z)",
+    "ordemCodigo": "Código",
+    "limparBusca": "Limpar busca",
+    "inicio": "Início",
+    "breadcrumb": "Você está em",
+    "subtitulo": "Placas e componentes eletrônicos Nex Controls. Clientes cadastrados veem preços e compram direto pelo site.",
+    "vazioDica": "Tente buscar por outro nome ou código.",
+    "porUnidade": "por unidade",
+    "diminuirDe": "Diminuir quantidade de {nome}",
+    "aumentarDe": "Aumentar quantidade de {nome}",
+    "adicionadoProduto": "{nome} adicionado ao carrinho",
+    "avisoInativo": "Seu cadastro está inativo.",
+    "avisoInativoLink": "Fale com a Nex para liberar os preços."
   },
   "contact": {
     "title": "Cadastre-se e receba em primeira mão as melhores ofertas, promoções e lançamentos dos nossos produtos",
@@ -74,7 +97,6 @@
     "noSpecs": "Este produto não possui especificações técnicas",
     "noApplications": "Este produto não possui lista de aplicações",
     "notFound": "Produto não encontrado",
-    "backToCatalog": "Voltar ao catálogo",
     "tabs": {
       "description": "Descrição do produto",
       "specifications": "Especificações Técnicas",
@@ -109,10 +131,21 @@
     "email": "Email",
     "password": "Senha",
     "submit": "Entrar",
-    "back": "Voltar",
+    "back": "Voltar ao site",
     "erroCredenciais": "E-mail ou senha inválidos.",
-    "mostrarSenha": "Mostrar",
-    "ocultarSenha": "Ocultar"
+    "mostrarSenha": "Mostrar senha",
+    "ocultarSenha": "Ocultar senha",
+    "boasVindas": "Boas-vindas",
+    "subtitulo": "Entre para acessar seus pedidos e produtos.",
+    "emailPlaceholder": "voce@empresa.com.br",
+    "naoECliente": "Ainda não é cliente?",
+    "faleConosco": "Fale conosco",
+    "slogan": "Placas e equipamentos com a qualidade que o seu negócio exige.",
+    "beneficios": {
+      "precos": "Preços exclusivos para a sua empresa",
+      "catalogo": "Catálogo completo sempre à mão",
+      "pedidos": "Acompanhe pedidos e notas fiscais"
+    }
   },
   "conta": {
     "nav": {
@@ -121,7 +154,9 @@
       "endereco": "Endereço",
       "seguranca": "Segurança",
       "carrinho": "Carrinho",
-      "pedidos": "Pedidos"
+      "pedidos": "Pedidos",
+      "catalogo": "Catálogo",
+      "area": "Área do cliente"
     },
     "dados": {
       "titulo": "Meus dados",
@@ -136,7 +171,9 @@
       "isento": "Isento",
       "naoContribuinte": "Não contribuinte",
       "inscricaoEstadual": "Inscrição estadual",
-      "salvar": "Salvar"
+      "salvar": "Salvar",
+      "secao": "Dados da empresa",
+      "secaoDescricao": "Nome e documento são definidos pela Nex. Mantenha os contatos atualizados."
     },
     "endereco": {
       "titulo": "Endereço",
@@ -149,7 +186,8 @@
       "uf": "UF",
       "salvar": "Salvar",
       "buscando": "Buscando CEP…",
-      "naoEncontrado": "Não encontramos o CEP, preencha manualmente."
+      "naoEncontrado": "Não encontramos o CEP, preencha manualmente.",
+      "descricao": "Endereço usado na entrega dos seus pedidos."
     },
     "email": {
       "titulo": "E-mail de acesso",
@@ -171,7 +209,8 @@
       "mostrar": "Mostrar senhas",
       "ocultar": "Ocultar senhas",
       "salvar": "Alterar senha",
-      "alterada": "Senha alterada"
+      "alterada": "Senha alterada",
+      "descricao": "Troque a senha usada para entrar na área do cliente."
     },
     "estado": {
       "salvando": "Salvando…",
@@ -280,7 +319,10 @@
     "ola": "Olá, {nome}",
     "minhaConta": "Minha conta",
     "admin": "Admin",
-    "sair": "Sair"
+    "sair": "Sair",
+    "catalogo": "Catálogo",
+    "pedidos": "Meus pedidos",
+    "areaCliente": "Área do cliente"
   },
   "carrinho": {
     "titulo": "Carrinho",
@@ -289,7 +331,6 @@
     "produto": "Produto",
     "quantidade": "Quantidade",
     "quantidadeDe": "Quantidade de {nome}",
-    "precoUnitario": "Preço unitário",
     "totalLinha": "Total",
     "remover": "Remover",
     "removerDe": "Remover {nome}",
@@ -329,7 +370,15 @@
     "cadastrarEndereco": "Cadastrar endereço",
     "erroGerarIncerto": "Não foi possível confirmar o pedido. Verifique em Meus pedidos antes de tentar de novo.",
     "irMeusPedidos": "Ir para Meus pedidos",
-    "erroCarregar": "Não foi possível carregar o carrinho. Tente novamente em alguns instantes."
+    "erroCarregar": "Não foi possível carregar o carrinho. Tente novamente em alguns instantes.",
+    "diminuirDe": "Diminuir quantidade de {nome}",
+    "aumentarDe": "Aumentar quantidade de {nome}",
+    "vazioDica": "Explore o catálogo e adicione produtos para montar o seu pedido.",
+    "contagemItens": "{count, plural, one {# produto} other {# produtos}}",
+    "porUnidade": "{valor} / un.",
+    "continuarComprando": "Continuar comprando",
+    "cupomDica": "Tem um cupom? Aplique antes de gerar o pedido.",
+    "observacaoTitulo": "Observação para a Nex"
   },
   "pedidos": {
     "titulo": "Meus pedidos",
@@ -353,7 +402,6 @@
     "itens": "Itens",
     "produto": "Produto",
     "quantidade": "Quantidade",
-    "precoUnitario": "Preço unitário",
     "totalLinha": "Total",
     "subtotal": "Subtotal",
     "desconto": "Desconto",
@@ -366,9 +414,11 @@
     "notaFiscal": "Ver nota fiscal",
     "notaCancelada": "Nota fiscal cancelada",
     "historico": "Histórico",
-    "historicoVazio": "Nenhuma mudança de status ainda.",
     "deAte": "{de} para {para}",
-    "colunaStatus": "Status"
+    "subtitulo": "Acompanhe o status e as notas fiscais dos seus pedidos.",
+    "vazioDica": "Quando você gerar um pedido, ele aparece aqui.",
+    "criado": "Pedido realizado",
+    "resumo": "Resumo"
   },
   "excluirConta": {
     "metaTitle": "Excluir conta | Nex Controls",
@@ -390,5 +440,8 @@
     "time1": "Respondemos ao pedido e concluímos a exclusão em até 15 dias a partir da confirmação.",
     "moreInfo": "Mais detalhes sobre como tratamos seus dados estão na",
     "privacyLink": "Política de Privacidade"
+  },
+  "comum": {
+    "carregando": "Carregando…"
   }
 }

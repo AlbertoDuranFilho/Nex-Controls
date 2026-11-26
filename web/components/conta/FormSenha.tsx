@@ -1,15 +1,18 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { alterarSenha, type EstadoForm } from "@/services/minha-conta";
-import { Retorno, estiloBotao, estiloCampo, estiloRotulo } from "@/components/conta/Campo";
+import { KeyRound } from "lucide-react";
+import { Retorno, estiloCampo, estiloRotulo } from "@/components/conta/Campo";
+import Botao from "@/components/ui/Botao";
 
 const inicial: EstadoForm = { status: "idle" };
 
 export default function FormSenha({ locale }: { locale: string }) {
   const t = useTranslations("conta.seguranca");
-  const [estado, action, pendente] = useActionState(alterarSenha, inicial);
+  const [estado, action, pendente] = useAcao(alterarSenha, inicial);
   const [mostrar, setMostrar] = useState(false);
   const [nova, setNova] = useState("");
   const [confirmar, setConfirmar] = useState("");
@@ -54,15 +57,15 @@ export default function FormSenha({ locale }: { locale: string }) {
         type="button"
         onClick={() => setMostrar((m) => !m)}
         aria-pressed={mostrar}
-        className="text-sm font-medium text-marca-cinza-600 underline underline-offset-2 hover:text-marca-preto"
+        className="rounded-lg text-sm font-medium text-marca-cinza-600 underline underline-offset-2 hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
       >
         {mostrar ? t("ocultar") : t("mostrar")}
       </button>
 
       <Retorno estado={estado} pendente={pendente} textoOk={t("alterada")} />
-      <button type="submit" disabled={pendente} className={estiloBotao}>
+      <Botao type="submit" carregando={pendente} icone={KeyRound} className="px-6">
         {t("salvar")}
-      </button>
+      </Botao>
     </form>
   );
 }

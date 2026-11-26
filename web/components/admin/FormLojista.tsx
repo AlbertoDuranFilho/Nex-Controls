@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import Link from "next/link";
 import SenhaGerada from "@/components/admin/SenhaGerada";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
@@ -75,7 +75,7 @@ function Campo({
 }
 
 export function FormNovoLojista({ locale }: { locale: string }) {
-  const [estado, action, pendente] = useActionState<Estado, FormData>(
+  const [estado, action, pendente] = useAcao<Estado, FormData>(
     async (_anterior, form) => criarLojista(form),
     null,
   );
@@ -130,7 +130,7 @@ export function FormNovoLojista({ locale }: { locale: string }) {
 }
 
 export function FormEditarLojista({ dados }: { dados: DadosEdicao }) {
-  const [estado, action, pendente] = useActionState<ResultadoAdmin | null, FormData>(
+  const [estado, action, pendente] = useAcao<ResultadoAdmin | null, FormData>(
     async (_anterior, form) => atualizarLojista(dados.id, form),
     null,
   );

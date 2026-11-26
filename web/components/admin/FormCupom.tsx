@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useTransition } from "react";
+import { useEffect } from "react";
+import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { paraDataRecife } from "@/lib/admin/cupom";
@@ -24,8 +25,8 @@ type Props = {
 
 export default function FormCupom({ cupom, locale, lojistas }: Props) {
   const router = useRouter();
-  const [estado, action, pendenteAcao] = useActionState<Estado, FormData>(salvarCupom, null);
-  const [emTransicao, iniciar] = useTransition();
+  const [estado, action, pendenteAcao] = useAcao<Estado, FormData>(salvarCupom, null);
+  const [emTransicao, iniciar] = useTransicao();
   const pendente = pendenteAcao || emTransicao;
 
   // Cupom recém-criado vai para a edição (reenviar criaria de novo).

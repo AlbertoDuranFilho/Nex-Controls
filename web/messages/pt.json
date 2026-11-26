@@ -8,7 +8,11 @@
     "email": "comercial@nexcontrols.com",
     "phone": "(11) 9999-9999",
     "clientArea": "Área do Cliente",
-    "abrirMenu": "Abrir menu"
+    "abrirMenu": "Abrir menu",
+    "fecharMenu": "Fechar menu",
+    "atendimento": "Atendimento",
+    "idioma": "Idioma",
+    "menuPrincipal": "Menu principal"
   },
   "home": {
     "headline": "Tecnologia em Cada Detalhe",
@@ -63,7 +67,9 @@
     "breadcrumb": "Você está em",
     "subtitulo": "Placas e componentes eletrônicos Nex Controls. Clientes cadastrados veem preços e compram direto pelo site.",
     "vazioDica": "Tente buscar por outro nome ou código.",
-    "porUnidade": "por unidade"
+    "porUnidade": "por unidade",
+    "diminuirDe": "Diminuir quantidade de {nome}",
+    "aumentarDe": "Aumentar quantidade de {nome}"
   },
   "contact": {
     "title": "Cadastre-se e receba em primeira mão as melhores ofertas, promoções e lançamentos dos nossos produtos",
@@ -151,7 +157,9 @@
       "endereco": "Endereço",
       "seguranca": "Segurança",
       "carrinho": "Carrinho",
-      "pedidos": "Pedidos"
+      "pedidos": "Pedidos",
+      "catalogo": "Catálogo",
+      "area": "Área do cliente"
     },
     "dados": {
       "titulo": "Meus dados",
@@ -166,7 +174,9 @@
       "isento": "Isento",
       "naoContribuinte": "Não contribuinte",
       "inscricaoEstadual": "Inscrição estadual",
-      "salvar": "Salvar"
+      "salvar": "Salvar",
+      "secao": "Dados da empresa",
+      "secaoDescricao": "Nome e documento são definidos pela Nex. Mantenha os contatos atualizados."
     },
     "endereco": {
       "titulo": "Endereço",
@@ -179,7 +189,8 @@
       "uf": "UF",
       "salvar": "Salvar",
       "buscando": "Buscando CEP…",
-      "naoEncontrado": "Não encontramos o CEP, preencha manualmente."
+      "naoEncontrado": "Não encontramos o CEP, preencha manualmente.",
+      "descricao": "Endereço usado na entrega dos seus pedidos."
     },
     "email": {
       "titulo": "E-mail de acesso",
@@ -201,7 +212,8 @@
       "mostrar": "Mostrar senhas",
       "ocultar": "Ocultar senhas",
       "salvar": "Alterar senha",
-      "alterada": "Senha alterada"
+      "alterada": "Senha alterada",
+      "descricao": "Troque a senha usada para entrar na área do cliente."
     },
     "estado": {
       "salvando": "Salvando…",
@@ -308,7 +320,10 @@
     "ola": "Olá, {nome}",
     "minhaConta": "Minha conta",
     "admin": "Admin",
-    "sair": "Sair"
+    "sair": "Sair",
+    "catalogo": "Catálogo",
+    "pedidos": "Meus pedidos",
+    "areaCliente": "Área do cliente"
   },
   "carrinho": {
     "titulo": "Carrinho",
@@ -357,7 +372,15 @@
     "cadastrarEndereco": "Cadastrar endereço",
     "erroGerarIncerto": "Não foi possível confirmar o pedido. Verifique em Meus pedidos antes de tentar de novo.",
     "irMeusPedidos": "Ir para Meus pedidos",
-    "erroCarregar": "Não foi possível carregar o carrinho. Tente novamente em alguns instantes."
+    "erroCarregar": "Não foi possível carregar o carrinho. Tente novamente em alguns instantes.",
+    "diminuirDe": "Diminuir quantidade de {nome}",
+    "aumentarDe": "Aumentar quantidade de {nome}",
+    "vazioDica": "Explore o catálogo e adicione produtos para montar o seu pedido.",
+    "contagemItens": "{count, plural, one {# item} other {# itens}}",
+    "porUnidade": "{valor} / un.",
+    "continuarComprando": "Continuar comprando",
+    "cupomDica": "Tem um cupom? Aplique antes de gerar o pedido.",
+    "observacaoTitulo": "Observação para a Nex"
   },
   "pedidos": {
     "titulo": "Meus pedidos",
@@ -396,6 +419,11 @@
     "historico": "Histórico",
     "historicoVazio": "Nenhuma mudança de status ainda.",
     "deAte": "{de} para {para}",
-    "colunaStatus": "Status"
+    "colunaStatus": "Status",
+    "subtitulo": "Acompanhe o status e as notas fiscais dos seus pedidos.",
+    "vazioDica": "Quando você gerar um pedido, ele aparece aqui.",
+    "criado": "Pedido realizado",
+    "resumo": "Resumo",
+    "verPedido": "Ver pedido"
   }
 }

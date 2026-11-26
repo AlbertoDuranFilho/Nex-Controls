@@ -67,8 +67,8 @@ describe("decidirRedirect", () => {
     expect(decidirRedirect("/en/admin/lojistas", "", anon)).toBe("/en/cliente/login");
   });
 
-  it("lojista em /es/admin/x vai para /es/cliente", () => {
-    expect(decidirRedirect("/es/admin/x", "", lojista)).toBe("/es/cliente");
+  it("lojista em /es/admin/x vai para /es/catalogo", () => {
+    expect(decidirRedirect("/es/admin/x", "", lojista)).toBe("/es/catalogo");
   });
 
   it("admin em /pt/cliente vai para /pt/admin/lojistas", () => {
@@ -80,8 +80,8 @@ describe("decidirRedirect", () => {
     expect(decidirRedirect("/pt/cliente/login", "", admin)).toBe("/pt/admin/lojistas");
   });
 
-  it("lojista em /pt/cliente/login vai para /pt/cliente", () => {
-    expect(decidirRedirect("/pt/cliente/login", "", lojista)).toBe("/pt/cliente");
+  it("lojista em /pt/cliente/login vai para /pt/catalogo", () => {
+    expect(decidirRedirect("/pt/cliente/login", "", lojista)).toBe("/pt/catalogo");
   });
 
   it("lojista e admin em suas areas nao redirecionam", () => {

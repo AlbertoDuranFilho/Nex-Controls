@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { ShoppingCart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 // Ilha client: só aparece para lojista logado. Conta a soma das quantidades do carrinho.
@@ -41,6 +42,7 @@ export default function IconeCarrinho({ onNavegar }: { onNavegar?: () => void })
   }, [pathname]);
 
   if (total === null) return null;
+  const ativo = pathname === `/${locale}/cliente/carrinho`;
 
   return (
     <Link
@@ -48,25 +50,19 @@ export default function IconeCarrinho({ onNavegar }: { onNavegar?: () => void })
       onClick={onNavegar}
       data-testid="icone-carrinho"
       aria-label={`${t("carrinho")}: ${total}`}
-      className="relative flex h-9 items-center gap-1.5 text-marca-preto"
+      aria-current={ativo ? "page" : undefined}
+      className={`relative grid size-11 shrink-0 place-items-center rounded-xl text-marca-preto transition duration-200 hover:bg-marca-cinza-100 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none motion-reduce:transition-none ${
+        ativo ? "bg-marca-cinza-100" : ""
+      }`}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.8}
+      <ShoppingCart aria-hidden className="size-[22px]" strokeWidth={1.75} />
+      <span
         aria-hidden="true"
+        className={`absolute top-0.5 right-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] leading-none font-semibold tabular-nums ring-2 ring-marca-branco transition-colors ${
+          total > 0 ? "bg-marca-preto text-marca-branco" : "bg-marca-cinza-200 text-marca-cinza-700"
+        }`}
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2M9 20.5h.01M17 20.5h.01"
-        />
-      </svg>
-      <span className="min-w-5 bg-marca-preto px-1.5 text-center text-xs font-semibold text-marca-branco">
-        {total}
+        {total > 99 ? "99+" : total}
       </span>
     </Link>
   );

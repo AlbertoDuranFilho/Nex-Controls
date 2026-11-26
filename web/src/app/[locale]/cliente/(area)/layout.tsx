@@ -21,9 +21,11 @@ export default async function AreaClienteLayout({ children, params }: Props) {
   if (cadastro.anonimizado_em) redirect(`/${locale}`);
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 pt-32 pb-16 md:flex-row md:gap-10">
-      <NavConta locale={locale} trocaSenha={flags.trocaSenha} />
-      <div className="min-w-0 flex-1">{children}</div>
+    <div className="min-h-screen bg-marca-cinza-50">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-28 pb-16 sm:px-6 md:flex-row md:items-start md:gap-8 md:pt-32">
+        <NavConta locale={locale} trocaSenha={flags.trocaSenha} nome={cadastro.nome} />
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
     </div>
   );
 }

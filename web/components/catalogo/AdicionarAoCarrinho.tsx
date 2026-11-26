@@ -94,7 +94,7 @@ export default function AdicionarAoCarrinho({
             type="button"
             onClick={() => passo(-1)}
             disabled={qtd !== null && qtd <= 1}
-            aria-label={t("diminuir")}
+            aria-label={compacto ? t("diminuirDe", { nome: nomeProduto }) : t("diminuir")}
             className={botaoPasso}
           >
             <Minus aria-hidden className="size-4" />
@@ -115,7 +115,7 @@ export default function AdicionarAoCarrinho({
             type="button"
             onClick={() => passo(1)}
             disabled={qtd !== null && qtd >= MAX}
-            aria-label={t("aumentar")}
+            aria-label={compacto ? t("aumentarDe", { nome: nomeProduto }) : t("aumentar")}
             className={botaoPasso}
           >
             <Plus aria-hidden className="size-4" />

@@ -5,7 +5,9 @@ import { useTranslations } from "next-intl";
 import { salvarMeusDados, type EstadoForm } from "@/services/minha-conta";
 import { formatarDocumento } from "@/lib/validacao/documento";
 import { mascaraTelefone } from "@/lib/conta/campos";
-import { Campo, Retorno, Seletor, estiloBotao } from "@/components/conta/Campo";
+import { Save } from "lucide-react";
+import { Campo, Retorno, Seletor } from "@/components/conta/Campo";
+import Botao from "@/components/ui/Botao";
 
 export type DadosCadastrais = {
   nome: string;
@@ -109,9 +111,9 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
       </div>
 
       <Retorno estado={estado} pendente={pendente} />
-      <button type="submit" disabled={pendente} className={estiloBotao}>
+      <Botao type="submit" carregando={pendente} icone={Save} className="px-6">
         {t("salvar")}
-      </button>
+      </Botao>
     </form>
   );
 }

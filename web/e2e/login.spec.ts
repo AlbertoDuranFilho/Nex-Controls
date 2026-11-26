@@ -75,7 +75,7 @@ test("lojista não acessa admin", async ({ page }) => {
   await preencherELogar(page, u);
   await expect(page).toHaveURL("/pt/catalogo");
   await page.goto("/pt/admin/lojistas");
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 });
 
 test("admin vai para o painel; admin em /es/cliente vai para /es/admin/lojistas", async ({
@@ -95,6 +95,7 @@ test("sair encerra a sessão", async ({ page }) => {
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
   await expect(page).toHaveURL("/pt/catalogo");
+  await page.getByRole("button", { name: /^Olá,/ }).click(); // abre o menu da conta
   await page.getByRole("button", { name: "Sair" }).click();
   await expect(page).toHaveURL("/pt");
   await expect(page.locator("nav").first().getByRole("link", { name: "Entrar" })).toBeVisible();

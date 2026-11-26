@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { ShieldCheck } from "lucide-react";
+import CartaoConta, { CabecalhoConta } from "@/components/conta/CartaoConta";
 import FormSenha from "@/components/conta/FormSenha";
 import { flags } from "@/lib/flags";
 
@@ -12,9 +14,13 @@ export default async function SegurancaPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "conta.seguranca" });
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-marca-preto">{t("titulo")}</h1>
-      <FormSenha locale={locale} />
+    <div className="space-y-6">
+      <CabecalhoConta icone={ShieldCheck} titulo={t("titulo")}>
+        {t("descricao")}
+      </CabecalhoConta>
+      <CartaoConta>
+        <FormSenha locale={locale} />
+      </CartaoConta>
     </div>
   );
 }

@@ -1,35 +1,43 @@
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { Mail, ShieldCheck } from "lucide-react";
 
-import { useTranslations } from 'next-intl'
-import Link from 'next/link'
-
-export default function Footer({locale} : { locale?: string}) {
-  const t = useTranslations('footer')
-  const currentYear = new Date().getFullYear()
+export default function Footer({ locale }: { locale?: string }) {
+  const t = useTranslations("footer");
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white bottom-0 py-8 text-center" >
-      <div className="max-w-4xl mx-auto">
-        <p className="mb-2">
-
-          © {currentYear} Nex Controls. {t('rights')}.
+    <footer className="bg-marca-preto py-10 text-marca-cinza-400">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 text-center sm:px-6 md:flex-row md:items-end md:justify-between md:text-left">
+        <div>
+          <p className="text-sm font-medium text-marca-branco">{t("tagline")}</p>
+          <address className="mt-3 space-y-1 text-xs not-italic">
+            <p>
+              {t("company")} · {t("cnpj")}
+            </p>
+            <p className="flex items-center justify-center gap-1.5 md:justify-start">
+              <Mail aria-hidden className="size-3.5" />
+              {t("contact")}:{" "}
+              <a
+                href="mailto:contato@nexcontrols.com"
+                className="rounded text-marca-cinza-300 underline-offset-4 transition-colors hover:text-marca-branco hover:underline focus-visible:ring-2 focus-visible:ring-marca-branco focus-visible:outline-none"
+              >
+                contato@nexcontrols.com
+              </a>
+            </p>
+          </address>
+        </div>
+        <p className="text-xs">
+          © {currentYear} Nex Controls. {t("rights")}.{" "}
           <Link
             href={`/${locale}/privacy-policy`}
-            className=" hover:text-gray-300 ml-1"
+            className="inline-flex items-center gap-1 rounded text-marca-cinza-300 underline-offset-4 transition-colors hover:text-marca-branco hover:underline focus-visible:ring-2 focus-visible:ring-marca-branco focus-visible:outline-none"
           >
+            <ShieldCheck aria-hidden className="size-3.5" />
             {t("privacyLink")}
           </Link>
         </p>
-        <p className="text-gray-400 text-sm">{t('tagline')}</p>
-        <address className="not-italic text-marca-cinza-400 text-xs mt-4 space-y-1">
-          <p>{t('company')} · {t('cnpj')}</p>
-          <p>
-            {t('contact')}:{' '}
-            <a href="mailto:contato@nexcontrols.com" className="hover:text-marca-cinza-300">
-              contato@nexcontrols.com
-            </a>
-          </p>
-        </address>
       </div>
     </footer>
-  )
+  );
 }

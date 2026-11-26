@@ -58,7 +58,10 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   const cliente = await ctxCliente.newPage();
   await logar(cliente, lojista, "/pt/catalogo");
   await cliente.goto("/pt/cliente/pedidos");
-  const linha = cliente.getByRole("row", { name: new RegExp(`#${numero}\\b`) });
+  // Cartão da lista: o link "Pedido #N" identifica o pedido.
+  const linha = cliente
+    .getByRole("listitem")
+    .filter({ has: cliente.getByRole("link", { name: new RegExp(`#${numero}$`) }) });
   await expect(linha).toContainText("Aguardando pagamento");
   await linha.getByRole("link", { name: new RegExp(`#${numero}\\b`) }).click();
   await expect(cliente).toHaveURL(new RegExp(`/pt/cliente/pedidos/${numero}$`));

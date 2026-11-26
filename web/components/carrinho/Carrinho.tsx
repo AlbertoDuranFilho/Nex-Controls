@@ -1,13 +1,36 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import {
+  ArrowLeft,
+  CircleAlert,
+  ClipboardCheck,
+  ImageOff,
+  Info,
+  LayoutGrid,
+  MapPin,
+  Minus,
+  Plus,
+  Receipt,
+  ShoppingCart,
+  StickyNote,
+  TicketPercent,
+  Trash2,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import ResumoPedido from "@/components/carrinho/ResumoPedido";
-import { estiloBotao, estiloCampo, estiloRotulo } from "@/components/conta/Campo";
+import { estiloCampo, estiloRotulo } from "@/components/conta/Campo";
+import CartaoConta from "@/components/conta/CartaoConta";
+import Botao from "@/components/ui/Botao";
 import { mensagemBloqueio, mensagemCupom, type Tradutor } from "@/lib/carrinho/mensagens";
 import { formatarMoeda } from "@/lib/formatar";
+import { imagemNaoOtimizada } from "@/lib/imagem";
+import type { Miniatura } from "@/services/catalogo";
 import {
   atualizarQuantidade,
   gerarPedido,
@@ -18,11 +41,12 @@ import {
 } from "@/services/carrinho";
 
 const LIMITE_OBSERVACAO = 500;
+const MAX = 9999;
 
 function quantidadeValida(texto: string): number | null {
   if (!/^\d{1,4}$/.test(texto.trim())) return null;
   const n = Number(texto);
-  return n >= 1 && n <= 9999 ? n : null;
+  return n >= 1 && n <= MAX ? n : null;
 }
 
 const qtdsDe = (s: Simulacao) => Object.fromEntries(s.itens.map((i) => [i.produto_id, String(i.quantidade)]));
@@ -31,7 +55,21 @@ function avisarCabecalho() {
   window.dispatchEvent(new Event("carrinho:atualizado"));
 }
 
-export default function Carrinho({ locale, inicial }: { locale: string; inicial: Simulacao }) {
+const botaoIcone =
+  "grid size-9 shrink-0 place-items-center rounded-lg text-marca-cinza-600 transition-colors duration-150 " +
+  "hover:bg-marca-cinza-100 hover:text-marca-preto disabled:pointer-events-none disabled:opacity-40 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-marca-preto motion-reduce:transition-none";
+
+export default function Carrinho({
+  locale,
+  inicial,
+  miniaturas = {},
+}: {
+  locale: string;
+  inicial: Simulacao;
+  /** Só exibição: imagem e slug por produto_id. */
+  miniaturas?: Record<string, Miniatura>;
+}) {
   const t = useTranslations("carrinho");
   const tr = t as unknown as Tradutor;
   const router = useRouter();
@@ -63,14 +101,7 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
     }
   }
 
-  function confirmarQuantidade(item: ItemSimulacao) {
-    const texto = qtds[item.produto_id] ?? "";
-    const n = quantidadeValida(texto);
-    if (n === null) {
-      setErro(t("erroQuantidade"));
-      setQtds((a) => ({ ...a, [item.produto_id]: String(item.quantidade) }));
-      return;
-    }
+  function salvarQuantidade(item: ItemSimulacao, n: number) {
     if (n === item.quantidade) return;
     setErro(null);
     iniciar(async () => {
@@ -79,6 +110,25 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
       await recalcular(cupom);
       avisarCabecalho();
     });
+  }
+
+  function confirmarQuantidade(item: ItemSimulacao) {
+    const texto = qtds[item.produto_id] ?? "";
+    const n = quantidadeValida(texto);
+    if (n === null) {
+      setErro(t("erroQuantidade"));
+      setQtds((a) => ({ ...a, [item.produto_id]: String(item.quantidade) }));
+      return;
+    }
+    salvarQuantidade(item, n);
+  }
+
+  // Botões − / +: mesma gravação do campo, a partir do valor atual.
+  function passo(item: ItemSimulacao, delta: number) {
+    const atual = quantidadeValida(qtds[item.produto_id] ?? "") ?? item.quantidade;
+    const n = Math.min(MAX, Math.max(1, atual + delta));
+    setQtds((a) => ({ ...a, [item.produto_id]: String(n) }));
+    salvarQuantidade(item, n);
   }
 
   function remover(item: ItemSimulacao) {
@@ -127,14 +177,15 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
 
   if (sim.itens.length === 0) {
     return (
-      <div className="space-y-4">
-        <p className="text-marca-cinza-700">{t("vazio")}</p>
-        <Link
-          href={`/${locale}/catalogo`}
-          className="inline-block border border-marca-preto px-4 py-2 text-sm font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco"
-        >
+      <div className="flex flex-col items-center rounded-2xl border border-dashed border-marca-cinza-300 bg-marca-branco px-6 py-14 text-center">
+        <span className="grid size-16 place-items-center rounded-full bg-marca-cinza-100 text-marca-preto">
+          <ShoppingCart aria-hidden className="size-7" strokeWidth={1.5} />
+        </span>
+        <p className="mt-5 text-lg font-semibold text-marca-preto">{t("vazio")}</p>
+        <p className="mt-1 max-w-sm text-sm text-marca-cinza-600">{t("vazioDica")}</p>
+        <Botao href={`/${locale}/catalogo`} icone={LayoutGrid} className="mt-6 px-6">
           {t("irCatalogo")}
-        </Link>
+        </Botao>
       </div>
     );
   }
@@ -149,189 +200,314 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
   const obsLonga = observacao.length > LIMITE_OBSERVACAO;
   const bloqueado = bloqueios.length > 0 || c.situacao === "invalido" || obsLonga;
   const ocupado = pendente || enviando;
+  const totalUnidades = sim.itens.reduce((s, i) => s + i.quantidade, 0);
+  const temAlerta = incerto || !!erro;
 
   return (
-    <div className="space-y-10" aria-busy={ocupado}>
-      <ul className="divide-y divide-marca-cinza-200 border-y border-marca-cinza-200">
-        {sim.itens.map((item) => (
-          <li
-            key={item.produto_id}
-            data-testid="item-carrinho"
-            className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center"
+    <div
+      className="grid grid-cols-[minmax(0,1fr)] gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start"
+      aria-busy={ocupado}
+    >
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4 text-sm">
+          <p className="font-medium text-marca-cinza-600">{t("contagemItens", { count: totalUnidades })}</p>
+          <Link
+            href={`/${locale}/catalogo`}
+            className="group inline-flex items-center gap-1.5 rounded-lg font-medium text-marca-cinza-700 underline-offset-4 hover:text-marca-preto hover:underline focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
           >
-            <div className="min-w-0 flex-1">
-              <p className="font-medium text-marca-preto">{item.nome}</p>
-              <p className="text-xs text-marca-cinza-600">{item.codigo}</p>
-              {!item.valido && (
-                <p className="mt-1 text-sm font-medium text-marca-preto">
-                  {item.motivo === "sem_preco" ? t("itemSemPreco") : t("itemInativo")}
-                </p>
-              )}
-            </div>
+            <ArrowLeft
+              aria-hidden
+              className="size-4 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+            />
+            {t("continuarComprando")}
+          </Link>
+        </div>
 
-            {item.valido && (
-              <>
-                <label className="flex flex-col text-xs text-marca-cinza-600">
-                  {t("quantidade")}
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={9999}
-                    step={1}
-                    aria-label={t("quantidadeDe", { nome: item.nome })}
-                    value={qtds[item.produto_id] ?? ""}
+        <ul className="space-y-3">
+          {sim.itens.map((item) => {
+            const mini = miniaturas[item.produto_id];
+            const img = mini?.imagem;
+            const href = mini ? `/${locale}/catalogo/${mini.slug}` : null;
+            const qtdAtual = quantidadeValida(qtds[item.produto_id] ?? "");
+            return (
+              <li
+                key={item.produto_id}
+                data-testid="item-carrinho"
+                className={`flex gap-4 rounded-2xl border bg-marca-branco p-4 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none sm:p-5 ${
+                  item.valido ? "border-marca-cinza-200" : "border-marca-cinza-300 border-dashed"
+                }`}
+              >
+                <div className="relative size-20 shrink-0 overflow-hidden rounded-xl border border-marca-cinza-100 bg-marca-cinza-50 sm:size-24">
+                  {img ? (
+                    <Image
+                      src={img.url}
+                      unoptimized={imagemNaoOtimizada(img.url)}
+                      alt=""
+                      fill
+                      sizes="96px"
+                      className={`object-contain p-2 ${item.valido ? "" : "opacity-50 grayscale"}`}
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center">
+                      <ImageOff aria-hidden className="size-6 text-marca-cinza-300" strokeWidth={1.25} />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex min-w-0 flex-1 flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-block rounded-full bg-marca-cinza-100 px-2 py-0.5 font-mono text-[11px] font-semibold tracking-wide text-marca-cinza-700">
+                      {item.codigo}
+                    </span>
+                    <p className="mt-1.5 line-clamp-2 text-[15px] leading-snug font-medium text-marca-preto">
+                      {href ? (
+                        <Link
+                          href={href}
+                          className="rounded underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+                        >
+                          {item.nome}
+                        </Link>
+                      ) : (
+                        item.nome
+                      )}
+                    </p>
+                    {item.valido ? (
+                      <p className="mt-1 text-sm text-marca-cinza-600 tabular-nums">
+                        {t("porUnidade", { valor: moeda(item.preco_unitario ?? 0) })}
+                      </p>
+                    ) : (
+                      <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-marca-preto">
+                        <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+                        {item.motivo === "sem_preco" ? t("itemSemPreco") : t("itemInativo")}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => remover(item)}
                     disabled={ocupado}
-                    onChange={(e) => setQtds((a) => ({ ...a, [item.produto_id]: e.target.value }))}
-                    onBlur={() => confirmarQuantidade(item)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        confirmarQuantidade(item);
-                      }
-                    }}
-                    className="mt-1 w-24 border border-marca-cinza-300 px-3 py-2 text-sm text-marca-preto disabled:bg-marca-cinza-100"
-                  />
-                </label>
-                <div className="text-sm sm:w-28 sm:text-right">
-                  <p className="text-xs text-marca-cinza-600">{t("precoUnitario")}</p>
-                  <p className="text-marca-cinza-800">{moeda(item.preco_unitario ?? 0)}</p>
+                    aria-label={t("removerDe", { nome: item.nome })}
+                    title={t("remover")}
+                    className={`${botaoIcone} -mt-1 -mr-1`}
+                  >
+                    <Trash2 aria-hidden className="size-[18px]" />
+                  </button>
+                  </div>
+
+                  {item.valido && (
+                    <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+                      <div className="flex h-11 w-32 items-center justify-between rounded-xl border border-marca-cinza-200 bg-marca-branco p-1 transition-colors focus-within:border-marca-preto">
+                        <button
+                          type="button"
+                          onClick={() => passo(item, -1)}
+                          disabled={ocupado || (qtdAtual !== null && qtdAtual <= 1)}
+                          aria-label={t("diminuirDe", { nome: item.nome })}
+                          className={botaoIcone}
+                        >
+                          <Minus aria-hidden className="size-4" />
+                        </button>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          aria-label={t("quantidadeDe", { nome: item.nome })}
+                          value={qtds[item.produto_id] ?? ""}
+                          disabled={ocupado}
+                          onChange={(e) => setQtds((a) => ({ ...a, [item.produto_id]: e.target.value }))}
+                          onFocus={(e) => e.target.select()}
+                          onBlur={() => confirmarQuantidade(item)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              confirmarQuantidade(item);
+                            }
+                          }}
+                          className="w-full min-w-0 bg-transparent text-center text-[15px] font-semibold text-marca-preto tabular-nums focus:outline-none disabled:text-marca-cinza-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => passo(item, 1)}
+                          disabled={ocupado || (qtdAtual !== null && qtdAtual >= MAX)}
+                          aria-label={t("aumentarDe", { nome: item.nome })}
+                          className={botaoIcone}
+                        >
+                          <Plus aria-hidden className="size-4" />
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-marca-cinza-500">{t("totalLinha")}</p>
+                        <p className="text-lg font-semibold whitespace-nowrap text-marca-preto tabular-nums">
+                          {moeda(item.total_linha)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="text-sm sm:w-28 sm:text-right">
-                  <p className="text-xs text-marca-cinza-600">{t("totalLinha")}</p>
-                  <p className="font-semibold text-marca-preto">{moeda(item.total_linha)}</p>
-                </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        <p
+          role="alert"
+          aria-live="polite"
+          className={
+            temAlerta
+              ? "flex items-start gap-2.5 rounded-xl border border-marca-preto bg-marca-branco px-4 py-3 text-sm text-marca-preto"
+              : "sr-only"
+          }
+        >
+          {temAlerta && <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />}
+          <span>
+            {incerto ? (
+              <>
+                {t("erroGerarIncerto")}{" "}
+                <Link href={`/${locale}/cliente/pedidos`} className="font-medium underline underline-offset-2">
+                  {t("irMeusPedidos")}
+                </Link>
               </>
+            ) : (
+              erro
             )}
+          </span>
+        </p>
 
-            <button
-              type="button"
-              onClick={() => remover(item)}
-              disabled={ocupado}
-              aria-label={t("removerDe", { nome: item.nome })}
-              className="self-start text-sm text-marca-cinza-600 underline underline-offset-2 hover:text-marca-preto disabled:cursor-not-allowed sm:self-center"
-            >
-              {t("remover")}
-            </button>
-          </li>
-        ))}
-      </ul>
+        {/* Sem aria-labelledby: o nome da seção não deve competir com o rótulo "Observação". */}
+        <CartaoConta titulo={t("observacaoTitulo")} icone={StickyNote}>
+          <label htmlFor="observacao" className={estiloRotulo}>
+            {t("observacao")}
+          </label>
+          <textarea
+            id="observacao"
+            rows={3}
+            value={observacao}
+            maxLength={LIMITE_OBSERVACAO}
+            onChange={(e) => setObservacao(e.target.value)}
+            aria-describedby="observacao-ajuda"
+            className={`${estiloCampo} resize-y`}
+          />
+          <div id="observacao-ajuda" className="mt-1.5 flex justify-between gap-4 text-xs text-marca-cinza-600">
+            <span>{t("observacaoAjuda")}</span>
+            <span className="tabular-nums">
+              {observacao.length}/{LIMITE_OBSERVACAO}
+            </span>
+          </div>
+        </CartaoConta>
+      </div>
 
-      <p role="alert" aria-live="polite" className="min-h-5 text-sm text-marca-preto">
-        {incerto ? (
-          <>
-            {t("erroGerarIncerto")}{" "}
-            <Link href={`/${locale}/cliente/pedidos`} className="font-medium underline underline-offset-2">
-              {t("irMeusPedidos")}
-            </Link>
-          </>
-        ) : (
-          erro
-        )}
-      </p>
+      <aside
+        aria-labelledby="titulo-resumo"
+        className="space-y-6 rounded-2xl border border-marca-cinza-200 bg-marca-branco p-5 shadow-suave sm:p-6 xl:sticky xl:top-28"
+      >
+        <h2 id="titulo-resumo" className="flex items-center gap-2.5 text-lg font-semibold text-marca-preto">
+          <Receipt aria-hidden className="size-5" strokeWidth={1.75} />
+          {t("resumo")}
+        </h2>
 
-      <div className="grid gap-10 md:grid-cols-2">
-        <div className="space-y-6">
-          <form
-            className="space-y-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              aplicarCupom(cupomTexto.trim() || null);
-            }}
-          >
-            <label htmlFor="cupom" className={estiloRotulo}>
-              {t("cupom")}
-            </label>
-            <div className="flex gap-2">
+        <form
+          className="space-y-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            aplicarCupom(cupomTexto.trim() || null);
+          }}
+        >
+          <label htmlFor="cupom" className={estiloRotulo}>
+            {t("cupom")}
+          </label>
+          <div className="flex gap-2">
+            <div className="group relative min-w-0 flex-1">
+              <TicketPercent
+                aria-hidden
+                className="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-marca-cinza-400 transition-colors group-focus-within:text-marca-preto"
+              />
               <input
                 id="cupom"
                 value={cupomTexto}
                 maxLength={64}
                 autoComplete="off"
                 onChange={(e) => setCupomTexto(e.target.value)}
-                className={`${estiloCampo} uppercase`}
+                aria-describedby="mensagem-cupom"
+                className={`${estiloCampo} pl-10 font-medium tracking-wide uppercase placeholder:normal-case`}
               />
-              <button
-                type="submit"
-                disabled={ocupado || !cupomTexto.trim()}
-                className="border border-marca-preto px-4 text-sm font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco disabled:cursor-not-allowed disabled:border-marca-cinza-300 disabled:text-marca-cinza-500 disabled:hover:bg-transparent"
-              >
-                {t("aplicar")}
-              </button>
             </div>
-            <div data-testid="mensagem-cupom" aria-live="polite" className="min-h-5 text-sm text-marca-cinza-800">
-              {msgCupom}
-              {cupom && (
-                <button
-                  type="button"
-                  onClick={() => aplicarCupom(null)}
-                  disabled={ocupado}
-                  className="ml-2 underline underline-offset-2 hover:text-marca-preto"
-                >
-                  {t("tirarCupom")}
-                </button>
-              )}
-            </div>
-          </form>
-
-          <div>
-            <label htmlFor="observacao" className={estiloRotulo}>
-              {t("observacao")}
-            </label>
-            <textarea
-              id="observacao"
-              rows={4}
-              value={observacao}
-              maxLength={LIMITE_OBSERVACAO}
-              onChange={(e) => setObservacao(e.target.value)}
-              aria-describedby="observacao-ajuda"
-              className={estiloCampo}
-            />
-            <div id="observacao-ajuda" className="mt-1 flex justify-between text-xs text-marca-cinza-600">
-              <span>{t("observacaoAjuda")}</span>
-              <span>
-                {observacao.length}/{LIMITE_OBSERVACAO}
-              </span>
-            </div>
+            <Botao
+              type="submit"
+              variante="secundario"
+              disabled={ocupado || !cupomTexto.trim()}
+              className="h-12 px-4"
+            >
+              {t("aplicar")}
+            </Botao>
           </div>
+          <div
+            id="mensagem-cupom"
+            data-testid="mensagem-cupom"
+            aria-live="polite"
+            className="flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-marca-cinza-700"
+          >
+            {msgCupom ?? (!cupom && <span className="text-marca-cinza-500">{t("cupomDica")}</span>)}
+            {cupom && (
+              <button
+                type="button"
+                onClick={() => aplicarCupom(null)}
+                disabled={ocupado}
+                className="inline-flex items-center gap-1 rounded-full bg-marca-cinza-100 px-2.5 py-0.5 text-xs font-medium text-marca-cinza-700 transition-colors hover:bg-marca-cinza-200 hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+              >
+                <X aria-hidden className="size-3" />
+                {t("tirarCupom")}
+              </button>
+            )}
+          </div>
+        </form>
+
+        <div className="border-t border-marca-cinza-100 pt-5">
+          <ResumoPedido simulacao={sim} locale={locale} />
         </div>
 
-        <div className="space-y-6 border border-marca-cinza-200 p-6">
-          <h2 className="text-lg font-semibold text-marca-preto">{t("resumo")}</h2>
-          <ResumoPedido simulacao={sim} locale={locale} />
-
-          {bloqueios.length > 0 && (
-            <ul className="space-y-2 border-l-2 border-marca-preto pl-4 text-sm text-marca-preto">
-              {bloqueios.map((b) => (
-                <li key={b}>
+        {bloqueios.length > 0 && (
+          <ul className="space-y-2 rounded-xl bg-marca-cinza-50 p-4 text-sm text-marca-preto">
+            {bloqueios.map((b) => (
+              <li key={b} className="flex items-start gap-2">
+                {b === "sem_endereco" ? (
+                  <MapPin aria-hidden className="mt-0.5 size-4 shrink-0" />
+                ) : (
+                  <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+                )}
+                <span>
                   {mensagemBloqueio(b, tr)}
                   {b === "sem_endereco" && (
                     <>
                       {" "}
                       <Link
                         href={`/${locale}/cliente/endereco`}
-                        className="font-medium underline underline-offset-2"
+                        className="font-semibold underline underline-offset-2"
                       >
                         {t("cadastrarEndereco")}
                       </Link>
                     </>
                   )}
-                </li>
-              ))}
-            </ul>
-          )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
 
-          <button
-            type="button"
-            onClick={gerar}
-            disabled={bloqueado || ocupado}
-            className={`${estiloBotao} w-full`}
-          >
-            {enviando ? t("gerando") : t("gerar")}
-          </button>
-          <p className="text-xs text-marca-cinza-600">{t("aviso")}</p>
-        </div>
-      </div>
+        <Botao
+          onClick={gerar}
+          disabled={bloqueado || ocupado}
+          carregando={enviando}
+          icone={ClipboardCheck}
+          tamanho="lg"
+          className="w-full"
+        >
+          {enviando ? t("gerando") : t("gerar")}
+        </Botao>
+        <p className="flex items-start gap-2 text-xs text-marca-cinza-600">
+          <Info aria-hidden className="mt-px size-3.5 shrink-0" />
+          {t("aviso")}
+        </p>
+      </aside>
     </div>
   );
 }

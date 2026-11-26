@@ -169,6 +169,8 @@ test("troca de e-mail pede confirmação nos dois", async ({ page }) => {
   expect(await emailNoAuth()).toBe(novo);
   expect((await lojistaNoBanco(u.id)).email).toBe(novo);
 
+  await page.getByRole("button", { name: /^Olá,/ }).click(); // abre o menu da conta
+
   await page.getByRole("button", { name: "Sair" }).click();
   // Espera o Sair terminar: senão a página /cliente recarrega para login?next=/pt/cliente.
   await expect(page).toHaveURL("/pt");
@@ -206,6 +208,8 @@ test("senha com flag ligada: aparece Segurança e troca a senha", async ({ page 
   await page.getByLabel("Confirmar nova senha", { exact: true }).fill("NovaSenha#456");
   await page.getByRole("button", { name: "Alterar senha", exact: true }).click();
   await expect(page.getByText("Senha alterada", { exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: /^Olá,/ }).click(); // abre o menu da conta
 
   await page.getByRole("button", { name: "Sair" }).click();
   await expect(page).toHaveURL("/pt");

@@ -2,8 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Clock, Mail, Send } from "lucide-react";
 import { alterarEmail, type EstadoForm } from "@/services/minha-conta";
-import { Campo, Retorno, estiloBotao } from "@/components/conta/Campo";
+import { Campo, Retorno } from "@/components/conta/Campo";
+import CartaoConta from "@/components/conta/CartaoConta";
+import Botao from "@/components/ui/Botao";
 
 const inicial: EstadoForm = { status: "idle" };
 
@@ -22,19 +25,25 @@ export default function FormEmail({
   const erros = estado.erros ?? {};
 
   return (
-    <section aria-labelledby="titulo-email" className="space-y-4 border-t border-marca-cinza-200 pt-8">
-      <h2 id="titulo-email" className="text-lg font-bold text-marca-preto">
-        {t("titulo")}
-      </h2>
-      <p className="text-sm text-marca-cinza-700">
-        {t("atual")}: <strong className="font-semibold text-marca-preto">{email}</strong>
-      </p>
+    <CartaoConta
+      titulo={t("titulo")}
+      idTitulo="titulo-email"
+      icone={Mail}
+      descricao={
+        <>
+          {t("atual")}: <strong className="font-semibold break-all text-marca-preto">{email}</strong>
+        </>
+      }
+    >
       {emailPendente ? (
-        <div className="border border-marca-cinza-300 bg-marca-cinza-50 p-4 text-sm text-marca-preto">
-          <p>{t("aguardando")}</p>
-          <p className="mt-1">
-            <strong className="font-semibold">{emailPendente}</strong>
-          </p>
+        <div className="mb-6 flex gap-3 rounded-xl border border-marca-cinza-200 bg-marca-cinza-50 p-4 text-sm text-marca-preto">
+          <Clock aria-hidden className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <p>{t("aguardando")}</p>
+            <p className="mt-1">
+              <strong className="font-semibold break-all">{emailPendente}</strong>
+            </p>
+          </div>
         </div>
       ) : null}
 
@@ -53,10 +62,10 @@ export default function FormEmail({
           erro={erros.email}
         />
         <Retorno estado={estado} pendente={pendente} textoOk={t("enviado")} />
-        <button type="submit" disabled={pendente} className={estiloBotao}>
+        <Botao type="submit" carregando={pendente} icone={Send} className="px-6">
           {t("alterar")}
-        </button>
+        </Botao>
       </form>
-    </section>
+    </CartaoConta>
   );
 }

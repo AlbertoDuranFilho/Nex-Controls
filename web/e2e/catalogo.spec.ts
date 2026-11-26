@@ -55,8 +55,8 @@ test("lojista adiciona pelo cartão e o contador do carrinho muda", async ({ pag
   await expect(cartao.getByText(/R\$\s80,00/)).toBeVisible();
   await expect(page.getByTestId("icone-carrinho")).toHaveAttribute("aria-label", "Carrinho: 0");
 
-  await cartao.getByRole("button", { name: "Aumentar" }).click();
-  await expect(cartao.getByLabel(`Quantidade de ${nome}`)).toHaveValue("2");
+  await cartao.getByRole("button", { name: `Aumentar quantidade de ${nome}` }).click();
+  await expect(cartao.getByLabel(`Quantidade de ${nome}`, { exact: true })).toHaveValue("2");
   await cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` }).click();
   await expect(cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` })).toContainText(
     "Adicionado",

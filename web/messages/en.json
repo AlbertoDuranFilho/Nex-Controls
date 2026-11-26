@@ -8,7 +8,11 @@
     "email": "commercial@nexcontrols.com",
     "phone": "",
     "clientArea": "Client Area",
-    "abrirMenu": "Open menu"
+    "abrirMenu": "Open menu",
+    "fecharMenu": "Close menu",
+    "atendimento": "Customer service",
+    "idioma": "Language",
+    "menuPrincipal": "Main menu"
   },
   "home": {
     "headline": "Technology in Every Detail",
@@ -63,7 +67,9 @@
     "breadcrumb": "You are here",
     "subtitulo": "Nex Controls electronic boards and components. Registered customers see prices and order directly online.",
     "vazioDica": "Try searching for another name or code.",
-    "porUnidade": "per unit"
+    "porUnidade": "per unit",
+    "diminuirDe": "Decrease quantity of {nome}",
+    "aumentarDe": "Increase quantity of {nome}"
   },
   "contact": {
     "title": "Sign up and receive first-hand the best offers, promotions, and launches of our products",
@@ -151,7 +157,9 @@
       "endereco": "Address",
       "seguranca": "Security",
       "carrinho": "Cart",
-      "pedidos": "Orders"
+      "pedidos": "Orders",
+      "catalogo": "Catalog",
+      "area": "Customer area"
     },
     "dados": {
       "titulo": "My details",
@@ -166,7 +174,9 @@
       "isento": "Exempt",
       "naoContribuinte": "Non-taxpayer",
       "inscricaoEstadual": "State registration number",
-      "salvar": "Save"
+      "salvar": "Save",
+      "secao": "Company details",
+      "secaoDescricao": "Name and document are set by Nex. Keep your contacts up to date."
     },
     "endereco": {
       "titulo": "Address",
@@ -179,7 +189,8 @@
       "uf": "State",
       "salvar": "Save",
       "buscando": "Looking up postal code…",
-      "naoEncontrado": "We could not find this postal code, please fill in manually."
+      "naoEncontrado": "We could not find this postal code, please fill in manually.",
+      "descricao": "Address used to deliver your orders."
     },
     "email": {
       "titulo": "Login email",
@@ -201,7 +212,8 @@
       "mostrar": "Show passwords",
       "ocultar": "Hide passwords",
       "salvar": "Change password",
-      "alterada": "Password changed"
+      "alterada": "Password changed",
+      "descricao": "Change the password you use to sign in to the customer area."
     },
     "estado": {
       "salvando": "Saving…",
@@ -308,7 +320,10 @@
     "ola": "Hello, {nome}",
     "minhaConta": "My account",
     "admin": "Admin",
-    "sair": "Sign out"
+    "sair": "Sign out",
+    "catalogo": "Catalog",
+    "pedidos": "My orders",
+    "areaCliente": "Customer area"
   },
   "carrinho": {
     "titulo": "Cart",
@@ -357,7 +372,15 @@
     "cadastrarEndereco": "Add address",
     "erroGerarIncerto": "We could not confirm the order. Check My orders before trying again.",
     "irMeusPedidos": "Go to My orders",
-    "erroCarregar": "Could not load the cart. Please try again in a moment."
+    "erroCarregar": "Could not load the cart. Please try again in a moment.",
+    "diminuirDe": "Decrease quantity of {nome}",
+    "aumentarDe": "Increase quantity of {nome}",
+    "vazioDica": "Browse the catalog and add products to build your order.",
+    "contagemItens": "{count, plural, one {# item} other {# items}}",
+    "porUnidade": "{valor} each",
+    "continuarComprando": "Continue shopping",
+    "cupomDica": "Have a coupon? Apply it before placing the order.",
+    "observacaoTitulo": "Note to Nex"
   },
   "pedidos": {
     "titulo": "My orders",
@@ -396,6 +419,11 @@
     "historico": "History",
     "historicoVazio": "No status changes yet.",
     "deAte": "{de} to {para}",
-    "colunaStatus": "Status"
+    "colunaStatus": "Status",
+    "subtitulo": "Track the status and invoices of your orders.",
+    "vazioDica": "Orders you place will show up here.",
+    "criado": "Order placed",
+    "resumo": "Summary",
+    "verPedido": "View order"
   }
 }

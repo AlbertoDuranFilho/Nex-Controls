@@ -3,6 +3,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 export type TomSelo = "neutro" | "escuro" | "ambar" | "azul" | "violeta" | "ciano" | "verde" | "vermelho";
 
+// Cores fora da paleta marca-* só aqui, e só para status de pedido (StatusPedido); o resto usa neutro/escuro.
 // Tons suaves com texto escuro do mesmo matiz (contraste AA sobre o fundo claro).
 const tons: Record<TomSelo, string> = {
   neutro: "bg-marca-cinza-100 text-marca-cinza-700 ring-marca-cinza-200",

@@ -11,6 +11,9 @@ export type BotaoProps = {
   icone?: LucideIcon;
   href?: string;
   carregando?: boolean;
+  /** Só com `href` (ex.: manual em nova aba). */
+  target?: string;
+  rel?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const base =
@@ -48,6 +51,8 @@ export default function Botao({
   children,
   disabled,
   type = "button",
+  target,
+  rel,
   ...resto
 }: BotaoProps) {
   const classes = classesBotao(variante, tamanho, className);
@@ -70,6 +75,9 @@ export default function Botao({
         aria-label={resto["aria-label"]}
         title={resto.title}
         id={resto.id}
+        target={target}
+        rel={rel}
+        aria-current={resto["aria-current"]}
       >
         {conteudo}
       </Link>

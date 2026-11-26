@@ -37,7 +37,8 @@ export default async function ProdutoPage({ params }: Props) {
   if (!produto) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    // pt-32 = navbar fixa (pt-24) + respiro.
+    <div className="mx-auto max-w-7xl px-4 pt-32 pb-16 sm:px-6">
       <ProdutoDetalhe produto={produto} />
     </div>
   );

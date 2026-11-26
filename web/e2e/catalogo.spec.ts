@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
-import { criarLojista, criarProduto, darDesconto, removerProdutos } from "./fixtures";
+import { admin, criarLojista, criarProduto, darDesconto, removerProdutos } from "./fixtures";
 
 const SEGREDO = "e2e-revalidar";
 const sufixo = randomUUID().slice(0, 8).toUpperCase();
@@ -35,7 +35,46 @@ test("visitante vê o produto na lista e nenhum preço", async ({ page }) => {
   await novoProduto({ codigo: `V${sufixo}`, nome, preco: 100 });
   await page.goto("/pt/catalogo");
   await expect(page.getByText(nome)).toBeVisible();
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  await expect(cartao.getByRole("link", { name: "Entre para ver preços" })).toHaveAttribute(
+    "href",
+    `/pt/cliente/login?next=${encodeURIComponent("/pt/catalogo")}`,
+  );
+  await expect(cartao.getByRole("button", { name: /carrinho/ })).toHaveCount(0);
   await expect(page.locator("main")).not.toContainText("R$");
+});
+
+test("lojista adiciona pelo cartão e o contador do carrinho muda", async ({ page }) => {
+  const u = await criarLojista();
+  const nome = `Placa Cartao ${sufixo}`;
+  await novoProduto({ codigo: `C${sufixo}`, nome, preco: 80 });
+  await logar(page, u);
+  await page.getByLabel("Buscar produto").fill(`C${sufixo}`);
+
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  await expect(cartao.getByText(/R\$\s80,00/)).toBeVisible();
+  await expect(page.getByTestId("icone-carrinho")).toHaveAttribute("aria-label", "Carrinho: 0");
+
+  await cartao.getByRole("button", { name: "Aumentar" }).click();
+  await expect(cartao.getByLabel(`Quantidade de ${nome}`)).toHaveValue("2");
+  await cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` }).click();
+  await expect(cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` })).toContainText(
+    "Adicionado",
+  );
+  await expect(page.getByTestId("icone-carrinho")).toHaveAttribute("aria-label", "Carrinho: 2");
+});
+
+test("produto sem preço aparece como sob consulta no cartão, sem botão de adicionar", async ({ page }) => {
+  const u = await criarLojista();
+  const nome = `Placa Consulta ${sufixo}`;
+  const { id } = await novoProduto({ codigo: `S${sufixo}`, nome, preco: 10 });
+  const { error } = await admin().from("produto_precos").delete().eq("produto_id", id);
+  expect(error).toBeNull();
+  await logar(page, u);
+
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  await expect(cartao.getByText("Sob consulta")).toBeVisible();
+  await expect(cartao.getByRole("button", { name: /ao carrinho/ })).toHaveCount(0);
 });
 
 test("detalhe mostra especificação e link do manual; sem preço para visitante", async ({ page }) => {

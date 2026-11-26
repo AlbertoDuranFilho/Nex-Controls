@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useTransicao } from "@/lib/react/destravar-transicao";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -83,7 +84,7 @@ export default function Carrinho({
   // Falha sem resposta ao gerar: o pedido pode ter sido criado. Orienta a conferir em Meus pedidos.
   const [incerto, setIncerto] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [pendente, iniciar] = useTransition();
+  const [pendente, iniciar] = useTransicao();
   const moeda = (v: number) => formatarMoeda(v, locale);
 
   // Toda alteração termina aqui: uma chamada a simular_pedido com o cupom atual.

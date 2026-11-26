@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { Clock, Mail, Send } from "lucide-react";
 import { alterarEmail, type EstadoForm } from "@/services/minha-conta";
@@ -20,7 +21,7 @@ export default function FormEmail({
   emailPendente: string | null;
 }) {
   const t = useTranslations("conta.email");
-  const [estado, action, pendente] = useActionState(alterarEmail, inicial);
+  const [estado, action, pendente] = useAcao(alterarEmail, inicial);
   const [novo, setNovo] = useState("");
   const erros = estado.erros ?? {};
 

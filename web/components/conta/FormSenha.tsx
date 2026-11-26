@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { alterarSenha, type EstadoForm } from "@/services/minha-conta";
 import { KeyRound } from "lucide-react";
@@ -11,7 +12,7 @@ const inicial: EstadoForm = { status: "idle" };
 
 export default function FormSenha({ locale }: { locale: string }) {
   const t = useTranslations("conta.seguranca");
-  const [estado, action, pendente] = useActionState(alterarSenha, inicial);
+  const [estado, action, pendente] = useAcao(alterarSenha, inicial);
   const [mostrar, setMostrar] = useState(false);
   const [nova, setNova] = useState("");
   const [confirmar, setConfirmar] = useState("");

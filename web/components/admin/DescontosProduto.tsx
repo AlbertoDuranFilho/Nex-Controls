@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import {
@@ -25,7 +26,7 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
   const [produtoId, setProdutoId] = useState("");
   const [percentual, setPercentual] = useState("");
   const [mensagem, setMensagem] = useState<string | null>(null);
-  const [pendente, iniciar] = useTransition();
+  const [pendente, iniciar] = useTransicao();
 
   function executar(fn: () => Promise<ResultadoAdmin>, aoSucesso?: () => void) {
     setMensagem(null);

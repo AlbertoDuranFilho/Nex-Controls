@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { salvarEndereco, type EstadoForm } from "@/services/minha-conta";
 import { buscarCep, normalizarCep } from "@/lib/validacao/cep";
@@ -23,7 +24,7 @@ const inicial: EstadoForm = { status: "idle" };
 
 export default function FormEndereco({ locale, dados }: { locale: string; dados: DadosEndereco }) {
   const t = useTranslations("conta.endereco");
-  const [estado, action, pendente] = useActionState(salvarEndereco, inicial);
+  const [estado, action, pendente] = useAcao(salvarEndereco, inicial);
   const [v, setV] = useState({
     cep: mascaraCep(dados.cep),
     logradouro: dados.logradouro ?? "",

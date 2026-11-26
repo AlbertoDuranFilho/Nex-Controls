@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useState, useTransition } from "react";
+import { useEffect, useId, useState } from "react";
+import { useTransicao } from "@/lib/react/destravar-transicao";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, Check, Minus, Plus, ShoppingCart } from "lucide-react";
@@ -40,7 +41,7 @@ export default function AdicionarAoCarrinho({
   const [adicionado, setAdicionado] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [pendente, iniciar] = useTransition();
+  const [pendente, iniciar] = useTransicao();
   const qtd = quantidadeValida(quantidade);
 
   // O "Adicionado" do botão volta ao normal depois de um tempo.

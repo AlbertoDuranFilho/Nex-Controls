@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { CircleAlert, LogIn, Mail } from "lucide-react";
 import { entrar, type EstadoLogin } from "@/services/auth";
@@ -12,7 +12,7 @@ const inicial: EstadoLogin = { erro: null };
 
 export default function LoginForm({ locale, next }: { locale: string; next: string }) {
   const t = useTranslations("login");
-  const [estado, action, pendente] = useActionState(entrar, inicial);
+  const [estado, action, pendente] = useAcao(entrar, inicial);
 
   const rotulo = "mb-2 block text-sm font-medium text-marca-cinza-800";
 

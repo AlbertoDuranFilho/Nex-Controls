@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
+import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UploadCloudinary from "@/components/admin/UploadCloudinary";
@@ -63,8 +64,8 @@ const decimal = (n: number | null) => (n === null ? "" : String(n).replace(".", 
 
 export default function FormProduto({ produto, locale }: { produto?: ProdutoAdmin; locale: string }) {
   const router = useRouter();
-  const [estado, action, pendenteAcao] = useActionState<Estado, FormData>(salvarProduto, null);
-  const [emTransicao, iniciar] = useTransition();
+  const [estado, action, pendenteAcao] = useAcao<Estado, FormData>(salvarProduto, null);
+  const [emTransicao, iniciar] = useTransicao();
   const pendente = pendenteAcao || emTransicao;
   const [especificacoes, setEspecificacoes] = useState(produto?.especificacoes ?? []);
   const [imagens, setImagens] = useState(produto?.imagens ?? []);

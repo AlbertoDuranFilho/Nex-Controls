@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useTranslations } from "next-intl";
 import { enviarContato, type EstadoContato } from "@/services/contato";
@@ -16,7 +17,7 @@ const campo =
 
 export default function ContactForm() {
   const t = useTranslations("contact");
-  const [estado, acao, enviando] = useActionState(enviarContato, inicial);
+  const [estado, acao, enviando] = useAcao(enviarContato, inicial);
   const [captchaDone, setCaptchaDone] = useState(!recaptchaSiteKey);
   const [fechado, setFechado] = useState<EstadoContato | null>(null);
 

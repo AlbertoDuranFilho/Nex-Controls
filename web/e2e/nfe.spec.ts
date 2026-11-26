@@ -93,7 +93,8 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
 
   // A Mainô recebeu o pedido com numero SITE-<n> e itens com código.
   const reqs = (await (await request.get(`${URL_MAINO_FALSA}/__requisicoes`)).json()) as Requisicao[];
-  const criacao = reqs.find((r) => r.metodo === "POST" && r.caminho.startsWith("/api/v2/pedidos?"));
+  // A Mainô falsa acumula as requisições da execução inteira (--repeat-each): vale a última criação.
+  const criacao = reqs.filter((r) => r.metodo === "POST" && r.caminho.startsWith("/api/v2/pedidos?")).at(-1);
   expect(criacao?.autorizado).toBe(true);
   const corpo = JSON.stringify(criacao?.corpo);
   expect(corpo).toContain(`"numero":"SITE-${numero}"`);

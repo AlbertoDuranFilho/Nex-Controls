@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { salvarMeusDados, type EstadoForm } from "@/services/minha-conta";
 import { formatarDocumento } from "@/lib/validacao/documento";
@@ -24,7 +25,7 @@ const inicial: EstadoForm = { status: "idle" };
 
 export default function FormMeusDados({ locale, dados }: { locale: string; dados: DadosCadastrais }) {
   const t = useTranslations("conta.dados");
-  const [estado, action, pendente] = useActionState(salvarMeusDados, inicial);
+  const [estado, action, pendente] = useAcao(salvarMeusDados, inicial);
   // Controlados: o React 19 limpa campos não controlados depois de uma action de formulário.
   const [v, setV] = useState({
     nome_fantasia: dados.nome_fantasia ?? "",

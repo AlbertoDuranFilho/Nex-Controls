@@ -40,6 +40,17 @@ Lido em 2026-11-26. Trechos marcados (?) foram lidos só por resumo e precisam s
 - Não há API de cadastro de produto de estoque com NCM/CEST/origem. Produtos são cadastrados no app da Mainô; o pedido os referencia por `codigo` (mesmo código do site).
 - `GET /fiscal/ncms` só consulta a tabela de NCM.
 
+## Decisões da integração
+Spec: `docs/superpowers/specs/2026-11-26-fase5-maino-nfe-design.md`. Escolhas feitas sem confirmação (custo se errado entre parênteses):
+1. Server Actions no Next.js em vez de Edge Functions (mover depois = reescrever o cliente HTTP).
+2. Dois passos no painel, enviar e emitir (um clique só = juntar dois botões).
+3. `indicador_ie` mapeado para 1/2/9 (uma constante).
+4. Modalidade de frete padrão 9, via `MAINO_MODALIDADE_FRETE`.
+5. Sem webhook: consulta ao abrir o pedido e pelo botão "Atualizar situação" (se o callback for documentado, adiciona-se uma rota).
+6. Cancelar NF-e não cancela o pedido.
+Além disso: a cobrança só vai no pedido se `MAINO_CONDICAO_PAGAMENTO_ID` estiver definido; o município vem do CEP (ViaCEP), com fallback para a resolução da Mainô.
+
+Ainda pendente com a Mainô: as perguntas abaixo (formato de sucesso dos POSTs, callback, importação de produtos em lote, renovação do token).
 ## Perguntas em aberto para a Mainô
 1. Body/resposta de sucesso de `POST /pedidos` e `POST /pedidos/{id}/nota_fiscal`.
 2. Payload e autenticação do callback `url` / evento `nota_fiscal.autorizada`.

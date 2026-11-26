@@ -103,6 +103,59 @@ Publicar o **endereço físico** da empresa (Decreto 7.962/2013) no rodapé e na
 é obrigatório antes de ligar o pagamento online. Vendas a pessoa física também têm o direito
 de arrependimento de 7 dias (CDC, art. 49): o pedido guarda o tipo de pessoa para isso.
 
+## NF-e automática (Mainô)
+
+Com este recurso ligado, a nota fiscal é emitida pela Mainô a partir do painel do pedido,
+sem copiar e colar o link. Com ele desligado, o fluxo manual acima continua igual.
+
+### Antes de ligar
+
+1. **Produtos na Mainô.** Cada produto do site precisa existir na Mainô com o **mesmo
+   código** usado no site, e com NCM e demais dados fiscais preenchidos. Sem isso a Mainô
+   recusa o pedido.
+2. **Condição de pagamento.** Na Mainô, tenha uma condição de pagamento ativa. O número
+   (id) dela é consultado em `GET /condicoes_pagamento` na API; se não souber fazer isso,
+   peça ao suporte da Mainô ou ao desenvolvedor. Esse id vai em `MAINO_CONDICAO_PAGAMENTO_ID`.
+   Opcionalmente, `MAINO_FORMA_PAGAMENTO`, `MAINO_PLANO_DE_CONTA` e `MAINO_MODALIDADE_FRETE`
+   (padrão `9`, sem frete). Todas estão em `web/.env.example`.
+3. **Teste em Homologação.** Na Mainô, vá em Configurações → Fiscal → Ambiente e escolha
+   **Homologação**: as notas deixam de valer na SEFAZ. Atenção: essa escolha vale para a
+   **conta toda**, não só para o site. Volte para **Produção** quando terminar os testes.
+
+### Onde colocar as credenciais
+
+Somente na Vercel (Settings → Environment Variables), em **Production e Preview**. Nunca no
+repositório, em e-mail ou em chat.
+
+- `MAINO_APPLICATION_UID`: peça ao suporte da Mainô.
+- `MAINO_EMAIL` e `MAINO_SENHA`: crie na Mainô um **usuário só para a integração** (não use
+  o login de uma pessoa), para poder trocar a senha sem afetar ninguém.
+
+### Como ligar
+
+Defina `FEATURE_NFE_AUTOMATICA=true` na Vercel e faça um novo deploy (redeploy). Em produção,
+o build falha se faltar alguma das três credenciais.
+
+### Passo a passo no painel
+
+1. Abra o pedido em `/pt/admin/pedidos` quando ele estiver **Pago**.
+2. Clique em **Enviar para a Mainô**. O pedido fica em digitação lá.
+3. Confira o pedido na Mainô (frete, itens, impostos) e ajuste o que precisar.
+4. Volte ao painel e clique em **Emitir NF-e**.
+5. Clique em **Atualizar situação** (também atualiza sozinho ao abrir o pedido enquanto a
+   nota está em transmissão).
+6. Quando a nota for **Autorizada**, o pedido passa para **Faturado** e o cliente recebe um
+   e-mail com o link do DANFE.
+
+**Cancelar NF-e** (nota autorizada) cancela só a nota; o pedido não é cancelado
+automaticamente. Decida separadamente se cancela o pedido.
+
+### Se der erro
+
+A mensagem da Mainô aparece no próprio painel do pedido (por exemplo, produto sem cadastro
+na Mainô, ou dado fiscal faltando). Corrija na Mainô ou nos dados do pedido e tente de novo.
+Se a mensagem não for clara, envie-a ao suporte; ela não contém senhas.
+
 ## Configuração do Supabase
 
 A configuração local é `supabase/config.jsonc` (formato da CLI v3, não `config.toml`).
@@ -256,7 +309,8 @@ Preencha os placeholders `TODO_*` (busque por `TODO_CNPJ` e `TODO_ENDERECO`):
 
 - alguma string de `web/messages/{pt,en,es}.json` contiver `TODO_`; ou
 - faltar `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY` ou `SUPABASE_SERVICE_ROLE_KEY`.
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` ou `SUPABASE_SERVICE_ROLE_KEY`; ou
+- `FEATURE_NFE_AUTOMATICA=true` e faltar `MAINO_APPLICATION_UID`, `MAINO_EMAIL` ou `MAINO_SENHA`.
 
 A mensagem lista o arquivo/chave ou o nome da variável (nunca o valor). Em preview, dev,
 CI e e2e (`VERCEL_ENV` diferente de `production`) ele não faz nada. As regras ficam em

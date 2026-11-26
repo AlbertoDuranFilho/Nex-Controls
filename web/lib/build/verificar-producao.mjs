@@ -12,6 +12,9 @@ export const VARIAVEIS_OBRIGATORIAS = [
   "CLOUDINARY_API_SECRET",
 ];
 
+// Exigidas em produção quando FEATURE_NFE_AUTOMATICA=true.
+export const VARIAVEIS_NFE = ["MAINO_APPLICATION_UID", "MAINO_EMAIL", "MAINO_SENHA"];
+
 /**
  * Caminhos (ex.: "footer.cnpj") das strings que contêm o marcador TODO_.
  * @param {unknown} valor
@@ -53,6 +56,13 @@ export function verificarProducao({ env, mensagens }) {
       problemas.push(
         "Endereço físico da empresa (footer.address) é obrigatório com pagamento online (Decreto 7.962/2013).",
       );
+    }
+  }
+  if (env.FEATURE_NFE_AUTOMATICA === "true") {
+    for (const nome of VARIAVEIS_NFE) {
+      if (!env[nome]?.trim()) {
+        problemas.push(`Variável de ambiente ${nome} ausente ou vazia (obrigatória com NF-e automática).`);
+      }
     }
   }
   return problemas;

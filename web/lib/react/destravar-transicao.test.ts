@@ -30,4 +30,13 @@ describe("iniciarCutucadas", () => {
     vi.advanceTimersByTime(10_000);
     expect(cutucar).toHaveBeenCalledTimes(1);
   });
+
+  it("parar antes da primeira cutucada: nenhuma chamada", () => {
+    const cutucar = vi.fn();
+    const parar = iniciarCutucadas(cutucar);
+    vi.advanceTimersByTime(299);
+    parar();
+    vi.advanceTimersByTime(10_000);
+    expect(cutucar).toHaveBeenCalledTimes(0);
+  });
 });

@@ -19,12 +19,13 @@ alter table public.produtos
 -- Dicionário qualificado: a forma de 1 argumento depende do search_path.
 create function public.gerar_slug(p_codigo text, p_nome text) returns text
 language sql immutable parallel safe set search_path = '' as $$
-  select left(
-    trim(both '-' from regexp_replace(
+  -- trim depois do corte: se o caractere 80 for '-', ele não fica na ponta.
+  select trim(both '-' from left(
+    regexp_replace(
       lower(extensions.unaccent('extensions.unaccent'::regdictionary,
         coalesce(p_codigo, '') || ' ' || coalesce(p_nome, ''))),
-      '[^a-z0-9]+', '-', 'g')),
-    80);
+      '[^a-z0-9]+', '-', 'g'),
+    80));
 $$;
 
 -- Gera o slug quando vem nulo/vazio; em colisão com outra linha usa -2, -3...
@@ -130,7 +131,7 @@ language plpgsql security definer set search_path = '' as $$
 declare
   v_item jsonb;
   v_id uuid;
-  v_inserido boolean;
+  r public.produtos%rowtype;
   v_criados int := 0;
   v_atualizados int := 0;
 begin
@@ -142,81 +143,68 @@ begin
   end if;
 
   for v_item in select value from jsonb_array_elements(p) loop
-    v_id := nullif(v_item->>'id', '')::uuid;
+    -- Normaliza o item uma vez só (strings vazias viram null).
+    r := null;
+    r.codigo := trim(v_item->>'codigo');
+    r.slug := nullif(v_item->>'slug', '');
+    r.nome := v_item->>'nome';
+    r.ativo := (v_item->>'ativo')::boolean;   -- null: true no insert, mantém no update
+    r.destaque := nullif(v_item->>'destaque', '');
+    r.compatibilidade := nullif(v_item->>'compatibilidade', '');
+    r.descricao := nullif(v_item->>'descricao', '');
+    r.aplicacoes := nullif(v_item->>'aplicacoes', '');
+    r.ncm := nullif(trim(v_item->>'ncm'), '');
+    r.cest := nullif(trim(v_item->>'cest'), '');
+    r.ean := nullif(trim(v_item->>'ean'), '');
+    r.origem := nullif(v_item->>'origem', '')::smallint;
+    r.unidade := coalesce(nullif(trim(v_item->>'unidade'), ''), 'UN');
+    r.peso_kg := nullif(v_item->>'peso_kg', '')::numeric;
+    r.altura_cm := nullif(v_item->>'altura_cm', '')::numeric;
+    r.largura_cm := nullif(v_item->>'largura_cm', '')::numeric;
+    r.comprimento_cm := nullif(v_item->>'comprimento_cm', '')::numeric;
+    r.manual_url := nullif(v_item->>'manual_url', '');
 
+    -- Alvo: o id informado (permite trocar o código) ou o produto com esse código.
+    v_id := nullif(v_item->>'id', '')::uuid;
     if v_id is not null then
-      update public.produtos set
-        codigo = trim(v_item->>'codigo'),
-        slug = coalesce(nullif(v_item->>'slug', ''), slug),
-        nome = v_item->>'nome',
-        ativo = coalesce((v_item->>'ativo')::boolean, ativo),
-        destaque = nullif(v_item->>'destaque', ''),
-        compatibilidade = nullif(v_item->>'compatibilidade', ''),
-        descricao = nullif(v_item->>'descricao', ''),
-        aplicacoes = nullif(v_item->>'aplicacoes', ''),
-        ncm = nullif(trim(v_item->>'ncm'), ''),
-        cest = nullif(trim(v_item->>'cest'), ''),
-        ean = nullif(trim(v_item->>'ean'), ''),
-        origem = nullif(v_item->>'origem', '')::smallint,
-        unidade = coalesce(nullif(trim(v_item->>'unidade'), ''), 'UN'),
-        peso_kg = nullif(v_item->>'peso_kg', '')::numeric,
-        altura_cm = nullif(v_item->>'altura_cm', '')::numeric,
-        largura_cm = nullif(v_item->>'largura_cm', '')::numeric,
-        comprimento_cm = nullif(v_item->>'comprimento_cm', '')::numeric,
-        manual_url = nullif(v_item->>'manual_url', '')
-      where id = v_id;
+      perform 1 from public.produtos where id = v_id for update;
       if not found then
         raise exception 'produto_nao_encontrado';
       end if;
-      v_inserido := false;
     else
-      insert into public.produtos as pr (codigo, slug, nome, ativo, destaque, compatibilidade, descricao,
-        aplicacoes, ncm, cest, ean, origem, unidade, peso_kg, altura_cm, largura_cm, comprimento_cm, manual_url)
-      values (
-        trim(v_item->>'codigo'),
-        nullif(v_item->>'slug', ''),
-        v_item->>'nome',
-        coalesce((v_item->>'ativo')::boolean, true),
-        nullif(v_item->>'destaque', ''),
-        nullif(v_item->>'compatibilidade', ''),
-        nullif(v_item->>'descricao', ''),
-        nullif(v_item->>'aplicacoes', ''),
-        nullif(trim(v_item->>'ncm'), ''),
-        nullif(trim(v_item->>'cest'), ''),
-        nullif(trim(v_item->>'ean'), ''),
-        nullif(v_item->>'origem', '')::smallint,
-        coalesce(nullif(trim(v_item->>'unidade'), ''), 'UN'),
-        nullif(v_item->>'peso_kg', '')::numeric,
-        nullif(v_item->>'altura_cm', '')::numeric,
-        nullif(v_item->>'largura_cm', '')::numeric,
-        nullif(v_item->>'comprimento_cm', '')::numeric,
-        nullif(v_item->>'manual_url', '')
-      )
-      on conflict (codigo) do update set
-        -- `excluded.slug` já passou pelo trigger de insert (viria com sufixo): usa o item.
-        slug = coalesce(nullif(v_item->>'slug', ''), pr.slug),
-        nome = excluded.nome,
-        ativo = coalesce((v_item->>'ativo')::boolean, pr.ativo),
-        destaque = excluded.destaque,
-        compatibilidade = excluded.compatibilidade,
-        descricao = excluded.descricao,
-        aplicacoes = excluded.aplicacoes,
-        ncm = excluded.ncm,
-        cest = excluded.cest,
-        ean = excluded.ean,
-        origem = excluded.origem,
-        unidade = excluded.unidade,
-        peso_kg = excluded.peso_kg,
-        altura_cm = excluded.altura_cm,
-        largura_cm = excluded.largura_cm,
-        comprimento_cm = excluded.comprimento_cm,
-        manual_url = excluded.manual_url
-      returning pr.id, (pr.xmax = 0) into v_id, v_inserido;
+      select id into v_id from public.produtos where codigo = r.codigo for update;
     end if;
 
-    if v_inserido then
+    if v_id is null then
+      -- slug nulo: o trigger gera
+      insert into public.produtos (codigo, slug, nome, ativo, destaque, compatibilidade, descricao,
+        aplicacoes, ncm, cest, ean, origem, unidade, peso_kg, altura_cm, largura_cm, comprimento_cm, manual_url)
+      values (r.codigo, r.slug, r.nome, coalesce(r.ativo, true), r.destaque, r.compatibilidade, r.descricao,
+        r.aplicacoes, r.ncm, r.cest, r.ean, r.origem, r.unidade, r.peso_kg, r.altura_cm, r.largura_cm,
+        r.comprimento_cm, r.manual_url)
+      returning id into v_id;
       v_criados := v_criados + 1;
     else
+      update public.produtos set
+        codigo = r.codigo,
+        slug = coalesce(r.slug, slug),   -- slug vazio mantém o atual
+        nome = r.nome,
+        ativo = coalesce(r.ativo, ativo),
+        destaque = r.destaque,
+        compatibilidade = r.compatibilidade,
+        descricao = r.descricao,
+        aplicacoes = r.aplicacoes,
+        ncm = r.ncm,
+        cest = r.cest,
+        ean = r.ean,
+        origem = r.origem,
+        unidade = r.unidade,
+        peso_kg = r.peso_kg,
+        altura_cm = r.altura_cm,
+        largura_cm = r.largura_cm,
+        comprimento_cm = r.comprimento_cm,
+        manual_url = r.manual_url
+      where id = v_id;
       v_atualizados := v_atualizados + 1;
     end if;
 

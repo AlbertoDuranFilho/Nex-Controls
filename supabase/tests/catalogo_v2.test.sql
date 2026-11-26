@@ -1,6 +1,6 @@
 begin;
 \ir _helpers.psql
-select plan(40);
+select plan(43);
 
 -- ===== cenário (superusuário) =====
 -- P ativo preço 100; Q inativo; R ativo sem preço; S ativo preço 33.33.
@@ -29,6 +29,10 @@ select col_type_is('public', 'produtos', 'cest', 'character(7)', 'produtos.cest 
 select is(public.gerar_slug('NX 3631445', 'Placa controladora — potência LT15F'),
   'nx-3631445-placa-controladora-potencia-lt15f', 'gerar_slug tira acentos e símbolos');
 select is(length(public.gerar_slug(repeat('a', 50), repeat('b', 50))), 80, 'gerar_slug corta em 80');
+select ok(public.gerar_slug(repeat('a', 79), 'b') ~ '^[a-z0-9]+(-[a-z0-9]+)*$',
+  'gerar_slug com separador na posição 80 não termina em -');
+select lives_ok($$insert into produtos (nome, codigo) values ('b nome longo', repeat('a', 79))$$,
+  'produto com separador na posição 80 é inserido');
 select is((select slug from produtos where id = :'p'), 'v2-p-produto-p', 'slug gerado no insert');
 
 insert into produtos (nome, codigo) values ('Dup X', 'AB 1'), ('dup x', 'ab-1');
@@ -106,6 +110,8 @@ select results_eq($$select count(*)::int, min(codigo), min(slug) from produtos w
 select is(public.admin_importar_produtos('[{"codigo":"IMP2","nome":"Outro","slug":"meu-slug-explicito"}]'),
   '{"criados":1,"atualizados":0}'::jsonb, 'importação com slug explícito cria produto');
 select is((select slug from produtos where codigo = 'IMP2'), 'meu-slug-explicito', 'slug explícito é gravado');
+select throws_ok(format($$select public.admin_importar_produtos('[{"id":"%s","codigo":"IMP9","nome":"x"}]')$$, gen_random_uuid()),
+  'P0001', 'produto_nao_encontrado', 'id inexistente: produto_nao_encontrado');
 
 select * from finish();
 rollback;

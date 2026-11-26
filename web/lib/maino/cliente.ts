@@ -187,7 +187,8 @@ export async function chamarMaino<T>(
   if (r.res.status === 401) {
     const l = await login();
     if ("erro" in l) return l.erro;
-    r = await enviar(l.token);
+    token = l.token;
+    r = await enviar(token);
     if ("erro" in r) return r.erro;
   }
 

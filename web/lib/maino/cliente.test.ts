@@ -116,6 +116,23 @@ describe("chamarMaino", () => {
     expect(esperar).toHaveBeenCalledWith(2000);
   });
 
+  it("401 -> re-login -> 429 repete com o token novo", async () => {
+    const { store } = loja("velho");
+    const f = vi
+      .fn()
+      .mockResolvedValueOnce(resposta(401, { error: "x" }))
+      .mockResolvedValueOnce(resposta(200, { access_token: "novo" }))
+      .mockResolvedValueOnce(resposta(429, {}, { "Retry-After": "1" }))
+      .mockResolvedValueOnce(resposta(200, { ok: 1 }));
+    const r = await chamarMaino(cfg, "GET", "/x", undefined, {
+      fetch: f as unknown as typeof fetch,
+      tokens: store,
+      esperar: async () => {},
+    });
+    expect(r.ok).toBe(true);
+    expect(f.mock.calls[3][1].headers.Authorization).toBe("Bearer novo");
+  });
+
   it("429 limita a espera a 5 s", async () => {
     const { store } = loja("t");
     const esperar = vi.fn(async () => {});

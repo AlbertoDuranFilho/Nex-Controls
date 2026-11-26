@@ -121,7 +121,15 @@ test("gerar pedido: redireciona, grava notificado_em e esvazia o carrinho", asyn
     [u.id],
   );
   expect(pedidos).toHaveLength(1);
-  expect(pedidos[0].notificado_em).not.toBeNull();
+  // Os e-mails saem depois da resposta (after): espera o notificado_em.
+  await expect
+    .poll(
+      async () =>
+        (await sql<{ notificado_em: Date | null }>("select notificado_em from public.pedidos where lojista_id = $1", [u.id]))[0]
+          ?.notificado_em ?? null,
+      { timeout: 15_000 },
+    )
+    .not.toBeNull();
   expect(pedidos[0].observacao).toBe("<b>entregar de manhã</b>");
   expect(Number(pedidos[0].total)).toBe(180);
   expect(page.url()).toContain(`/pedidos/${pedidos[0].numero}?novo=1`);

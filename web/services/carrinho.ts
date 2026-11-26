@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { notificarPedido } from "@/services/pedidos";
 
@@ -107,15 +108,19 @@ function normalizar(bruto: Simulacao): Simulacao {
   };
 }
 
-/** Resumo do carrinho do lojista logado (uma chamada a simular_pedido). null sem sessão. */
-export async function simularCarrinho(cupom?: string): Promise<Simulacao | null> {
+export type ResultadoSimulacao =
+  | { ok: true; sim: Simulacao }
+  | { ok: false; motivo: "sem_sessao" | "erro" };
+
+/** Resumo do carrinho do lojista logado (uma chamada a simular_pedido). Distingue falta de sessão de erro. */
+export async function simularCarrinho(cupom?: string): Promise<ResultadoSimulacao> {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return null;
+  if (!auth.user) return { ok: false, motivo: "sem_sessao" };
   const codigo = cupom?.trim() ? cupom.trim().slice(0, 64) : undefined;
   const { data, error } = await supabase.rpc("simular_pedido", { p_cupom: codigo });
-  if (error || !data) return null;
-  return normalizar(data as unknown as Simulacao);
+  if (error || !data) return { ok: false, motivo: "erro" };
+  return { ok: true, sim: normalizar(data as unknown as Simulacao) };
 }
 
 export async function atualizarQuantidade(
@@ -150,12 +155,13 @@ export async function removerItem(produtoId: string): Promise<{ ok: boolean }> {
 
 type RespostaCriarPedido =
   | { ok: true; id: string; numero: number }
-  | { ok: false; erro: string; motivo?: string };
+  | { ok: false; erro: string; motivo?: string; valor_minimo?: number | string | null };
 
-export async function gerarPedido(
-  cupom: string | null,
-  observacao: string,
-): Promise<{ ok: true; numero: number } | { ok: false; erro: string; motivo?: string }> {
+export type ResultadoGerarPedido =
+  | { ok: true; numero: number }
+  | { ok: false; erro: string; motivo?: string; valorMinimo?: number | null };
+
+export async function gerarPedido(cupom: string | null, observacao: string): Promise<ResultadoGerarPedido> {
   const obs = observacao.trim();
   if (obs.length > 500) return { ok: false, erro: "observacao_longa" };
   const supabase = await createClient();
@@ -166,11 +172,25 @@ export async function gerarPedido(
   if (error || !data) return { ok: false, erro: "erro" };
 
   const r = data as unknown as RespostaCriarPedido;
-  if (!r.ok) return { ok: false, erro: r.erro, ...(r.motivo ? { motivo: r.motivo } : {}) };
+  if (!r.ok) {
+    return {
+      ok: false,
+      erro: r.erro,
+      ...(r.motivo ? { motivo: r.motivo } : {}),
+      ...(r.valor_minimo !== undefined && r.valor_minimo !== null ? { valorMinimo: Number(r.valor_minimo) } : {}),
+    };
+  }
 
-  // O pedido já existe: falha no e-mail não muda o resultado (fica sem notificado_em).
-  await notificarPedido(r.id).catch((e) => {
-    console.error("[pedido] falha ao notificar", r.numero, e);
+  // O pedido já existe: os e-mails saem depois da resposta (after) e falha só é registrada.
+  // Sem notificado_em, o admin reenvia pela tela do pedido.
+  const { id, numero } = r;
+  after(async () => {
+    try {
+      const enviado = await notificarPedido(id);
+      if (!enviado) console.error("[pedido] e-mails não enviados", numero);
+    } catch (e) {
+      console.error("[pedido] falha ao notificar", numero, e);
+    }
   });
-  return { ok: true, numero: Number(r.numero) };
+  return { ok: true, numero: Number(numero) };
 }

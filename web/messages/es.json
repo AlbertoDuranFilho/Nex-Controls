@@ -324,7 +324,10 @@
     "bloqueioItensInvalidos": "Hay artículos no disponibles en el carrito. Quítalos para continuar.",
     "bloqueioErro": "No fue posible generar el pedido ahora. Inténtalo de nuevo.",
     "erroObservacaoLonga": "La observación puede tener como máximo 500 caracteres.",
-    "cadastrarEndereco": "Registrar dirección"
+    "cadastrarEndereco": "Registrar dirección",
+    "erroGerarIncerto": "No fue posible confirmar el pedido. Revisa Mis pedidos antes de intentarlo de nuevo.",
+    "irMeusPedidos": "Ir a Mis pedidos",
+    "erroCarregar": "No fue posible cargar el carrito. Inténtalo de nuevo en unos instantes."
   },
   "pedidos": {
     "titulo": "Mis pedidos",

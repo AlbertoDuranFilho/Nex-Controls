@@ -324,7 +324,10 @@
     "bloqueioItensInvalidos": "Some items in your cart are unavailable. Remove them to continue.",
     "bloqueioErro": "Could not place the order right now. Please try again.",
     "erroObservacaoLonga": "Notes can have at most 500 characters.",
-    "cadastrarEndereco": "Add address"
+    "cadastrarEndereco": "Add address",
+    "erroGerarIncerto": "We could not confirm the order. Check My orders before trying again.",
+    "irMeusPedidos": "Go to My orders",
+    "erroCarregar": "Could not load the cart. Please try again in a moment."
   },
   "pedidos": {
     "titulo": "My orders",

@@ -42,19 +42,25 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
   const [cupomTexto, setCupomTexto] = useState("");
   const [observacao, setObservacao] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  // Falha sem resposta ao gerar: o pedido pode ter sido criado. Orienta a conferir em Meus pedidos.
+  const [incerto, setIncerto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [pendente, iniciar] = useTransition();
   const moeda = (v: number) => formatarMoeda(v, locale);
 
   // Toda alteração termina aqui: uma chamada a simular_pedido com o cupom atual.
   async function recalcular(cupomAtual: string | null) {
-    const nova = await simularCarrinho(cupomAtual ?? undefined);
-    if (!nova) {
+    try {
+      const r = await simularCarrinho(cupomAtual ?? undefined);
+      if (!r.ok) {
+        setErro(t("erroAtualizar"));
+        return;
+      }
+      setSim(r.sim);
+      setQtds(qtdsDe(r.sim));
+    } catch {
       setErro(t("erroAtualizar"));
-      return;
     }
-    setSim(nova);
-    setQtds(qtdsDe(nova));
   }
 
   function confirmarQuantidade(item: ItemSimulacao) {
@@ -94,20 +100,29 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
 
   async function gerar() {
     setErro(null);
+    setIncerto(false);
     setEnviando(true);
-    const r = await gerarPedido(cupom, observacao);
-    if (r.ok) {
-      avisarCabecalho();
-      router.push(`/${locale}/cliente/pedidos/${r.numero}?novo=1`);
-      return; // segue "enviando" até a navegação: sem segundo clique
+    let navegando = false;
+    try {
+      const r = await gerarPedido(cupom, observacao);
+      if (r.ok) {
+        avisarCabecalho();
+        navegando = true; // segue "enviando" até a navegação: sem segundo clique
+        router.push(`/${locale}/cliente/pedidos/${r.numero}?novo=1`);
+        return;
+      }
+      await recalcular(cupom);
+      setErro(
+        r.erro === "cupom_invalido"
+          ? mensagemCupom(r.motivo ?? "", r.valorMinimo ?? null, tr, locale)
+          : mensagemBloqueio(r.erro, tr),
+      );
+    } catch {
+      // Sem resposta (rede, timeout): não dá para saber se o pedido foi criado.
+      setIncerto(true);
+    } finally {
+      if (!navegando) setEnviando(false);
     }
-    setErro(
-      r.erro === "cupom_invalido"
-        ? mensagemCupom(r.motivo ?? "", null, tr, locale)
-        : mensagemBloqueio(r.erro, tr),
-    );
-    await recalcular(cupom);
-    setEnviando(false);
   }
 
   if (sim.itens.length === 0) {
@@ -203,7 +218,16 @@ export default function Carrinho({ locale, inicial }: { locale: string; inicial:
       </ul>
 
       <p role="alert" aria-live="polite" className="min-h-5 text-sm text-marca-preto">
-        {erro}
+        {incerto ? (
+          <>
+            {t("erroGerarIncerto")}{" "}
+            <Link href={`/${locale}/cliente/pedidos`} className="font-medium underline underline-offset-2">
+              {t("irMeusPedidos")}
+            </Link>
+          </>
+        ) : (
+          erro
+        )}
       </p>
 
       <div className="grid gap-10 md:grid-cols-2">

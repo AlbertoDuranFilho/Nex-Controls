@@ -48,6 +48,13 @@ describe("enviarEmail", () => {
     expect(await enviarEmail(msg)).toEqual({ ok: false });
   });
 
+  it("envia com timeout (AbortSignal) e timeout vira ok:false", async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new DOMException("tempo esgotado", "TimeoutError"));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await enviarEmail(msg)).toEqual({ ok: false });
+    expect(fetchMock.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+  });
+
   it("sem chave fora de produção simula e não chama fetch", async () => {
     vi.stubEnv("RESEND_API_KEY", "");
     vi.stubEnv("VERCEL_ENV", "development");

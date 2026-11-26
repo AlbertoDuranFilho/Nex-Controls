@@ -1,3 +1,5 @@
+const TIMEOUT_MS = 10_000;
+
 export type MensagemEmail = {
   para: string;
   assunto: string;
@@ -9,6 +11,7 @@ export type MensagemEmail = {
 /**
  * Envia e-mail pelo Resend. Nunca lança: falha vira `{ ok: false }`.
  * Sem RESEND_API_KEY e fora de produção, apenas simula (console.info).
+ * Timeout de 10 s: o Resend fora do ar não segura a requisição.
  */
 export async function enviarEmail(m: MensagemEmail): Promise<{ ok: boolean }> {
   const chave = process.env.RESEND_API_KEY?.trim();
@@ -21,6 +24,7 @@ export async function enviarEmail(m: MensagemEmail): Promise<{ ok: boolean }> {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
       body: JSON.stringify({
         from: process.env.EMAIL_REMETENTE ?? "Nex Controls <contato@nexcontrols.com>",
         to: [m.para],

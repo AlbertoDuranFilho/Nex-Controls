@@ -278,6 +278,11 @@ export async function emitirNfeMaino(pedidoId: string): Promise<ResultadoAdmin<S
   const recusa = exigirPago(pedido);
   if (recusa) return recusa;
   if (!pedido.maino_pedido_id) return erro("Envie o pedido para a Mainô antes de emitir a NF-e.");
+  // Mesma regra do botão "Emitir NF-e": só sem nota ou após rejeição. Nos demais estados
+  // (inclusive CANCELADA/DENEGADA) é preciso consultar a situação ou tratar na Mainô.
+  if (pedido.nfe_status && pedido.nfe_status !== "REJEITADA") {
+    return erro("Este pedido já tem uma NF-e em andamento ou emitida. Atualize a situação em vez de emitir de novo.");
+  }
 
   const r = await chamarMaino<unknown>(
     ctx.cfg,

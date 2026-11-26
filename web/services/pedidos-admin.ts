@@ -44,6 +44,9 @@ export type PedidoAdminDetalhe = {
   notificado: boolean;
   maino_nota_id: string | null;
   maino_nota_url: string | null;
+  maino_pedido_id: string | null;
+  nfe_status: string | null;
+  nfe_erro: string | null;
   itens: { codigo: string; nome: string; quantidade: number; preco_unitario: number; total_linha: number }[];
   eventos: { id: string; status_de: PedidoStatus | null; status_para: PedidoStatus; criado_em: string; admin_nome: string | null }[];
 };
@@ -82,7 +85,7 @@ export async function obterPedidoAdmin(numero: number): Promise<PedidoAdminDetal
     .select(
       "id, numero, created_at, status, cliente_nome, cliente_documento, cliente_tipo_pessoa, cliente_inscricao_estadual, " +
         "entrega_cep, entrega_logradouro, entrega_numero, entrega_complemento, entrega_bairro, entrega_cidade, entrega_uf, " +
-        "subtotal, desconto_valor, desconto_origem, frete_valor, total, observacao, notificado_em, maino_nota_id, maino_nota_url, " +
+        "subtotal, desconto_valor, desconto_origem, frete_valor, total, observacao, notificado_em, maino_nota_id, maino_nota_url, maino_pedido_id, nfe_status, nfe_erro, " +
         "pedido_itens(produto_codigo, produto_nome, quantidade, preco_unitario), " +
         "lojistas(email, telefone), cupons(codigo)",
     )
@@ -135,6 +138,9 @@ export async function obterPedidoAdmin(numero: number): Promise<PedidoAdminDetal
     notificado: p.notificado_em !== null && p.notificado_em !== undefined,
     maino_nota_id: (p.maino_nota_id as string | null) ?? null,
     maino_nota_url: (p.maino_nota_url as string | null) ?? null,
+    maino_pedido_id: (p.maino_pedido_id as string | null) ?? null,
+    nfe_status: (p.nfe_status as string | null) ?? null,
+    nfe_erro: (p.nfe_erro as string | null) ?? null,
     itens: [...p.pedido_itens]
       .sort((a, b) => a.produto_codigo.localeCompare(b.produto_codigo))
       .map((i) => ({

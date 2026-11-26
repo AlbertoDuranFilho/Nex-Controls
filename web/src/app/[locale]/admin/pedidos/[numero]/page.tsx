@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import AcoesPedido from "@/components/admin/AcoesPedido";
+import PainelNfe from "@/components/admin/PainelNfe";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { formatarMoeda } from "@/lib/formatar";
 import { STATUS_PEDIDO } from "@/lib/pedidos/transicoes";
 import { formatarDocumento } from "@/lib/validacao/documento";
+import { flags } from "@/lib/flags";
+import { sincronizarNfeMaino } from "@/services/nfe-admin";
 import { obterPedidoAdmin } from "@/services/pedidos-admin";
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Recife" });
@@ -16,8 +19,18 @@ export default async function PedidoAdminPage({ params }: Props) {
   const { locale, numero } = await params;
   if (!(await ehAdmin())) redirect(`/${locale}`);
   if (!/^\d{1,15}$/.test(numero)) notFound();
-  const p = await obterPedidoAdmin(Number(numero));
+  let p = await obterPedidoAdmin(Number(numero));
   if (!p) notFound();
+
+  // Nota ainda em andamento: consulta a Mainô antes de renderizar. Falha não quebra a página.
+  if (flags.nfeAutomatica && (p.nfe_status === "NAO_TRANSMITIDA" || p.nfe_status === "EM_TRANSMISSAO")) {
+    try {
+      await sincronizarNfeMaino(p.id);
+      p = (await obterPedidoAdmin(Number(numero))) ?? p;
+    } catch {
+      // segue com os dados já lidos
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -102,6 +115,21 @@ export default async function PedidoAdminPage({ params }: Props) {
           />
         </div>
       </section>
+
+      {flags.nfeAutomatica ? (
+        <section aria-labelledby="nfe">
+          <h2 id="nfe" className="mb-3 text-lg font-semibold text-marca-preto">Nota fiscal (Mainô)</h2>
+          <PainelNfe
+            pedidoId={p.id}
+            status={p.status}
+            mainoPedidoId={p.maino_pedido_id}
+            nfeStatus={p.nfe_status}
+            nfeErro={p.nfe_erro}
+            danfeUrl={p.maino_nota_url}
+            chave={p.maino_nota_id}
+          />
+        </section>
+      ) : null}
 
       <section aria-labelledby="historico">
         <h2 id="historico" className="mb-2 text-lg font-semibold text-marca-preto">Histórico</h2>

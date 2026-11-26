@@ -199,6 +199,23 @@ describe("emitirNfeMaino", () => {
     expect(chamarMaino).not.toHaveBeenCalled();
   });
 
+  it.each(["NAO_TRANSMITIDA", "EM_TRANSMISSAO", "ACEITA", "CANCELADA", "DENEGADA"])(
+    "recusa emitir com nfe_status %s, sem chamar a Mainô",
+    async (nfe_status) => {
+      bancoFalso([pedido({ maino_pedido_id: "m-9", nfe_status })]);
+      const r = await emitirNfeMaino(ID);
+      expect(r.ok).toBe(false);
+      expect(chamarMaino).not.toHaveBeenCalled();
+    },
+  );
+
+  it("permite reemitir após REJEITADA", async () => {
+    bancoFalso([pedido({ maino_pedido_id: "m-9", nfe_status: "REJEITADA" })]);
+    chamarMaino.mockResolvedValue({ ok: false, status: 422, erro: "x" });
+    await emitirNfeMaino(ID);
+    expect(chamarMaino.mock.calls[0].slice(1, 3)).toEqual(["POST", "/pedidos/m-9/nota_fiscal"]);
+  });
+
   it("emite e sincroniza", async () => {
     const { rpc } = bancoFalso([pedido({ maino_pedido_id: "m-9" })]);
     chamarMaino

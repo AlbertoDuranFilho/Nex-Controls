@@ -17,6 +17,12 @@ export default defineConfig({
       NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
       REVALIDATE_SECRET: "e2e-revalidar",
       RESEND_API_KEY: "",
+      // NF-e automática contra a Mainô falsa (e2e/maino-falso.ts).
+      FEATURE_NFE_AUTOMATICA: "true",
+      MAINO_API_URL: "http://127.0.0.1:4010/api/v2",
+      MAINO_APPLICATION_UID: "e2e-uid",
+      MAINO_EMAIL: "e2e@maino.test",
+      MAINO_SENHA: "e2e-senha",
     },
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

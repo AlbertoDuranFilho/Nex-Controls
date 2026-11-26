@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { ChevronLeft, FileText, ImageOff, PackageSearch, RefreshCw, WifiOff } from "lucide-react-native";
+import { ChevronLeft, FileText, ImageOff, MessageCircle, PackageSearch, RefreshCw, WifiOff } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
@@ -24,6 +24,7 @@ import { Selo } from "@/components/ui/Selo";
 import { ALVO_MINIMO, cores, espacos, fontes, raios, sombras } from "@/constants/tema";
 import { textos } from "@/constants/textos";
 import { blocosDeTexto, obterProdutoPorSlug } from "@/lib/catalogo";
+import { abrirContato } from "@/lib/contato";
 import type { ImagemProduto, ProdutoPublico } from "@/lib/catalogo";
 import { usePrecosCliente } from "@/lib/precos";
 import { useSessao } from "@/lib/sessao";
@@ -122,6 +123,7 @@ export default function TelaProduto() {
     );
   }
 
+  const estado = precos.estadoDe(produto.id);
   const descricao = blocosDeTexto(produto.descricao);
   const aplicacoes = blocosDeTexto(produto.aplicacoes);
   const manual = produto.manual_url && /^https?:\/\//i.test(produto.manual_url) ? produto.manual_url : null;
@@ -167,9 +169,24 @@ export default function TelaProduto() {
           ) : null}
 
           <AvisoPrecos situacao={precos.situacao} recarregarPrecos={recarregarPrecos} />
-          {precos.estadoDe(produto.id).tipo !== "erro" ? (
-            <View style={estilos.cartao}>
-              <BlocoCompra estado={precos.estadoDe(produto.id)} produtoId={produto.id} variante="completo" />
+          {estado.tipo !== "erro" ? (
+            <View style={[estilos.cartao, estilos.cartaoCompra]}>
+              <BlocoCompra estado={estado} produtoId={produto.id} variante="completo" />
+              {estado.tipo === "consulta" || estado.tipo === "visitante" ? (
+                <Botao
+                  titulo={textos.orcamento.solicitar}
+                  icone={MessageCircle}
+                  variante="contorno"
+                  onPress={() =>
+                    void abrirContato({
+                      assunto: textos.contato.assuntoOrcamento(produto.codigo),
+                      texto: textos.contato.mensagemOrcamento(produto.codigo, produto.nome),
+                    })
+                  }
+                  accessibilityLabel={textos.orcamento.solicitarA11y(produto.codigo)}
+                  testID="solicitar-orcamento"
+                />
+              ) : null}
             </View>
           ) : null}
 
@@ -395,6 +412,7 @@ const estilos = StyleSheet.create({
     ...sombras.cartao,
   },
   cartaoTabela: { paddingVertical: espacos.xs },
+  cartaoCompra: { gap: espacos.md },
   secao: { gap: espacos.sm + 2, marginTop: espacos.md },
   secaoTitulo: {
     fontSize: fontes.tamanho.destaque,

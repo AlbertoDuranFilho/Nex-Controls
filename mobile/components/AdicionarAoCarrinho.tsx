@@ -1,16 +1,11 @@
-import { Check, Minus, Plus, ShoppingCart } from "lucide-react-native";
+import { Check, ShoppingCart } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { AccessibilityInfo, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AccessibilityInfo, StyleSheet, Text, View } from "react-native";
+import { Stepper } from "@/components/Stepper";
 import { Botao } from "@/components/ui/Botao";
-import { ALVO_MINIMO, cores, espacos, fontes, raios } from "@/constants/tema";
+import { ALVO_MINIMO, cores, espacos, fontes } from "@/constants/tema";
 import { textos } from "@/constants/textos";
-import {
-  adicionarAoCarrinho,
-  lerQuantidade,
-  limitarQuantidade,
-  QUANTIDADE_MAXIMA,
-  QUANTIDADE_MINIMA,
-} from "@/lib/carrinho";
+import { adicionarAoCarrinho, lerQuantidade, limitarQuantidade, QUANTIDADE_MINIMA } from "@/lib/carrinho";
 import { useContagemCarrinho } from "@/lib/contagem-carrinho";
 
 const TEMPO_CONFIRMACAO = 2000;
@@ -94,48 +89,19 @@ export function AdicionarAoCarrinho({ produtoId, variante = "compacto" }: Props)
   return (
     <View style={estilos.container}>
       <View style={estilos.linha}>
-        <View style={[estilos.stepper, completo && estilos.stepperCompleto]}>
-          <BotaoPasso
-            icone="menos"
-            rotulo={textos.catalogo.diminuir}
-            desabilitado={atual <= QUANTIDADE_MINIMA || enviando}
-            onPress={() => passo(-1)}
-            testID={`diminuir-${produtoId}`}
-          />
-          {completo ? (
-            <TextInput
-              value={texto}
-              onChangeText={(t) => mudar(t.replace(/\D/g, "").slice(0, 4))}
-              onBlur={() => {
-                if (quantidade === null) mudar(String(limitarQuantidade(Number(texto) || 1)));
-              }}
-              keyboardType="number-pad"
-              maxLength={4}
-              selectTextOnFocus
-              editable={!enviando}
-              style={[estilos.valor, estilos.valorCompleto]}
-              accessibilityLabel={textos.catalogo.quantidade}
-              selectionColor={cores.preto}
-              cursorColor={cores.preto}
-              testID={`quantidade-${produtoId}`}
-            />
-          ) : (
-            <Text
-              style={estilos.valor}
-              accessibilityLabel={textos.catalogo.quantidadeA11y(atual)}
-              testID={`quantidade-${produtoId}`}
-            >
-              {atual}
-            </Text>
-          )}
-          <BotaoPasso
-            icone="mais"
-            rotulo={textos.catalogo.aumentar}
-            desabilitado={atual >= QUANTIDADE_MAXIMA || enviando}
-            onPress={() => passo(1)}
-            testID={`aumentar-${produtoId}`}
-          />
-        </View>
+        <Stepper
+          valor={atual}
+          onPasso={passo}
+          desabilitado={enviando}
+          editavel={completo}
+          texto={texto}
+          onTexto={mudar}
+          onConfirmar={() => {
+            if (quantidade === null) mudar(String(limitarQuantidade(Number(texto) || 1)));
+          }}
+          grande={completo}
+          idTeste={produtoId}
+        />
         <Botao
           titulo={adicionado ? textos.catalogo.adicionado : textos.catalogo.adicionar}
           icone={adicionado ? Check : ShoppingCart}
@@ -160,64 +126,9 @@ export function AdicionarAoCarrinho({ produtoId, variante = "compacto" }: Props)
   );
 }
 
-function BotaoPasso({
-  icone,
-  rotulo,
-  desabilitado,
-  onPress,
-  testID,
-}: {
-  icone: "menos" | "mais";
-  rotulo: string;
-  desabilitado: boolean;
-  onPress: () => void;
-  testID: string;
-}) {
-  const Icone = icone === "menos" ? Minus : Plus;
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={desabilitado}
-      accessibilityRole="button"
-      accessibilityLabel={rotulo}
-      accessibilityState={{ disabled: desabilitado }}
-      testID={testID}
-      style={({ pressed }) => [estilos.passo, pressed && !desabilitado && estilos.passoPressionado]}
-    >
-      <Icone size={18} color={desabilitado ? cores.cinza300 : cores.preto} strokeWidth={2.2} />
-    </Pressable>
-  );
-}
-
 const estilos = StyleSheet.create({
   container: { gap: espacos.xs + 2 },
   linha: { flexDirection: "row", alignItems: "center", gap: espacos.sm },
-  stepper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: cores.borda,
-    borderRadius: raios.botao,
-    backgroundColor: cores.branco,
-    overflow: "hidden",
-  },
-  stepperCompleto: { borderColor: cores.cinza300 },
-  passo: {
-    width: ALVO_MINIMO,
-    height: ALVO_MINIMO,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  passoPressionado: { backgroundColor: cores.cinza100 },
-  valor: {
-    minWidth: 32,
-    textAlign: "center",
-    fontSize: fontes.tamanho.corpo,
-    fontWeight: fontes.peso.semibold,
-    color: cores.texto,
-    fontVariant: ["tabular-nums"],
-  },
-  valorCompleto: { minWidth: 56, height: ALVO_MINIMO + 8, paddingVertical: 0, fontSize: fontes.tamanho.destaque },
   botao: { flex: 1, minHeight: ALVO_MINIMO, paddingHorizontal: espacos.md },
   botaoCompleto: { minHeight: ALVO_MINIMO + 8 },
   erro: { fontSize: fontes.tamanho.pequeno, color: cores.erro },

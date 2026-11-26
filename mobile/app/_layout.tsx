@@ -36,6 +36,18 @@ function Navegacao() {
       <Stack.Screen name="(abas)" />
       <Stack.Screen name="login" options={{ animation: "slide_from_bottom", contentStyle: { backgroundColor: cores.preto } }} />
       <Stack.Screen name="produto/[slug]" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen
+        name="pedido/[numero]"
+        options={{
+          animation: "slide_from_right",
+          headerShown: true,
+          title: textos.pedidos.titulo,
+          headerStyle: { backgroundColor: cores.fundo },
+          headerShadowVisible: false,
+          headerTintColor: cores.preto,
+          headerTitleStyle: { fontWeight: "700", color: cores.preto },
+        }}
+      />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

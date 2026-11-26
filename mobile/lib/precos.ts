@@ -139,6 +139,14 @@ export function usePrecosCliente(ids: readonly string[] | null): ValorPrecosClie
   const deveBuscar =
     !carregando && papel === "lojista" && lojistaAtivo && usuarioId !== null && chave !== null;
 
+  // Parou de buscar (saiu, trocou de papel, ficou inativo, perfil recarregando): esquece os
+  // preços guardados, para quem entrar de novo não ver por um instante os preços antigos.
+  // Ajuste de estado durante a renderização (padrão do React), sem efeito extra.
+  if (!deveBuscar && (resultado !== null || ultimoOk !== null)) {
+    setResultado(null);
+    setUltimoOk(null);
+  }
+
   useEffect(() => {
     if (!deveBuscar || chave === null || usuarioId === null) return;
     let vivo = true;

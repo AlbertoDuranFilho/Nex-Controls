@@ -20,8 +20,14 @@ export default async function AdminLayout({ children, params }: Props) {
         <Link href={`/${locale}/admin/lojistas`} className={link}>
           Clientes
         </Link>
-        <Link href={`/${locale}/admin/lojistas/novo`} className={link}>
-          Novo cliente
+        <Link href={`/${locale}/admin/produtos`} className={link}>
+          Produtos
+        </Link>
+        <Link href={`/${locale}/admin/cupons`} className={link}>
+          Cupons
+        </Link>
+        <Link href={`/${locale}/admin/pedidos`} className={link}>
+          Pedidos
         </Link>
       </nav>
       {children}

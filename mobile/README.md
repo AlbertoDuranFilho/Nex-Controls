@@ -16,7 +16,14 @@ Só chaves públicas (ficam dentro do app):
 
 `EXPO_PUBLIC_SITE_URL` é usada para avisar o site de um pedido novo
 (`POST /api/app/pedidos/{id}/notificar`, que envia os mesmos e-mails do pedido feito no site)
-e para abrir páginas do site (política de privacidade, Área do Cliente).
+e para abrir páginas do site (política de privacidade, exclusão de conta, Área do Cliente).
+
+**Use o host `www`:** `EXPO_PUBLIC_SITE_URL=https://www.nexcontrols.com`. Ele responde a `/api`
+direto; `https://nexcontrols.com` redireciona (307) para o `www`, e no redirect o Android descarta o
+cabeçalho `Authorization` — a rota responde 401 e os e-mails do pedido não saem (o pedido é criado
+igual, sem aviso ao cliente). Qualquer outro host precisa responder sem redirect.
+
+Se uma build sair sem as variáveis, o app abre numa tela "App sem configuração" em vez de fechar.
 
 ## Rodar no celular
 
@@ -66,12 +73,24 @@ eas env:create --environment production --name EXPO_PUBLIC_SITE_URL --value "htt
 eas build -p android --profile production
 ```
 
-O EAS cria e guarda a chave de assinatura (upload key) na primeira build. O `.aab` gerado
-vai para a Play Console (ou `eas submit -p android --profile production`). Repita o
+O EAS cria e guarda a chave de assinatura (upload key) na primeira build. Repita o
 `eas env:create` com `--environment preview`/`development` para os outros perfis.
 
-Checklist da Play: política de privacidade = `{SITE}/pt/privacy-policy`; exclusão de conta
-pela aba Conta → "Excluir minha conta" (abre a mensagem para a Nex).
+Envio para a Play:
+
+1. **O primeiro `.aab` é enviado à mão** na Play Console (crie o app, depois Teste interno →
+   Criar versão → envie o arquivo baixado do EAS). A API da Play recusa envios antes disso.
+2. Depois, para usar `eas submit -p android --profile production`, crie uma conta de serviço do
+   Google Cloud com acesso à Play Console, baixe a chave JSON (não versione) e aponte para ela em
+   `submit.production.android` do `eas.json` (`"serviceAccountKeyPath"` e, por exemplo,
+   `"track": "internal"`), ou envie a chave pelo `eas credentials`.
+
+Checklist da Play:
+
+- Política de privacidade: `https://www.nexcontrols.com/pt/privacy-policy`.
+- **Data deletion URL** (exclusão de conta): `https://www.nexcontrols.com/pt/excluir-conta`.
+- Exclusão dentro do app: aba Conta → "Excluir minha conta" (abre a mensagem para a Nex e
+  mostra o link para a página acima).
 
 ## Estrutura
 

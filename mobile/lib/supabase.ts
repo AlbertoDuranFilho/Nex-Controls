@@ -10,9 +10,12 @@ const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const chave =
   process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!url || !chave) {
-  throw new Error(textos.configuracao.faltaAmbiente);
-}
+/**
+ * Build sem as variáveis (ex.: perfil do EAS sem `eas env:create`): em vez de quebrar ao abrir,
+ * o app mostra uma tela de configuração ausente (app/_layout.tsx) e não chama o Supabase.
+ */
+export const CONFIGURACAO_AUSENTE = !url || !chave;
+if (CONFIGURACAO_AUSENTE) console.error(textos.configuracao.faltaAmbiente);
 
 /** Origem do site (sem barra final), para a rota de notificar pedido e links. */
 export const SITE_URL = (process.env.EXPO_PUBLIC_SITE_URL || "https://www.nexcontrols.com").replace(
@@ -20,7 +23,7 @@ export const SITE_URL = (process.env.EXPO_PUBLIC_SITE_URL || "https://www.nexcon
   "",
 );
 
-export const supabase = createClient<Database>(url, chave, {
+export const supabase = createClient<Database>(url || "https://configuracao-ausente.invalid", chave || "ausente", {
   auth: {
     storage: armazenamentoSeguro,
     autoRefreshToken: true,

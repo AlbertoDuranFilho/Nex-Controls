@@ -6,8 +6,11 @@ import { Alert } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { cores } from "@/constants/tema";
 import { textos } from "@/constants/textos";
+import { Settings } from "lucide-react-native";
+import { AvisoCentral } from "@/components/ExigeLogin";
 import { ContagemCarrinhoProvider } from "@/lib/contagem-carrinho";
 import { SessaoProvider, useSessao } from "@/lib/sessao";
+import { CONFIGURACAO_AUSENTE } from "@/lib/supabase";
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -53,7 +56,26 @@ function Navegacao() {
   );
 }
 
+/** Build sem as variáveis do Supabase: explica em vez de fechar sozinho. */
+function ConfiguracaoAusente() {
+  useEffect(() => {
+    void SplashScreen.hideAsync().catch(() => {});
+  }, []);
+  return (
+    <>
+      <StatusBar style="dark" />
+      <AvisoCentral
+        icone={Settings}
+        titulo={textos.configuracao.titulo}
+        descricao={textos.configuracao.descricao}
+        testID="configuracao-ausente"
+      />
+    </>
+  );
+}
+
 export default function RootLayout() {
+  if (CONFIGURACAO_AUSENTE) return <ConfiguracaoAusente />;
   return (
     <SafeAreaProvider>
       <SessaoProvider>

@@ -19,7 +19,7 @@ import { ExigeLogin } from "@/components/ExigeLogin";
 import { Botao } from "@/components/ui/Botao";
 import { Faixa } from "@/components/ui/Faixa";
 import { Selo } from "@/components/ui/Selo";
-import { CAMINHO_AREA_CLIENTE, CAMINHO_POLITICA, contato } from "@/constants/contato";
+import { CAMINHO_AREA_CLIENTE, CAMINHO_EXCLUIR_CONTA, CAMINHO_POLITICA, contato } from "@/constants/contato";
 import { ALVO_MINIMO, cores, espacos, fontes, raios, sombras } from "@/constants/tema";
 import { textos } from "@/constants/textos";
 import {
@@ -86,6 +86,7 @@ function ConteudoConta() {
   function excluirConta() {
     Alert.alert(t.excluirTitulo, t.excluirMensagem, [
       { text: t.cancelar, style: "cancel" },
+      { text: t.excluirVerPagina, onPress: () => void abrirPaginaDoSite(CAMINHO_EXCLUIR_CONTA) },
       {
         text: t.excluirContinuar,
         style: "destructive",

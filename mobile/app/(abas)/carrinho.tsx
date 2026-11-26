@@ -205,19 +205,20 @@ function ConteudoCarrinho() {
 
   /**
    * Quantidade digitada e ainda não gravada (campo focado ao tocar em "Gerar pedido"):
-   * grava antes de pedir. Devolve false se algo falhou ou o carrinho mudou para bloqueado.
+   * grava e recalcula, mas NÃO gera o pedido — o cliente confere o novo total e toca de novo.
+   * "nada": não havia pendência (segue para o pedido); "gravado" ou "falhou": para aqui.
    */
-  async function gravarPendentes(): Promise<boolean> {
-    if (!sim || !usuarioId) return true;
+  async function gravarPendentes(): Promise<"nada" | "gravado" | "falhou"> {
+    if (!sim || !usuarioId) return "nada";
     const pendentes = sim.itens.filter(
       (i) => i.valido && (qtds[i.produto_id] ?? String(i.quantidade)) !== String(i.quantidade),
     );
-    if (pendentes.length === 0) return true;
+    if (pendentes.length === 0) return "nada";
     for (const item of pendentes) {
       if (lerQuantidade((qtds[item.produto_id] ?? "").trim()) === null) {
         setErro(t.erroQuantidade);
         setQtds((a) => ({ ...a, [item.produto_id]: String(item.quantidade) }));
-        return false;
+        return "falhou";
       }
     }
     let falhou: "quantidade_invalida" | "erro" | null = null;
@@ -230,16 +231,13 @@ function ConteudoCarrinho() {
       }
     }
     const rc = await recalcular(cupomRef.current);
-    if (!vivo.current) return false;
+    if (!vivo.current) return "falhou";
     if (falhou) {
       setErro(falhou === "quantidade_invalida" ? t.erroQuantidade : t.erroAtualizar);
-      return false;
+      return "falhou";
     }
-    if (!rc.ok || !rc.sim) return false;
-    // o total mudou: o cupom (valor mínimo) ou um item pode ter deixado de valer; o cliente revê
-    const novo = rc.sim;
-    const bloqueios = novo.bloqueios.filter((b) => b !== "carrinho_vazio");
-    return bloqueios.length === 0 && novo.cupom.situacao !== "invalido" && novo.itens.length > 0;
+    if (rc.ok) setErro(t.quantidadesAtualizadas);
+    return rc.ok ? "gravado" : "falhou";
   }
 
   async function gerar() {
@@ -251,7 +249,7 @@ function ConteudoCarrinho() {
     setIncerto(false);
     setEnviando(true);
     try {
-      if (!(await gravarPendentes())) return;
+      if ((await gravarPendentes()) !== "nada") return;
       const r = await gerarPedido(cupomRef.current, observacao);
       if (r.ok) {
         // e-mails do pedido em segundo plano: falha só é registrada (admin reenvia)

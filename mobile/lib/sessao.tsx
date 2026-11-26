@@ -36,6 +36,20 @@ export type ValorSessao = {
 
 const SessaoContexto = createContext<ValorSessao | null>(null);
 
+/** Prazo para ler a sessão e descobrir o papel: rede travada não prende a splash. */
+export const PRAZO_PERFIL_MS = 10_000;
+/** Ao voltar para o app, relê papel/cadastro ativo no máximo a cada 60 s. */
+export const INTERVALO_RECHECAGEM_MS = 60_000;
+
+/** Resolve com `reserva` se a promessa não terminar no prazo (o timer é limpo depois). */
+export function comPrazo<T>(promessa: Promise<T>, ms: number, reserva: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const prazo = new Promise<T>((ok) => {
+    timer = setTimeout(() => ok(reserva), ms);
+  });
+  return Promise.race([promessa, prazo]).finally(() => clearTimeout(timer));
+}
+
 type PerfilResolvido = { usuarioId: string; perfil: Perfil };
 
 export function SessaoProvider({ children }: { children: ReactNode }) {
@@ -48,6 +62,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   // enquanto entrar() roda, ele mesmo resolve o perfil (evita checagem dupla de admin)
   const entrandoRef = useRef(false);
   const emErroRef = useRef(false);
+  // última vez que o papel foi confirmado; checagem "silenciosa" (ao voltar ao app) não troca
+  // um perfil bom por "erro" se a rede falhar
+  const ultimaChecagemRef = useRef(0);
+  const silenciosoRef = useRef(false);
 
   const usuarioId = sessao?.user.id ?? null;
   const perfilAtual = usuarioId && resolvido?.usuarioId === usuarioId ? resolvido.perfil : null;
@@ -70,6 +88,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       setSessao(nova);
       setSessaoLida(true);
     };
+    // Rede travada: não segura a splash para sempre (a sessão, se vier depois, é aplicada).
+    const prazoSessao = setTimeout(() => {
+      if (vivo) setSessaoLida(true);
+    }, PRAZO_PERFIL_MS);
     // Sessão salva: o supabase-js renova o token se expirou; se não der, volta null.
     supabase.auth
       .getSession()
@@ -82,10 +104,22 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       if (evento === "TOKEN_REFRESHED" && emErroRef.current) tentarDeNovo();
     });
     const assinaturaApp = AppState.addEventListener("change", (estado) => {
-      if (estado === "active" && emErroRef.current) tentarDeNovo();
+      if (estado !== "active") return;
+      if (emErroRef.current) {
+        tentarDeNovo();
+      } else if (
+        sessaoRef.current &&
+        ultimaChecagemRef.current > 0 &&
+        Date.now() - ultimaChecagemRef.current >= INTERVALO_RECHECAGEM_MS
+      ) {
+        // ex.: o admin ativou o cadastro enquanto o app estava aberto
+        silenciosoRef.current = true;
+        setVersao((v) => v + 1);
+      }
     });
     return () => {
       vivo = false;
+      clearTimeout(prazoSessao);
       data.subscription.unsubscribe();
       assinaturaApp.remove();
     };
@@ -94,10 +128,15 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!usuarioId || entrandoRef.current) return;
     let vivo = true;
-    resolverPerfil(supabase, sessaoRef.current)
+    const silencioso = silenciosoRef.current;
+    silenciosoRef.current = false;
+    comPrazo(resolverPerfil(supabase, sessaoRef.current), PRAZO_PERFIL_MS, PERFIL_ERRO)
       .catch((): Perfil => PERFIL_ERRO)
       .then((perfil) => {
         if (!vivo) return;
+        ultimaChecagemRef.current = Date.now();
+        // rechecagem silenciosa que falhou: mantém o perfil que já estava valendo
+        if (silencioso && perfil.papel === "erro") return;
         setResolvido({ usuarioId, perfil });
         // Sessão de admin restaurada: admin não usa o app; desconecta e avisa.
         if (perfil.papel === "admin") {
@@ -123,7 +162,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
         return { tipo: "erro", mensagem: mensagemErroLogin(error ?? { message: "" }) };
       }
       const novoId = data.session.user.id;
-      const perfil = await resolverPerfil(supabase, data.session).catch((): Perfil => PERFIL_ERRO);
+      const perfil = await comPrazo(resolverPerfil(supabase, data.session), PRAZO_PERFIL_MS, PERFIL_ERRO).catch(
+        (): Perfil => PERFIL_ERRO,
+      );
+      ultimaChecagemRef.current = Date.now();
       if (perfil.papel === "admin") {
         await supabase.auth.signOut({ scope: "local" });
         return { tipo: "admin" };

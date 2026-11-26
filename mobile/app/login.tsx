@@ -18,7 +18,9 @@ import { Botao } from "@/components/ui/Botao";
 import { Campo } from "@/components/ui/Campo";
 import { CampoSenha } from "@/components/ui/CampoSenha";
 import { ALVO_MINIMO, cores, espacos, fontes, raios, sombras } from "@/constants/tema";
+import { CAMINHO_POLITICA } from "@/constants/contato";
 import { textos } from "@/constants/textos";
+import { abrirPaginaDoSite } from "@/lib/contato";
 import { useSessao } from "@/lib/sessao";
 
 const logo = require("@/assets/images/logo.png");
@@ -150,6 +152,14 @@ export default function TelaLogin() {
             <Botao titulo={textos.login.voltarAoCatalogo} variante="texto" onPress={fechar} />
 
             <Text style={estilos.rodape}>{textos.login.semCadastro}</Text>
+            <Pressable
+              onPress={() => void abrirPaginaDoSite(CAMINHO_POLITICA)}
+              accessibilityRole="link"
+              style={estilos.politica}
+              testID="login-politica"
+            >
+              <Text style={estilos.politicaTexto}>{textos.login.politica}</Text>
+            </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -223,6 +233,13 @@ const estilos = StyleSheet.create({
   },
   avisoTexto: { fontSize: fontes.tamanho.pequeno + 1, color: cores.cinza700, lineHeight: 20 },
   avisoTextoErro: { flex: 1, color: cores.erro, fontWeight: fontes.peso.medio },
+  politica: { alignSelf: "center", minHeight: ALVO_MINIMO, justifyContent: "center", paddingHorizontal: espacos.md },
+  politicaTexto: {
+    fontSize: fontes.tamanho.pequeno,
+    color: cores.cinza700,
+    fontWeight: fontes.peso.semibold,
+    textDecorationLine: "underline",
+  },
   rodape: {
     marginTop: "auto",
     textAlign: "center",

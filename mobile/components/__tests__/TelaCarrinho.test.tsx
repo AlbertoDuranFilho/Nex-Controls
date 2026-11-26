@@ -275,33 +275,28 @@ describe("Carrinho: correções da revisão", () => {
   const criacoes = () => falso.rpc.mock.calls.filter((c) => c[0] === "criar_pedido").length;
   const MINIMO_150 = carrinhoSite.cupomValorMinimo.replace("{valor}", "R$ 150,00");
 
-  it("quantidade digitada e não confirmada é gravada antes de gerar o pedido", async () => {
+  it("quantidade digitada e não confirmada: Gerar grava, mostra o novo total e só pede no próximo toque", async () => {
     falso.respostas.carrinho_itens = { data: [{ produto_id: "a" }], error: null };
-    let gravadoAntes = false;
-    falso.rpc.mockImplementation(async (nome: string) => {
-      if (nome === "simular_pedido") return { data: simAtual, error: null, status: 200 };
-      if (nome === "criar_pedido") {
-        gravadoAntes = falso.chamadas.some(
-          (c) =>
-            c.tabela === "carrinho_itens" &&
-            c.metodo === "update" &&
-            (c.args[0] as { quantidade: number }).quantidade === 5,
-        );
-        return { data: { ok: true, id: "pedido-1", numero: 1042 }, error: null, status: 200 };
-      }
-      return { data: null, error: { message: "?" } };
-    });
     await abrir();
     // digitou 5 e tocou em Gerar sem sair do campo
     await fireEvent.changeText(screen.getByTestId("quantidade-a"), "5");
     simAtual = simulacao({ itens: [{ ...simulacao().itens[0], quantidade: 5, total_linha: 450 }], total: 450 });
     await fireEvent.press(screen.getByTestId("gerar-pedido"));
-    expect(await screen.findByTestId("pedido-concluido")).toBeTruthy();
-    expect(gravadoAntes).toBe(true);
+    expect(await screen.findByTestId("erro-carrinho")).toHaveTextContent(
+      "Quantidades atualizadas. Confira o total e toque em Gerar pedido.",
+    );
+    const update = falso.chamadas.find((c) => c.tabela === "carrinho_itens" && c.metodo === "update");
+    expect(update?.args).toEqual([{ quantidade: 5 }]);
     expect(falso.filtros("carrinho_itens")).toEqual([
       ["lojista_id", "u1"],
       ["produto_id", "a"],
     ]);
+    expect(screen.getByTestId("total-a")).toHaveTextContent("R$ 450,00");
+    expect(criacoes()).toBe(0);
+
+    // conferiu o total e tocou de novo: agora pede
+    await fireEvent.press(screen.getByTestId("gerar-pedido"));
+    expect(await screen.findByTestId("pedido-concluido")).toBeTruthy();
     expect(criacoes()).toBe(1);
   });
 

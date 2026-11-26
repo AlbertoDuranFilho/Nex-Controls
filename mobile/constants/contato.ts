@@ -12,6 +12,9 @@ export const contato = {
 /** Caminho da política de privacidade no site (abre no navegador do app; é um documento). */
 export const CAMINHO_POLITICA = "/pt/privacy-policy";
 
+/** Página pública de exclusão de conta (a mesma URL informada na Google Play). */
+export const CAMINHO_EXCLUIR_CONTA = "/pt/excluir-conta";
+
 /** Área do Cliente no site (edição de dados e endereço nesta fase). */
 export const CAMINHO_AREA_CLIENTE = "/pt/cliente";
 export const CAMINHO_ENDERECO = "/pt/cliente/endereco";

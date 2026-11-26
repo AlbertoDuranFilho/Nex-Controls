@@ -104,6 +104,10 @@ describe("Conta", () => {
     expect(url).toContain("mailto:contato@nexcontrols.com");
     expect(url).toContain("Pedido de exclusão de conta");
     expect(url).toContain("loja@teste.com");
+
+    // o mesmo aviso leva à página pública de exclusão (a URL informada na Google Play)
+    botoes.find((b) => b.text === "Ver como funciona")?.onPress?.();
+    expect(WebBrowser.openBrowserAsync).toHaveBeenCalledWith("https://site.test/pt/excluir-conta");
   });
 
   it("erro ao carregar dados ainda deixa contato, privacidade e sair", async () => {

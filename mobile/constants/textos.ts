@@ -24,6 +24,7 @@ export const textos = {
     itensNoCarrinho: (n: number) => (n === 1 ? "1 item no carrinho" : `${n} itens no carrinho`),
   },
   login: {
+    politica: "Política de privacidade",
     titulo: "Área do Cliente",
     subtitulo: "Entre com o mesmo e-mail e senha do site.",
     email: "E-mail",
@@ -160,6 +161,7 @@ export const textos = {
     erroCarregarTitulo: "Carrinho indisponível",
     itens: (n: number) => (n === 1 ? "1 item" : `${n} itens`),
     semImagem: "Sem imagem",
+    quantidadesAtualizadas: "Quantidades atualizadas. Confira o total e toque em Gerar pedido.",
   },
   pedidoConcluido: {
     titulo: "Pedido enviado!",
@@ -250,6 +252,7 @@ export const textos = {
     excluirMensagem:
       "Vamos abrir uma mensagem para a Nex com o pedido de exclusão da sua conta e dos seus dados. A Nex confirma pelo mesmo canal. Pedidos e notas fiscais já emitidos são guardados pelo prazo exigido por lei.",
     excluirContinuar: "Continuar",
+    excluirVerPagina: "Ver como funciona",
     erroAbrir: (email: string) => `Não foi possível abrir o aplicativo. Escreva para ${email}.`,
     erroAbrirTitulo: "Fale com a Nex",
     versao: (v: string) => `Versão ${v}`,
@@ -269,6 +272,9 @@ export const textos = {
     solicitarA11y: (codigo: string) => `Solicitar orçamento do produto ${codigo} para a Nex`,
   },
   configuracao: {
+    titulo: "App sem configuração",
+    descricao:
+      "Esta versão do app foi gerada sem os dados de conexão. Fale com a Nex Controls para receber uma versão atualizada.",
     faltaAmbiente:
       "Configuração ausente: defina EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY no arquivo .env.",
   },

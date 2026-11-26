@@ -12,6 +12,9 @@ const mockBanco = {
   itens: [] as { quantidade: number }[],
   profilesErro: false,
   rpcErro: false,
+  /** rede travada: a RPC/getSession nunca respondem */
+  rpcTrava: false,
+  sessaoTrava: false,
   chamadasPerfil: 0,
   respostaLogin: null as null | { data: { session: unknown }; error: unknown },
   signOut: jest.fn(),
@@ -37,7 +40,10 @@ jest.mock("@/lib/supabase", () => {
     SITE_URL: "https://exemplo.test",
     supabase: {
       auth: {
-        getSession: async () => ({ data: { session: mockBanco.sessao }, error: null }),
+        getSession: () =>
+          mockBanco.sessaoTrava
+            ? new Promise(() => {})
+            : Promise.resolve({ data: { session: mockBanco.sessao }, error: null }),
         onAuthStateChange: (cb: Ouvinte) => {
           mockBanco.ouvintes.push(cb);
           return {
@@ -76,6 +82,7 @@ jest.mock("@/lib/supabase", () => {
         ),
       rpc: async (nome: string) => {
         if (nome === "is_lojista_ativo") mockBanco.chamadasPerfil++;
+        if (nome === "is_lojista_ativo" && mockBanco.rpcTrava) return new Promise(() => {});
         return nome === "is_lojista_ativo" && !mockBanco.rpcErro
           ? { data: mockBanco.ativo, error: null }
           : { data: null, error: { message: "Network request failed" } };
@@ -148,6 +155,8 @@ beforeEach(() => {
   mockBanco.respostaLogin = null;
   mockBanco.profilesErro = false;
   mockBanco.rpcErro = false;
+  mockBanco.rpcTrava = false;
+  mockBanco.sessaoTrava = false;
   mockBanco.chamadasPerfil = 0;
   mockBanco.signOut.mockClear();
   mockOuvintesApp.length = 0;
@@ -361,5 +370,78 @@ describe("textoContador", () => {
     expect(textoContador(0)).toBeUndefined();
     expect(textoContador(7)).toBe("7");
     expect(textoContador(150)).toBe("99+");
+  });
+});
+
+describe("rede travada e rechecagem ao voltar para o app", () => {
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it("papel que não responde em 10 s vira 'erro' (a splash sai e há 'Tentar de novo')", async () => {
+    jest.useFakeTimers();
+    mockBanco.sessao = usuario("lojista");
+    mockBanco.rpcTrava = true;
+    await montar();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(estado().carregando).toBe(true);
+    await act(async () => {
+      jest.advanceTimersByTime(10_000);
+    });
+    expect(estado()).toMatchObject({ papel: "erro", carregando: false });
+  });
+
+  it("sessão salva que não responde em 10 s não prende a splash", async () => {
+    jest.useFakeTimers();
+    mockBanco.sessaoTrava = true;
+    await montar();
+    expect(estado().carregando).toBe(true);
+    await act(async () => {
+      jest.advanceTimersByTime(10_000);
+    });
+    expect(estado()).toMatchObject({ papel: "visitante", carregando: false });
+  });
+
+  it("ao voltar depois de 60 s relê o cadastro (ativado pelo admin); antes disso não", async () => {
+    const agora = jest.spyOn(Date, "now").mockReturnValue(1_000_000);
+    mockBanco.sessao = usuario("lojista");
+    mockBanco.ativo = false;
+    await montar();
+    await waitFor(() => expect(estado()).toMatchObject({ papel: "lojista", ativo: false, carregando: false }));
+    const chamadas = mockBanco.chamadasPerfil;
+    mockBanco.ativo = true;
+
+    agora.mockReturnValue(1_000_000 + 30_000);
+    await act(async () => {
+      mockOuvintesApp.forEach((cb) => cb("active"));
+    });
+    expect(mockBanco.chamadasPerfil).toBe(chamadas);
+    expect(estado().ativo).toBe(false);
+
+    agora.mockReturnValue(1_000_000 + 61_000);
+    await act(async () => {
+      mockOuvintesApp.forEach((cb) => cb("active"));
+    });
+    await waitFor(() => expect(estado()).toMatchObject({ papel: "lojista", ativo: true }));
+    // sem passar por "carregando" (não pisca a tela)
+    expect(estado().carregando).toBe(false);
+  });
+
+  it("rechecagem que falha por rede mantém o perfil bom", async () => {
+    const agora = jest.spyOn(Date, "now").mockReturnValue(1_000_000);
+    mockBanco.sessao = usuario("lojista");
+    await montar();
+    await waitFor(() => expect(estado()).toMatchObject({ papel: "lojista", ativo: true }));
+    mockBanco.rpcErro = true;
+    agora.mockReturnValue(1_000_000 + 61_000);
+    const chamadas = mockBanco.chamadasPerfil;
+    await act(async () => {
+      mockOuvintesApp.forEach((cb) => cb("active"));
+    });
+    await waitFor(() => expect(mockBanco.chamadasPerfil).toBeGreaterThan(chamadas));
+    expect(estado()).toMatchObject({ papel: "lojista", ativo: true, carregando: false });
   });
 });

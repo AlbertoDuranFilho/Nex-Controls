@@ -10,7 +10,7 @@ function form(c: Record<string, string>) {
 }
 
 describe("parseDecimal", () => {
-  it.each([["189,90", 189.9], ["189.90", 189.9], ["1.234,56", 1234.56], ["0", 0], ["", null]])(
+  it.each([["189,90", 189.9], ["189.90", 189.9], ["1.234,56", 1234.56], ["1.234,50", 1234.5], ["0.500", 0.5], ["1.500", 1.5], ["1.234", 1.234], ["0", 0], ["", null]])(
     "%s",
     (entrada, esperado) => expect(parseDecimal(entrada)).toBe(esperado),
   );

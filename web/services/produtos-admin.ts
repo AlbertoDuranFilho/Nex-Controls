@@ -8,7 +8,8 @@ import { assinarCloudinary } from "@/lib/cloudinary/assinatura";
 import { UUID, sanitizarBusca } from "@/lib/admin/formulario";
 import { validarProduto } from "@/lib/admin/produto";
 
-export type ResultadoAdmin<T = void> = { ok: true; dados: T } | { ok: false; erro: string };
+import type { ResultadoAdmin } from "@/lib/admin/resultado";
+
 
 export type ProdutoAdmin = {
   id: string;

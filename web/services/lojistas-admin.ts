@@ -17,7 +17,8 @@ import {
   texto,
 } from "@/lib/admin/formulario";
 
-export type ResultadoAdmin<T = void> = { ok: true; dados: T } | { ok: false; erro: string };
+import type { ResultadoAdmin } from "@/lib/admin/resultado";
+
 
 export type LojistaResumo = {
   id: string;

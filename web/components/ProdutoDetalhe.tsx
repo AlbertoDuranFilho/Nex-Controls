@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { imagemNaoOtimizada } from "@/lib/imagem";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import PrecoProduto from "@/components/catalogo/PrecoProduto";
@@ -35,6 +36,7 @@ export default function ProdutoDetalhe({ produto }: { produto: ProdutoPublico })
             {imagemAtiva ? (
               <Image
                 src={imagemAtiva.url}
+                unoptimized={imagemNaoOtimizada(imagemAtiva.url)}
                 alt={imagemAtiva.alt ?? produto.nome}
                 fill
                 className="object-contain"
@@ -60,6 +62,7 @@ export default function ProdutoDetalhe({ produto }: { produto: ProdutoPublico })
                 >
                   <Image
                     src={img.url}
+                    unoptimized={imagemNaoOtimizada(img.url)}
                     alt={img.alt ?? `${produto.nome} ${i + 1}`}
                     fill
                     className="object-cover"

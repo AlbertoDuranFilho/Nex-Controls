@@ -35,7 +35,8 @@ export function parseDecimal(valor: string): number | null {
   const v = valor.trim();
   if (v === "") return null;
   let norm = v;
-  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v)) norm = v.replace(/\./g, "").replace(",", ".");
+  // Ponto de milhar só com vírgula decimal ("1.234,50"); "1.234" e "0.500" são decimais com ponto.
+  if (/^\d{1,3}(\.\d{3})+,\d+$/.test(v)) norm = v.replace(/\./g, "").replace(",", ".");
   else if (/^\d+(,\d+)?$/.test(v)) norm = v.replace(",", ".");
   else if (!/^\d+(\.\d+)?$/.test(v)) return Number.NaN;
   const n = Number(norm);

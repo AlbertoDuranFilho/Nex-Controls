@@ -2,11 +2,12 @@
 
 import { useActionState, useState } from "react";
 import SenhaGerada from "@/components/admin/SenhaGerada";
+import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import {
   anonimizarLojista,
   definirAtivo,
   gerarNovaSenha,
-  type ResultadoAdmin,
+
 } from "@/services/lojistas-admin";
 import { formatarDocumento, somenteDigitos } from "@/lib/validacao/documento";
 

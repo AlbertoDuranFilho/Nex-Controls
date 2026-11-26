@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { imagemNaoOtimizada } from "@/lib/imagem";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import type { ProdutoPublico } from "@/services/catalogo";
@@ -14,6 +15,7 @@ export default function ProductCard({ produto }: { produto: ProdutoPublico }) {
         {img ? (
           <Image
             src={img.url}
+            unoptimized={imagemNaoOtimizada(img.url)}
             alt={img.alt ?? produto.nome}
             width={160}
             height={120}

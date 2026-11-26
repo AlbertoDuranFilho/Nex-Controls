@@ -4,7 +4,8 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UploadCloudinary from "@/components/admin/UploadCloudinary";
-import { salvarProduto, type ProdutoAdmin, type ResultadoAdmin } from "@/services/produtos-admin";
+import type { ResultadoAdmin } from "@/lib/admin/resultado";
+import { salvarProduto, type ProdutoAdmin } from "@/services/produtos-admin";
 
 const campo =
   "w-full border border-marca-cinza-300 bg-marca-branco px-3 py-3 text-marca-preto outline-none focus:border-marca-preto";

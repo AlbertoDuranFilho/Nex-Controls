@@ -3,10 +3,11 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import SenhaGerada from "@/components/admin/SenhaGerada";
+import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import {
   atualizarLojista,
   criarLojista,
-  type ResultadoAdmin,
+
 } from "@/services/lojistas-admin";
 import { formatarDocumento } from "@/lib/validacao/documento";
 

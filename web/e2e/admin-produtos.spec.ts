@@ -42,6 +42,7 @@ test("admin cria produto com preço, especificação e manual; aparece na lista 
   await expect(page.getByLabel("URL do manual")).toHaveValue(MANUAL);
   await expect(page.getByLabel("Valor da especificação 1")).toHaveValue("24 V");
 
+  const urlEdicao = page.url();
   const slug = await page.getByLabel("Slug (URL)").inputValue();
   expect(slug).toContain(codigo.toLowerCase());
 
@@ -57,6 +58,22 @@ test("admin cria produto com preço, especificação e manual; aparece na lista 
   await expect(p).toHaveURL("/pt/cliente");
   await p.goto(`/pt/catalogo/${slug}`);
   await expect(p.locator("main")).toContainText(/R\$\s250,00/);
+  // Lista e detalhe agora estão no cache (ISR); a edição do admin tem de invalidar a tag.
+  await p.goto("/pt/catalogo");
+  await expect(p.getByText(`Placa Admin ${sufixo}`)).toBeVisible();
+
+  await page.goto(urlEdicao);
+  await page.getByLabel("Nome", { exact: true }).fill(`Placa Editada ${sufixo}`);
+  await page.getByLabel("Preço de tabela (R$)").fill("300,00");
+  await page.getByRole("button", { name: "Salvar produto" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Produto salvo." })).toBeVisible();
+
+  await p.goto("/pt/catalogo");
+  await expect(p.getByText(`Placa Editada ${sufixo}`)).toBeVisible();
+  await expect(p.getByText(`Placa Admin ${sufixo}`)).toHaveCount(0);
+  await p.goto(`/pt/catalogo/${slug}`);
+  await expect(p.getByRole("heading", { name: `Placa Editada ${sufixo}` })).toBeVisible();
+  await expect(p.locator("main")).toContainText(/R\$\s300,00/);
   await ctx.close();
 });
 

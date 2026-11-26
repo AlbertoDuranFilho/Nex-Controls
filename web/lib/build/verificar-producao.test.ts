@@ -7,6 +7,10 @@ const envCompleto = {
   NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon",
   SUPABASE_SERVICE_ROLE_KEY: "service",
+  RESEND_API_KEY: "re_x",
+  CLOUDINARY_CLOUD_NAME: "nex",
+  CLOUDINARY_API_KEY: "k",
+  CLOUDINARY_API_SECRET: "s",
 };
 const limpas = { pt: { a: { b: "ok" } }, en: { a: "ok" }, es: { a: ["ok"] } };
 const OBRIGATORIAS = [
@@ -14,6 +18,10 @@ const OBRIGATORIAS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
+  "RESEND_API_KEY",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ];
 
 describe("encontrarTodos", () => {
@@ -57,5 +65,28 @@ describe("verificarProducao", () => {
     ]);
     const vazia = { ...envCompleto, [nome]: "  " };
     expect(verificarProducao({ env: vazia, mensagens: limpas })).toHaveLength(1);
+  });
+
+  describe("endereço com pagamento online", () => {
+    const decreto =
+      "Endereço físico da empresa (footer.address) é obrigatório com pagamento online (Decreto 7.962/2013).";
+    const env = { ...envCompleto, FEATURE_PAGAMENTO_ONLINE: "true" };
+
+    it("com a flag e sem footer.address, reclama", () => {
+      expect(verificarProducao({ env, mensagens: { ...limpas, pt: { footer: {} } } })).toContain(decreto);
+      expect(
+        verificarProducao({ env, mensagens: { ...limpas, pt: { footer: { address: " " } } } }),
+      ).toContain(decreto);
+    });
+    it("com a flag e endereço preenchido, passa", () => {
+      expect(
+        verificarProducao({ env, mensagens: { ...limpas, pt: { footer: { address: "Rua X, 1" } } } }),
+      ).toEqual([]);
+    });
+    it("sem a flag, não cobra o endereço", () => {
+      expect(
+        verificarProducao({ env: envCompleto, mensagens: { ...limpas, pt: { footer: {} } } }),
+      ).not.toContain(decreto);
+    });
   });
 });

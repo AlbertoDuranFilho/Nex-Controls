@@ -22,7 +22,6 @@ export default function Footer({locale} : { locale?: string}) {
         <p className="text-gray-400 text-sm">{t('tagline')}</p>
         <address className="not-italic text-marca-cinza-400 text-xs mt-4 space-y-1">
           <p>{t('company')} · {t('cnpj')}</p>
-          <p>{t('address')}</p>
           <p>
             {t('contact')}:{' '}
             <a href="mailto:contato@nexcontrols.com" className="hover:text-marca-cinza-300">

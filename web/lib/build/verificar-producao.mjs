@@ -6,6 +6,10 @@ export const VARIAVEIS_OBRIGATORIAS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
+  "RESEND_API_KEY",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ];
 
 /**
@@ -41,6 +45,15 @@ export function verificarProducao({ env, mensagens }) {
   }
   for (const nome of VARIAVEIS_OBRIGATORIAS) {
     if (!env[nome]?.trim()) problemas.push(`Variável de ambiente ${nome} ausente ou vazia.`);
+  }
+  if (env.FEATURE_PAGAMENTO_ONLINE === "true") {
+    const pt = /** @type {any} */ (mensagens.pt);
+    const endereco = pt?.footer?.address;
+    if (typeof endereco !== "string" || !endereco.trim()) {
+      problemas.push(
+        "Endereço físico da empresa (footer.address) é obrigatório com pagamento online (Decreto 7.962/2013).",
+      );
+    }
   }
   return problemas;
 }

@@ -43,7 +43,12 @@
     "successMessage": "Hemos recibido su mensaje y nos pondremos en contacto pronto.",
     "errorTitle": "❌ Error al enviar",
     "errorMessage": "Hubo un problema al enviar su mensaje. Inténtelo de nuevo.",
-    "okButton": "Aceptar"
+    "okButton": "Aceptar",
+    "errors": {
+      "nome": "Indique su nombre (2 a 100 caracteres).",
+      "email": "Indique un correo válido.",
+      "mensagem": "El mensaje debe tener de 10 a 2000 caracteres."
+    }
   },
   "product": {
     "compatibility": "Compatibilidad",
@@ -248,7 +253,6 @@
     "company": "Nex Controls do Brasil LTDA",
     "contact": "Contacto",
     "cnpj": "CNPJ: 61.697.615/0001-03 · IE: 1261377-06",
-    "address": "TODO_ENDERECO",
     "privacyLink": "Política de Privacidad"
   },
   "menuUsuario": {

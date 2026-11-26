@@ -379,7 +379,7 @@
     "how2": "En la app, toque Cuenta y luego \"Excluir minha conta\" (Eliminar mi cuenta): la app abre ese mensaje listo para enviar.",
     "how3": "Si necesitamos confirmar que la solicitud es suya, responderemos al mismo correo antes de eliminar.",
     "deletedTitle": "Qué se elimina",
-    "deleted1": "Su acceso: el inicio de sesión se bloquea y se cierran todas las sesiones abiertas (sitio y app).",
+    "deleted1": "Su acceso: el inicio de sesión se bloquea y las sesiones abiertas en el sitio y la app dejan de renovarse (terminan en hasta 1 hora).",
     "deleted2": "Los datos del registro: nombre o razón social, nombre comercial, CPF/CNPJ, correo, inscripción estatal, responsable, teléfono, WhatsApp y dirección.",
     "deleted3": "El CPF/CNPJ queda libre para un nuevo registro.",
     "keptTitle": "Qué se conserva y por cuánto tiempo",
@@ -387,7 +387,7 @@
     "kept2": "Los registros de acceso (fecha y hora, IP y navegador) se conservan durante 6 meses, conforme al art. 15 del Marco Civil de Internet (Ley nº 12.965/2014).",
     "kept3": "Pasados estos plazos, esos datos también se eliminan o anonimizan.",
     "timeTitle": "Plazo",
-    "time1": "Respondemos a la solicitud y completamos la eliminación en un plazo de hasta 15 días desde la confirmación, conforme a la LGPD.",
+    "time1": "Respondemos a la solicitud y completamos la eliminación en un plazo de hasta 15 días desde la confirmación.",
     "moreInfo": "Más detalles sobre cómo tratamos sus datos en la",
     "privacyLink": "Política de Privacidad"
   }

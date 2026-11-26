@@ -379,7 +379,7 @@
     "how2": "No app, toque em Conta e depois em \"Excluir minha conta\": o app abre essa mensagem pronta para você enviar.",
     "how3": "Se precisarmos confirmar que o pedido é seu, responderemos pelo mesmo e-mail antes de excluir.",
     "deletedTitle": "O que é excluído",
-    "deleted1": "Seu acesso: o login é bloqueado e todas as sessões abertas (site e app) são encerradas.",
+    "deleted1": "Seu acesso: o login é bloqueado e as sessões abertas no site e no app deixam de ser renovadas (encerram em até 1 hora).",
     "deleted2": "Os dados do cadastro: nome ou razão social, nome fantasia, CPF/CNPJ, e-mail, inscrição estadual, responsável, telefone, WhatsApp e endereço.",
     "deleted3": "O CPF/CNPJ fica livre para um novo cadastro.",
     "keptTitle": "O que é mantido e por quanto tempo",
@@ -387,7 +387,7 @@
     "kept2": "Os registros de acesso (data e hora, IP e navegador) são mantidos por 6 meses, conforme o art. 15 do Marco Civil da Internet (Lei nº 12.965/2014).",
     "kept3": "Passados esses prazos, esses dados também são excluídos ou anonimizados.",
     "timeTitle": "Prazo",
-    "time1": "Respondemos ao pedido e concluímos a exclusão em até 15 dias a partir da confirmação, conforme a LGPD.",
+    "time1": "Respondemos ao pedido e concluímos a exclusão em até 15 dias a partir da confirmação.",
     "moreInfo": "Mais detalhes sobre como tratamos seus dados estão na",
     "privacyLink": "Política de Privacidade"
   }

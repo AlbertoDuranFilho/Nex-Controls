@@ -379,7 +379,7 @@
     "how2": "In the app, tap Account and then \"Excluir minha conta\" (Delete my account): the app opens this message ready for you to send.",
     "how3": "If we need to confirm that the request is yours, we will reply to the same e-mail before deleting.",
     "deletedTitle": "What is deleted",
-    "deleted1": "Your access: sign-in is blocked and all open sessions (website and app) are ended.",
+    "deleted1": "Your access: sign-in is blocked and open sessions on the website and app are no longer renewed (they end within 1 hour).",
     "deleted2": "Your registration data: name or company name, trade name, CPF/CNPJ, e-mail, state registration, contact person, phone, WhatsApp and address.",
     "deleted3": "The CPF/CNPJ becomes available for a new registration.",
     "keptTitle": "What is kept and for how long",
@@ -387,7 +387,7 @@
     "kept2": "Access logs (date and time, IP and browser) are kept for 6 months, under art. 15 of the Brazilian Internet Civil Framework (Law 12.965/2014).",
     "kept3": "After these periods, this data is also deleted or anonymized.",
     "timeTitle": "Timeframe",
-    "time1": "We reply to the request and complete the deletion within 15 days of confirmation, as set by the LGPD.",
+    "time1": "We reply to the request and complete the deletion within 15 days of confirmation.",
     "moreInfo": "More details on how we handle your data are in the",
     "privacyLink": "Privacy Policy"
   }

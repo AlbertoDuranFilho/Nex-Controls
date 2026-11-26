@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
+import { paraDataRecife } from "@/lib/admin/cupom";
 import { salvarCupom, type CupomAdmin } from "@/services/cupons-admin";
 
 const campo =
@@ -12,13 +13,6 @@ const botao =
   "bg-marca-preto px-6 py-3 font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800 disabled:cursor-not-allowed disabled:bg-marca-cinza-500";
 
 type Estado = ResultadoAdmin<{ id: string }> | null;
-
-// America/Recife é UTC-3 fixo: converte o instante para o valor de datetime-local.
-function paraLocal(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(new Date(iso).getTime() - 3 * 3600 * 1000);
-  return d.toISOString().slice(0, 16);
-}
 
 const decimal = (n: number | null) => (n === null ? "" : String(n).replace(".", ","));
 
@@ -73,11 +67,11 @@ export default function FormCupom({ cupom, locale, lojistas }: Props) {
         </div>
         <div>
           <label htmlFor="valido_de" className={rotulo}>Válido de</label>
-          <input id="valido_de" name="valido_de" type="datetime-local" defaultValue={paraLocal(cupom?.valido_de ?? null)} className={campo} />
+          <input id="valido_de" name="valido_de" type="date" defaultValue={paraDataRecife(cupom?.valido_de ?? null)} className={campo} />
         </div>
         <div>
           <label htmlFor="valido_ate" className={rotulo}>Válido até</label>
-          <input id="valido_ate" name="valido_ate" type="datetime-local" defaultValue={paraLocal(cupom?.valido_ate ?? null)} className={campo} />
+          <input id="valido_ate" name="valido_ate" type="date" defaultValue={paraDataRecife(cupom?.valido_ate ?? null)} className={campo} />
         </div>
         <div>
           <label htmlFor="max_usos" className={rotulo}>Máximo de usos (vazio = ilimitado)</label>

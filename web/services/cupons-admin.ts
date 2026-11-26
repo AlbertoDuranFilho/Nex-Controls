@@ -50,13 +50,11 @@ function revalidar() {
 async function contarUsos(ids: string[]): Promise<Map<string, number>> {
   const usos = new Map<string, number>();
   if (ids.length === 0) return usos;
-  const { data, error } = await createAdminClient()
-    .from("pedidos")
-    .select("cupom_id")
-    .in("cupom_id", ids)
-    .neq("status", "cancelado");
+  // Agregação no banco (pedidos não cancelados): sem o teto de linhas do PostgREST.
+  const { data, error } = await createAdminClient().rpc("admin_usos_cupons");
   if (error) throw new Error("Falha ao contar usos dos cupons.");
-  for (const p of data) if (p.cupom_id) usos.set(p.cupom_id, (usos.get(p.cupom_id) ?? 0) + 1);
+  const quero = new Set(ids);
+  for (const u of data ?? []) if (quero.has(u.cupom_id)) usos.set(u.cupom_id, Number(u.usos));
   return usos;
 }
 

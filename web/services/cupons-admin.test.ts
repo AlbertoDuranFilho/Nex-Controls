@@ -9,7 +9,8 @@ const createAdminClient = vi.fn();
 vi.mock("@/lib/auth/exigir-admin", () => ({ exigirAdmin: () => exigirAdmin() }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => createAdminClient() }));
 
-import { definirCupomAtivo, listarCupons, salvarCupom } from "./cupons-admin";
+import { paraDataRecife, validarCupom } from "@/lib/admin/cupom";
+import { definirCupomAtivo, listarCupons, obterCupom, salvarCupom } from "./cupons-admin";
 import { definirDescontoProduto, listarDescontosProduto, removerDescontoProduto } from "./descontos-admin";
 
 const LOJISTA = "11111111-1111-4111-8111-111111111111";
@@ -135,5 +136,71 @@ describe("definirDescontoProduto", () => {
     bancoFalso();
     expect((await definirDescontoProduto(LOJISTA, PRODUTO, "101")).ok).toBe(false);
     expect((await definirDescontoProduto(LOJISTA, PRODUTO, "")).ok).toBe(false);
+  });
+});
+
+function bancoRastreado() {
+  const eqs: [string, unknown][] = [];
+  const update = vi.fn();
+  const del = vi.fn();
+  const b: Record<string, unknown> = {};
+  const final = async () => ({ data: [{ id: "x" }], error: null });
+  b.update = (...a: unknown[]) => (update(...a), b);
+  b.delete = () => (del(), b);
+  b.select = () => b;
+  b.eq = (c: string, v: unknown) => (eqs.push([c, v]), b);
+  b.maybeSingle = async () => ({ data: null, error: null });
+  b.then = (r: (v: unknown) => unknown) => final().then(r);
+  createAdminClient.mockReturnValue({ from: () => b });
+  return { eqs, update, del };
+}
+
+describe("escopo das escritas", () => {
+  it("removerDescontoProduto apaga filtrando por lojista e produto", async () => {
+    const { eqs, del } = bancoRastreado();
+    const r = await removerDescontoProduto(LOJISTA, PRODUTO);
+    expect(r.ok).toBe(true);
+    expect(del).toHaveBeenCalledTimes(1);
+    expect(eqs).toEqual([["lojista_id", LOJISTA], ["produto_id", PRODUTO]]);
+  });
+
+  it("definirCupomAtivo exige admin e altera só ativo, pelo id", async () => {
+    const { eqs, update } = bancoRastreado();
+    const id = "33333333-3333-4333-8333-333333333333";
+    expect((await definirCupomAtivo(id, false)).ok).toBe(true);
+    expect(exigirAdmin).toHaveBeenCalled();
+    expect(update).toHaveBeenCalledWith({ ativo: false });
+    expect(eqs).toEqual([["id", id]]);
+  });
+
+  it("obterCupom exige admin", async () => {
+    bancoRastreado();
+    await obterCupom("33333333-3333-4333-8333-333333333333");
+    expect(exigirAdmin).toHaveBeenCalled();
+    exigirAdmin.mockRejectedValue(new Error("Acesso negado."));
+    await expect(obterCupom("33333333-3333-4333-8333-333333333333")).rejects.toThrow("Acesso negado.");
+  });
+
+  it("ids que não são UUID são rejeitados sem tocar no banco", async () => {
+    expect(await definirCupomAtivo("abc", true)).toEqual({ ok: false, erro: "Cupom não encontrado." });
+    expect((await salvarCupom(null, form({ id: "abc" }))).ok).toBe(false);
+    expect(await obterCupom("abc")).toBeNull();
+    expect((await definirDescontoProduto("abc", PRODUTO, "5")).ok).toBe(false);
+    expect((await definirDescontoProduto(LOJISTA, "abc", "5")).ok).toBe(false);
+    expect((await removerDescontoProduto("abc", PRODUTO)).ok).toBe(false);
+    expect((await removerDescontoProduto(LOJISTA, "abc")).ok).toBe(false);
+    expect(createAdminClient).not.toHaveBeenCalled();
+  });
+});
+
+describe("datas de validade", () => {
+  it("ISO guardado -> valor do formulário -> ISO validado é igual ao original", () => {
+    for (const original of ["2026-12-25T03:00:00.000Z", "2026-12-26T02:59:59.000Z"]) {
+      const dia = paraDataRecife(original);
+      const fim = original.endsWith("59.000Z");
+      const v = validarCupom(form({ [fim ? "valido_ate" : "valido_de"]: dia }));
+      expect(v.ok && (fim ? v.dados.valido_ate : v.dados.valido_de)).toBe(original);
+    }
+    expect(paraDataRecife("2026-12-26T02:59:59.000Z")).toBe("2026-12-25");
   });
 });

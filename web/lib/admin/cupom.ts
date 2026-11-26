@@ -32,6 +32,12 @@ function lerData(valor: string, fim: boolean): string | null | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
+// Data (YYYY-MM-DD) de Recife para um instante guardado; vazio se não houver.
+export function paraDataRecife(iso: string | null): string {
+  if (!iso) return "";
+  return new Date(new Date(iso).getTime() - 3 * 3600 * 1000).toISOString().slice(0, 10);
+}
+
 export function validarCupom(form: FormData): ResultadoCupom {
   const codigo = texto(form, "codigo").toUpperCase();
   if (!CODIGO.test(codigo)) {

@@ -317,6 +317,11 @@ isOneToOne: true
 "admin_importar_produtos":
 { Args: { "p": Json }; Returns: Json
                            },
+"admin_usos_cupons":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "cupom_id": string,"usos": number
+            }[]
+                           },
 "anonimizar_auth":
 { Args: { "email_anonimo": string,"uid": string }; Returns: undefined
                            },

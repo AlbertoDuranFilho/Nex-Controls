@@ -7,13 +7,17 @@ import { enviarContato, type EstadoContato } from "@/services/contato";
 
 const inicial: EstadoContato = { estado: "idle" };
 
+// Sem a chave o componente do reCAPTCHA derruba a página inteira; nesse caso o
+// formulário segue protegido só pelo honeypot e pelo limite de envios.
+const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
 const campo =
   "border border-marca-cinza-300 bg-marca-branco px-4 py-2 w-full md:w-60 text-marca-preto outline-none focus:border-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto/20";
 
 export default function ContactForm() {
   const t = useTranslations("contact");
   const [estado, acao, enviando] = useActionState(enviarContato, inicial);
-  const [captchaDone, setCaptchaDone] = useState(false);
+  const [captchaDone, setCaptchaDone] = useState(!recaptchaSiteKey);
   const [fechado, setFechado] = useState<EstadoContato | null>(null);
 
   const modalAberto = (estado.estado === "ok" || estado.estado === "erro") && fechado !== estado;
@@ -82,10 +86,9 @@ export default function ContactForm() {
             </ul>
           )}
 
-          <ReCAPTCHA
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string}
-            onChange={(v: string | null) => setCaptchaDone(!!v)}
-          />
+          {recaptchaSiteKey && (
+            <ReCAPTCHA sitekey={recaptchaSiteKey} onChange={(v: string | null) => setCaptchaDone(!!v)} />
+          )}
 
           <button
             type="submit"

@@ -251,14 +251,14 @@ isOneToOne: true
                   ]
                 },"produtos": {
                   Row: {
-                    "altura_cm": number | null,"aplicacoes": string | null,"ativo": boolean,"codigo": string,"codigo_antigo": string | null,"compatibilidade": string | null,"comprimento_cm": number | null,"created_at": string,"descricao": string | null,"destaque": string | null,"id": string,"largura_cm": number | null,"manual_url": string | null,"ncm": string | null,"nome": string,"origem": number | null,"peso_kg": number | null,"unidade": string,"updated_at": string
+                    "altura_cm": number | null,"aplicacoes": string | null,"ativo": boolean,"cest": string | null,"codigo": string,"codigo_antigo": string | null,"compatibilidade": string | null,"comprimento_cm": number | null,"created_at": string,"descricao": string | null,"destaque": string | null,"ean": string | null,"id": string,"largura_cm": number | null,"manual_url": string | null,"ncm": string | null,"nome": string,"origem": number | null,"peso_kg": number | null,"slug": string,"unidade": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "altura_cm"?: number | null,"aplicacoes"?: string | null,"ativo"?: boolean,"codigo": string,"codigo_antigo"?: string | null,"compatibilidade"?: string | null,"comprimento_cm"?: number | null,"created_at"?: string,"descricao"?: string | null,"destaque"?: string | null,"id"?: string,"largura_cm"?: number | null,"manual_url"?: string | null,"ncm"?: string | null,"nome": string,"origem"?: number | null,"peso_kg"?: number | null,"unidade"?: string,"updated_at"?: string
+                    "altura_cm"?: number | null,"aplicacoes"?: string | null,"ativo"?: boolean,"cest"?: string | null,"codigo": string,"codigo_antigo"?: string | null,"compatibilidade"?: string | null,"comprimento_cm"?: number | null,"created_at"?: string,"descricao"?: string | null,"destaque"?: string | null,"ean"?: string | null,"id"?: string,"largura_cm"?: number | null,"manual_url"?: string | null,"ncm"?: string | null,"nome": string,"origem"?: number | null,"peso_kg"?: number | null,"slug": string,"unidade"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "altura_cm"?: number | null,"aplicacoes"?: string | null,"ativo"?: boolean,"codigo"?: string,"codigo_antigo"?: string | null,"compatibilidade"?: string | null,"comprimento_cm"?: number | null,"created_at"?: string,"descricao"?: string | null,"destaque"?: string | null,"id"?: string,"largura_cm"?: number | null,"manual_url"?: string | null,"ncm"?: string | null,"nome"?: string,"origem"?: number | null,"peso_kg"?: number | null,"unidade"?: string,"updated_at"?: string
+                    "altura_cm"?: number | null,"aplicacoes"?: string | null,"ativo"?: boolean,"cest"?: string | null,"codigo"?: string,"codigo_antigo"?: string | null,"compatibilidade"?: string | null,"comprimento_cm"?: number | null,"created_at"?: string,"descricao"?: string | null,"destaque"?: string | null,"ean"?: string | null,"id"?: string,"largura_cm"?: number | null,"manual_url"?: string | null,"ncm"?: string | null,"nome"?: string,"origem"?: number | null,"peso_kg"?: number | null,"slug"?: string,"unidade"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -283,14 +283,28 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "anonimizar_auth":
+            "admin_importar_produtos":
+{ Args: { "p": Json }; Returns: Json
+                           },
+"anonimizar_auth":
 { Args: { "email_anonimo": string,"uid": string }; Returns: undefined
+                           },
+"carrinho_adicionar":
+{ Args: { "p_produto_id": string,"p_quantidade": number }; Returns: number
+                           },
+"gerar_slug":
+{ Args: { "p_codigo": string,"p_nome": string }; Returns: string
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "is_lojista_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"precos_cliente":
+{ Args: { "p_produto_ids": (string)[] }; Returns: {
+              "desconto_percentual": number,"preco_final": number,"preco_tabela": number,"produto_id": string
+            }[]
                            }
           }
           Enums: {

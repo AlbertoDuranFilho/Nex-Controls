@@ -8,7 +8,7 @@ import { AvisoAdmin, CaixaSelecao, CampoAdmin, SeletorAdmin, semVirgulaPendurada
 import CartaoConta from "@/components/conta/CartaoConta";
 import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
-import { PLACEHOLDER, mascaraDecimal } from "@/lib/mascaras";
+import { PLACEHOLDER, mascaraDecimal, mascaraPercentual } from "@/lib/mascaras";
 import { paraDataRecife } from "@/lib/admin/cupom";
 import { salvarCupom, type CupomAdmin } from "@/services/cupons-admin";
 
@@ -65,7 +65,8 @@ export default function FormCupom({ cupom, locale, lojistas }: Props) {
             inputMode="decimal"
             required
             placeholder={tipo === "valor" ? PLACEHOLDER.preco : PLACEHOLDER.desconto}
-            mascara={mascaraDecimal}
+            // Percentual: 0 a 100 com 2 casas; valor fixo: decimal livre.
+            mascara={tipo === "valor" ? mascaraDecimal : mascaraPercentual}
             sufixo={tipo === "valor" ? "R$" : "%"}
             defaultValue={decimal(cupom?.valor ?? null)}
           />
@@ -106,7 +107,7 @@ export default function FormCupom({ cupom, locale, lojistas }: Props) {
         </div>
       </CartaoConta>
 
-      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"}>
+      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"} papel={estado?.ok ? "status" : "alert"}>
         {estado && !estado.ok ? estado.erro : cupom && estado?.ok ? "Cupom salvo." : null}
       </AvisoAdmin>
 

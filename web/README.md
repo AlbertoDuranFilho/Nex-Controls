@@ -36,6 +36,23 @@ npm run e2e                  # Playwright: faz build, sobe em :3000 e usa o Mail
 
 Os testes e2e precisam do Supabase local no ar. Não deixe outro processo na porta 3000.
 
+### Patch do React embutido no Next (`patches/`)
+
+O `postinstall` roda `patch-package --error-on-fail`, que aplica `patches/next+15.5.29.patch`
+em `next/dist/compiled/react-dom/cjs/react-dom-client.{development,production}.js`. É a
+correção do upstream [facebook/react#36134](https://github.com/facebook/react/pull/36134)
+(bug [#35821](https://github.com/facebook/react/issues/35821)): um "ping" síncrono durante a
+renderização era perdido e transições (Server Actions, `router.push`, `Link`) ficavam paradas
+até a próxima interação. `lib/react/destravar-transicao.ts` continua como segunda camada.
+
+- Remover o patch (e o `postinstall`) com **Next ≥ 16.3**. React 19.2.x estável e Next 16.0–16.2
+  ainda têm o bug.
+- A cada upgrade do Next, conferir: com `--error-on-fail` o install falha se o arquivo mudou, e
+  `lib/react/patch-react.test.ts` confere que a linha corrigida está em `node_modules`.
+- Só o react-dom estável do Next está corrigido. As cópias `react-dom-experimental` (usadas se
+  ligar `ppr`, `taint`, `viewTransition` ou `routerBFCache`) e os builds de profiling não têm o
+  patch.
+
 ## Variáveis de ambiente
 
 Veja `web/.env.example`.

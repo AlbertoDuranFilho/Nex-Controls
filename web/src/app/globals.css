@@ -37,7 +37,8 @@
   [role="button"],
   select,
   summary,
-  label[for],
+  /* Só rótulos de caixa de seleção, opção e arquivo (não os de campos de texto). */
+  label:has(input[type="checkbox"], input[type="radio"], input[type="file"]),
   input[type="checkbox"],
   input[type="radio"],
   input[type="file"],

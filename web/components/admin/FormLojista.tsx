@@ -66,7 +66,7 @@ export function FormNovoLojista({ locale }: { locale: string }) {
             Ver cliente
           </Botao>
           <Botao href={`/${locale}/admin/lojistas`} variante="secundario" icone={ArrowLeft}>
-            Voltar à lista
+            Voltar para clientes
           </Botao>
         </div>
       </CartaoConta>
@@ -242,7 +242,7 @@ export function FormEditarLojista({ dados }: { dados: DadosEdicao }) {
         </div>
       </CartaoConta>
 
-      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"}>
+      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"} papel={estado?.ok ? "status" : "alert"}>
         {estado ? (estado.ok ? "Alterações salvas." : estado.erro) : null}
       </AvisoAdmin>
       <Botao type="submit" carregando={pendente} icone={Save} className="px-6">

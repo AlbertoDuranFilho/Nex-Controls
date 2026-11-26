@@ -209,7 +209,7 @@ export default function FormProduto({ produto, locale }: { produto?: ProdutoAdmi
         </div>
       </CartaoConta>
 
-      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"}>
+      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"} papel={estado?.ok ? "status" : "alert"}>
         {estado ? (estado.ok ? "Produto salvo." : estado.erro) : null}
       </AvisoAdmin>
       <div className="flex flex-wrap items-center gap-3">
@@ -217,7 +217,7 @@ export default function FormProduto({ produto, locale }: { produto?: ProdutoAdmi
           Salvar produto
         </Botao>
         <Botao href={`/${locale}/admin/produtos`} variante="fantasma" icone={ArrowLeft}>
-          Voltar à lista
+          Voltar para produtos
         </Botao>
       </div>
     </form>

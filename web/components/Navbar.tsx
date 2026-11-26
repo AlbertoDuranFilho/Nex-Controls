@@ -10,6 +10,7 @@ import MenuUsuario from "./MenuUsuario";
 import IconeCarrinho from "./carrinho/IconeCarrinho";
 import { usePathname, useRouter } from "next/navigation";
 import { semTopoDoSite } from "@/lib/admin/rota";
+import { consultaNoIdioma } from "@/lib/consulta-idioma";
 
 const langs = [
   { code: "pt", name: "Português", flag: "/flags/br.png" },
@@ -86,7 +87,8 @@ export default function Navbar() {
   const handleChange = (lang: string) => {
     const segments = pathname.split("/");
     segments[1] = lang;
-    router.push(segments.join("/") || "/");
+    // Mantém a query (ex.: ?next=), trocando o idioma do next também.
+    router.push((segments.join("/") || "/") + consultaNoIdioma(window.location.search, pathname.split("/")[1] || "pt", lang));
   };
 
   // Admin (barra lateral própria) e login (logo e "Voltar ao site") ficam sem o topo; depois dos hooks.

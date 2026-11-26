@@ -6,13 +6,13 @@ import {
   Mail,
   MapPin,
   Phone,
-  Receipt,
   Settings2,
   ShoppingBag,
   StickyNote,
   UserRound,
 } from "lucide-react";
 import AcoesPedido from "@/components/admin/AcoesPedido";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
 import PainelNfe from "@/components/admin/PainelNfe";
 import VoltarAdmin from "@/components/admin/VoltarAdmin";
 import CartaoConta from "@/components/conta/CartaoConta";
@@ -22,7 +22,7 @@ import Selo from "@/components/ui/Selo";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { formatarMoeda } from "@/lib/formatar";
 import { STATUS_PEDIDO } from "@/lib/pedidos/transicoes";
-import { formatarDocumento } from "@/lib/validacao/documento";
+import { mascaraDocumento, mascaraTelefone } from "@/lib/mascaras";
 import { flags } from "@/lib/flags";
 import { nfePendente, sincronizarSePendente } from "@/services/nfe-sincronizar";
 import { obterPedidoAdmin } from "@/services/pedidos-admin";
@@ -72,20 +72,11 @@ export default async function PedidoAdminPage({ params }: Props) {
     <div className="space-y-6">
       <div>
         <VoltarAdmin href={`/${locale}/admin/pedidos`}>Voltar para pedidos</VoltarAdmin>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-marca-preto text-marca-branco shadow-suave">
-            <Receipt aria-hidden className="size-5.5" strokeWidth={1.75} />
-          </span>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-marca-preto">Pedido #{p.numero}</h1>
-              <Selo tom={visual.tom} icone={visual.icone} data-testid="status-pedido">
-                {STATUS_PEDIDO[p.status]}
-              </Selo>
-            </div>
-            <p className="mt-0.5 text-sm text-marca-cinza-600">{dataHora.format(new Date(p.created_at))}</p>
-          </div>
-        </div>
+        <CabecalhoAdmin titulo={`Pedido #${p.numero}`} descricao={dataHora.format(new Date(p.created_at))} className="">
+          <Selo tom={visual.tom} icone={visual.icone} data-testid="status-pedido">
+            {STATUS_PEDIDO[p.status]}
+          </Selo>
+        </CabecalhoAdmin>
       </div>
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 xl:grid-cols-3 xl:items-start">
@@ -146,7 +137,7 @@ export default async function PedidoAdminPage({ params }: Props) {
             <div className="space-y-2 text-sm text-marca-cinza-800">
               <p className="font-semibold break-words text-marca-preto">{p.cliente_nome}</p>
               <p>
-                {p.cliente_tipo_pessoa === "PJ" ? "CNPJ" : "CPF"} {formatarDocumento(p.cliente_documento)}
+                {p.cliente_tipo_pessoa === "PJ" ? "CNPJ" : "CPF"} {mascaraDocumento(p.cliente_documento)}
                 {p.cliente_inscricao_estadual ? ` · IE ${p.cliente_inscricao_estadual}` : ""}
               </p>
               {p.email ? (
@@ -158,7 +149,7 @@ export default async function PedidoAdminPage({ params }: Props) {
               {p.telefone ? (
                 <p className="flex items-center gap-2">
                   <Phone aria-hidden className="size-4 shrink-0 text-marca-cinza-500" />
-                  {p.telefone}
+                  {mascaraTelefone(p.telefone)}
                 </p>
               ) : null}
             </div>

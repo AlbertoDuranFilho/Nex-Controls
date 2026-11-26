@@ -7,7 +7,7 @@ import Botao from "@/components/ui/Botao";
 import Selo from "@/components/ui/Selo";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { listarLojistas } from "@/services/lojistas-admin";
-import { formatarDocumento } from "@/lib/validacao/documento";
+import { mascaraDocumento } from "@/lib/mascaras";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -44,7 +44,7 @@ export default async function ListaLojistasPage({ params, searchParams }: Props)
                 <span className="min-w-0 break-words">{l.nome}</span>
               </CelulaAdmin>
               <CelulaAdmin rotulo="CPF/CNPJ" className="whitespace-nowrap text-marca-cinza-800">
-                {l.documento ? formatarDocumento(l.documento) : "—"}
+                {l.documento ? mascaraDocumento(l.documento) : "—"}
               </CelulaAdmin>
               <CelulaAdmin rotulo="E-mail" className="text-marca-cinza-800">
                 <span className="break-all">{l.email}</span>

@@ -183,6 +183,15 @@ Se a mensagem não for clara, envie-a ao suporte; ela não contém senhas.
 > desconto (inclusive o do cupom), o frete e o total da nota com o total do pedido no site
 > antes de voltar para Produção.
 
+## App Android (Fase 8)
+
+O app (`mobile/`) fala direto com o Supabase (login e RPCs) e usa uma única rota do site:
+
+- `POST /api/app/pedidos/[id]/notificar` com `Authorization: Bearer <access_token>`: envia os e-mails
+  do pedido recém-criado. `401` sem token ou token inválido, `404` se o pedido não existe ou não é do
+  lojista do token, `200 {"jaNotificado":true}` se já foi enviado (idempotente) e `200 {"enviado":boolean}`
+  caso contrário. Sem CORS (app nativo).
+
 ## Configuração do Supabase
 
 A configuração local é `supabase/config.jsonc` (formato da CLI v3, não `config.toml`).

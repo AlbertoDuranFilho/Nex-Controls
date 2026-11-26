@@ -60,8 +60,9 @@ export default function ImportarPlanilha() {
         <a href="/modelos/modelo-produtos.xlsx" download className="text-marca-preto underline underline-offset-2">
           Baixar planilha modelo
         </a>
-        . Preencha, salve como .xlsx (até 5 MB) e envie abaixo. Produtos com o mesmo código são atualizados por
-        completo.
+        . Preencha, salve como .xlsx (até 4 MB) e envie abaixo. Produtos com o mesmo código são atualizados; sem a
+        aba Especificações ou Imagens, ou com arquivo pendente, as especificações, imagens e o manual atuais são
+        mantidos. Preço vazio remove o preço.
       </p>
 
       <div>
@@ -128,6 +129,17 @@ export default function ImportarPlanilha() {
 
           <Lista titulo="Novos" itens={previa.novos} />
           <Lista titulo="Atualizados" itens={previa.atualizados} />
+          {previa.precoRemovido.length > 0 && (
+            <section role="alert" className="border-l-2 border-marca-preto pl-4">
+              <h2 className="mb-1 font-semibold text-marca-preto">
+                Preço atual será removido ({previa.precoRemovido.length})
+              </h2>
+              <p className="mb-2 text-sm text-marca-cinza-600">
+                Estes produtos têm preço hoje e estão sem preço na planilha. Se não for a intenção, preencha o preço.
+              </p>
+              <p className="text-sm text-marca-cinza-800">{previa.precoRemovido.join(", ")}</p>
+            </section>
+          )}
           <Pendencias itens={previa.pendencias} />
 
           <button type="button" onClick={importar} disabled={pendente || temErros || total === 0} className={botao}>

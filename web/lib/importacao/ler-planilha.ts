@@ -8,7 +8,15 @@ import {
   type ItemProduto,
 } from "@/lib/admin/produto";
 
-export type ProdutoImportado = Omit<ItemProduto, "slug">;
+// Flags "manter" (só a planilha usa; o RPC as honra em produto existente):
+// - manter_especificacoes: planilha sem a aba Especificacoes;
+// - manter_imagens: sem a aba Imagens, ou o código só tem arquivos pendentes (nenhum link https);
+// - manter_manual: célula do manual vazia ou com arquivo pendente.
+export type ProdutoImportado = Omit<ItemProduto, "slug"> & {
+  manter_especificacoes: boolean;
+  manter_imagens: boolean;
+  manter_manual: boolean;
+};
 export type ErroPlanilha = { aba: string; linha: number; mensagem: string };
 export type PendenciaArquivo = { codigo: string; arquivo: string; tipo: "imagem" | "manual" };
 export type ResultadoLeitura = {
@@ -214,6 +222,9 @@ export async function lerPlanilha(buffer: ArrayBuffer): Promise<ResultadoLeitura
       unidade: ler("unidade") || "UN",
       especificacoes: [],
       imagens: [],
+      manter_especificacoes: !achaAba(wb, ABA_ESPECIFICACOES),
+      manter_imagens: !achaAba(wb, ABA_IMAGENS),
+      manter_manual: !ehHttps(manual),
     });
   }
 
@@ -237,6 +248,7 @@ export async function lerPlanilha(buffer: ArrayBuffer): Promise<ResultadoLeitura
 
   const abaImg = abrirAba(wb, ABA_IMAGENS, ["codigo", "imagem"], erros, false);
   if (abaImg) {
+    const comPendencia = new Set<string>();
     for (const { linha, ler } of linhas(abaImg)) {
       const codigo = ler("codigo");
       if (!porCodigo.has(codigo)) {
@@ -254,10 +266,23 @@ export async function lerPlanilha(buffer: ArrayBuffer): Promise<ResultadoLeitura
         erros.push({ aba: ABA_IMAGENS, linha, mensagem: MSG_IMAGEM_HTTPS });
       } else {
         pendencias.push({ codigo, arquivo: imagem, tipo: "imagem" });
+        comPendencia.add(codigo);
       }
+    }
+    // Só arquivos pendentes para o código: não apaga as imagens que o produto já tem.
+    for (const [codigo, p] of porCodigo) {
+      if (p) p.manter_imagens = p.imagens.length === 0 && comPendencia.has(codigo);
     }
   }
 
   for (const p of porCodigo.values()) if (p) resultado.produtos.push(p);
   return resultado;
+}
+
+/** Códigos que já têm preço no banco e chegam sem preço: a importação vai remover o preço atual. */
+export function codigosComPrecoRemovido(
+  produtos: Pick<ProdutoImportado, "codigo" | "preco">[],
+  comPrecoAtual: Set<string>,
+): string[] {
+  return produtos.filter((p) => p.preco === null && comPrecoAtual.has(p.codigo)).map((p) => p.codigo);
 }

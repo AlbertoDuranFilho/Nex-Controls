@@ -187,7 +187,7 @@ select is((select count(*)::int from pedidos where lojista_id = tests.id('l2')),
 
 select is(public.carrinho_adicionar(tests.id('p1'), 2), 2, 'l2 monta novo carrinho');
 select is(public.simular_pedido('C10P')->'cupom'->>'motivo', 'ja_usado', 'C10P já usado por l2 (simulação)');
-select is(public.criar_pedido('C10P'), '{"ok":false,"erro":"cupom_invalido","motivo":"ja_usado"}'::jsonb,
+select is(public.criar_pedido('C10P'), '{"ok":false,"erro":"cupom_invalido","motivo":"ja_usado","valor_minimo":null}'::jsonb,
   'C10P de novo por l2: cupom_invalido/ja_usado');
 select is((select count(*)::int from carrinho_itens where lojista_id = tests.id('l2')), 1, 'pedido recusado não mexe no carrinho');
 
@@ -197,7 +197,7 @@ select set_config('tests.ped2', current_setting('tests.r')::jsonb->>'id', true);
 select is((current_setting('tests.r')::jsonb->>'ok')::boolean, true, 'CLIM usado por l2: ok');
 
 select tests.autenticar_como(tests.id('l1'));
-select is(public.criar_pedido('CLIM'), '{"ok":false,"erro":"cupom_invalido","motivo":"esgotado"}'::jsonb,
+select is(public.criar_pedido('CLIM'), '{"ok":false,"erro":"cupom_invalido","motivo":"esgotado","valor_minimo":null}'::jsonb,
   'CLIM por l1: cupom_invalido/esgotado');
 select tests.autenticar_como(tests.id('a'));
 select lives_ok($$select public.admin_atualizar_pedido(tests.id('ped2'), 'cancelado')$$, 'admin cancela pedido de l2');

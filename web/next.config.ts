@@ -5,8 +5,8 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["exceljs"],
-  // Planilhas de importação (até 5 MB) chegam por Server Action.
-  experimental: { serverActions: { bodySizeLimit: "6mb" } },
+  // Planilhas de importação (até 4 MB) chegam por Server Action; a Vercel limita o corpo a 4,5 MB.
+  experimental: { serverActions: { bodySizeLimit: "4.5mb" } },
   images: {
     remotePatterns: [
       {

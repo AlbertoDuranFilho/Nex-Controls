@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import ExcelJS from "exceljs";
 import { describe, expect, it } from "vitest";
-import { lerPlanilha } from "./ler-planilha";
+import { codigosComPrecoRemovido, lerPlanilha } from "./ler-planilha";
 
 type Celula = ExcelJS.CellValue;
 
@@ -156,8 +156,53 @@ describe("lerPlanilha", () => {
     expect(r2.erros[0]).toMatchObject({ aba: "Produtos", linha: 1 });
   });
 
+  it("sem as abas Especificacoes e Imagens: mantém especificações e imagens atuais", async () => {
+    const r = await lerPlanilha(await prod(["A1", "P", 1, "", "", "", "", "", "https://a.com/m.pdf"]));
+    expect(r.produtos[0]).toMatchObject({ manter_especificacoes: true, manter_imagens: true, manter_manual: false });
+  });
+
+  it("com as abas: substitui; código só com imagens pendentes mantém as imagens atuais", async () => {
+    const r = await lerPlanilha(
+      await montar({
+        produtos: [CAB_PRODUTOS, ["A1", "P"], ["A2", "Q"], ["A3", "R"]],
+        especificacoes: [CAB_ESP],
+        imagens: [CAB_IMG, ["A1", "foto.png", ""], ["A2", "https://a.com/i.jpg", ""], ["A2", "outra.png", ""]],
+      }),
+    );
+    expect(r.erros).toEqual([]);
+    const [a1, a2, a3] = r.produtos;
+    expect(a1).toMatchObject({ manter_especificacoes: false, manter_imagens: true, imagens: [] });
+    expect(a2).toMatchObject({ manter_imagens: false, imagens: [{ url: "https://a.com/i.jpg", alt: "" }] });
+    expect(a3).toMatchObject({ manter_imagens: false, imagens: [] });
+  });
+
+  it("manual vazio ou pendente mantém o manual atual; link https substitui", async () => {
+    const r = await lerPlanilha(
+      await montar({
+        produtos: [
+          CAB_PRODUTOS,
+          ["A1", "P", 1, "", "", "", "", "", ""],
+          ["A2", "Q", 1, "", "", "", "", "", "manual.pdf"],
+          ["A3", "R", 1, "", "", "", "", "", "https://a.com/m.pdf"],
+        ],
+      }),
+    );
+    expect(r.produtos.map((p) => p.manter_manual)).toEqual([true, true, false]);
+  });
+
   it("arquivo inválido vira erro, não exceção", async () => {
     const r = await lerPlanilha(new TextEncoder().encode("lixo").buffer as ArrayBuffer);
     expect(r.erros).toHaveLength(1);
+  });
+});
+
+describe("codigosComPrecoRemovido", () => {
+  it("lista só os produtos existentes com preço atual que chegam sem preço", () => {
+    const produtos = [
+      { codigo: "A1", preco: null },
+      { codigo: "A2", preco: 10 },
+      { codigo: "A3", preco: null },
+    ];
+    expect(codigosComPrecoRemovido(produtos, new Set(["A1", "A2"]))).toEqual(["A1"]);
   });
 });

@@ -72,10 +72,15 @@ carrinho e gera o pedido; a Nex combina frete e pagamento fora do site.
 ### Importar produtos por planilha
 
 1. Baixe o modelo em `web/public/modelos/modelo-produtos.xlsx` (também servido em `/modelos/modelo-produtos.xlsx`).
-2. Preencha e envie em `/pt/admin/produtos/importar`.
+2. Preencha e envie em `/pt/admin/produtos/importar` (arquivo `.xlsx` de até 4 MB: a Vercel
+   limita o corpo da requisição a 4,5 MB).
 3. A tela mostra uma prévia com os valores normalizados (NCM, EAN e código vindos do Excel
    como número, preço `189,90`) e as pendências (por exemplo, imagem ou manual sem arquivo).
    Só depois de confirmar a importação os produtos são gravados.
+4. Reimportação (mesmo código): os campos da aba Produtos são substituídos. Sem a aba
+   Especificacoes, as especificações atuais ficam; sem a aba Imagens, ou com só arquivos
+   pendentes para o código, as imagens atuais ficam; manual vazio ou pendente mantém o atual.
+   Preço vazio remove o preço: a prévia avisa "preço atual será removido".
 
 ### Fluxo manual de pedido
 

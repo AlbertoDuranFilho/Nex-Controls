@@ -177,7 +177,15 @@ export default function MenuUsuario({ onNavegar }: { onNavegar?: () => void }) {
   }
 
   return (
-    <div ref={raiz} className="relative">
+    <div
+      ref={raiz}
+      className="relative"
+      // Tab para fora fecha (relatedTarget nulo = clique em área sem foco; o pointerdown cuida).
+      onBlur={(e) => {
+        const prox = e.relatedTarget;
+        if (prox && !e.currentTarget.contains(prox)) setAberto(false);
+      }}
+    >
       <button
         ref={gatilho}
         type="button"

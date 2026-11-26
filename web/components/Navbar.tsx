@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Check, Headset, House, LayoutGrid, Mail, Menu, MessageSquare, X } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import MenuUsuario from "./MenuUsuario";
@@ -28,6 +28,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("navbar");
+  const locale = useLocale();
 
   const currentLocale = pathname.split("/")[1] || "pt";
 
@@ -88,9 +89,9 @@ export default function Navbar() {
   };
 
   const links = [
-    { href: "/", rotulo: t("home"), icone: House },
-    { href: "/#catalogo", rotulo: t("catalog"), icone: LayoutGrid },
-    { href: "/#contato", rotulo: t("contact"), icone: MessageSquare },
+    { href: `/${locale}`, rotulo: t("home"), icone: House },
+    { href: `/${locale}/catalogo`, rotulo: t("catalog"), icone: LayoutGrid },
+    { href: `/${locale}#contato`, rotulo: t("contact"), icone: MessageSquare },
   ];
 
   return (
@@ -119,7 +120,15 @@ export default function Navbar() {
         <div className="flex items-center gap-1.5 sm:gap-2">
           <div className="hidden items-center gap-2 md:flex">
             {/* SAC com dropdown */}
-            <div ref={sacRef} className="relative">
+            <div
+              ref={sacRef}
+              className="relative"
+              // Tab para fora fecha (relatedTarget nulo = clique em área sem foco; o pointerdown cuida).
+              onBlur={(e) => {
+                const prox = e.relatedTarget;
+                if (prox && !e.currentTarget.contains(prox)) setOpenSAC(false);
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setOpenSAC(!openSAC)}

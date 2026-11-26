@@ -111,6 +111,29 @@ test("login grava acessos_log", async ({ page }) => {
   expect(await contarAcessos(u.id)).toBe(1);
 });
 
+test("links do topo levam o idioma; menus da conta e SAC fecham quando o foco sai com Tab", async ({ page }) => {
+  const u = await criarLojista();
+  await page.goto("/pt/cliente/login");
+  await preencherELogar(page, u);
+  await expect(page).toHaveURL("/pt/catalogo");
+  const nav = page.locator("nav").first();
+  await expect(nav.getByRole("link", { name: "Home", exact: true })).toHaveAttribute("href", "/pt");
+  await expect(nav.getByRole("link", { name: "Catálogo", exact: true })).toHaveAttribute("href", "/pt/catalogo");
+  await expect(nav.getByRole("link", { name: "Contato", exact: true })).toHaveAttribute("href", "/pt#contato");
+
+  await page.getByRole("button", { name: /^Olá,/ }).click();
+  const sair = page.getByRole("button", { name: "Sair" });
+  await sair.focus();
+  await page.keyboard.press("Tab");
+  await expect(sair).toHaveCount(0);
+
+  await nav.getByRole("button", { name: "SAC" }).click();
+  const email = nav.getByRole("link", { name: "comercial@nexcontrols.com" });
+  await email.focus();
+  await page.keyboard.press("Tab");
+  await expect(email).toHaveCount(0);
+});
+
 test.describe("menu mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 

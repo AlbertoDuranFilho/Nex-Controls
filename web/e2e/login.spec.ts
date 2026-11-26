@@ -31,6 +31,18 @@ test("olho mostra e oculta a senha; link de contato vai ao formulário da home",
   await expect(page.getByRole("link", { name: "Fale conosco" })).toHaveAttribute("href", "/pt#contato");
 });
 
+test("login sem o topo e o rodapé do site; Voltar ao site leva à home", async ({ page }) => {
+  await page.goto("/pt/cliente/login");
+  await expect(page.getByLabel("Email", { exact: true })).toBeVisible();
+  // Topo (SAC, Catálogo), rodapé e aviso de cookies não aparecem no login.
+  await expect(page.getByRole("button", { name: "SAC" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Catálogo", exact: true })).toHaveCount(0);
+  await expect(page.locator("footer")).toHaveCount(0);
+  await page.getByRole("link", { name: "Voltar ao site" }).click();
+  await expect(page).toHaveURL("/pt");
+  await expect(page.getByRole("link", { name: "Catálogo", exact: true }).first()).toBeVisible();
+});
+
 test("lojista entra no catálogo e vê saudação", async ({ page }) => {
   const u = await criarLojista();
   await page.goto("/pt/cliente/login");

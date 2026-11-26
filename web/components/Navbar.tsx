@@ -9,7 +9,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import MenuUsuario from "./MenuUsuario";
 import IconeCarrinho from "./carrinho/IconeCarrinho";
 import { usePathname, useRouter } from "next/navigation";
-import { ehRotaAdmin } from "@/lib/admin/rota";
+import { semTopoDoSite } from "@/lib/admin/rota";
 
 const langs = [
   { code: "pt", name: "Português", flag: "/flags/br.png" },
@@ -89,8 +89,8 @@ export default function Navbar() {
     router.push(segments.join("/") || "/");
   };
 
-  // O painel admin tem barra lateral própria (depois dos hooks: a ordem deles não pode mudar).
-  if (ehRotaAdmin(pathname)) return null;
+  // Admin (barra lateral própria) e login (logo e "Voltar ao site") ficam sem o topo; depois dos hooks.
+  if (semTopoDoSite(pathname)) return null;
 
   const links = [
     { href: `/${locale}`, rotulo: t("home"), icone: House },

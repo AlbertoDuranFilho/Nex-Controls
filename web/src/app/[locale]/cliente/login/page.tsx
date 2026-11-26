@@ -21,8 +21,8 @@ export default async function LoginPage({ params, searchParams }: Props) {
   ];
 
   return (
-    // pt-24 = altura da navbar fixa; a seção ocupa o resto da tela.
-    <section className="flex min-h-svh flex-col bg-marca-cinza-100 pt-24 md:grid md:grid-cols-2">
+    // Sem navbar nem rodapé aqui (semTopoDoSite): a seção ocupa a tela inteira.
+    <section className="flex min-h-svh flex-col bg-marca-cinza-100 md:grid md:grid-cols-2">
       {/* Lado da marca: faixa no topo no celular, coluna inteira a partir de md. */}
       <div className="relative isolate overflow-hidden bg-linear-to-br from-marca-preto via-marca-cinza-900 to-marca-cinza-800 text-marca-branco">
         <div

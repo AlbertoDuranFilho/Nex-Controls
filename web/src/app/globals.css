@@ -31,6 +31,28 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Tailwind 4 tirou o cursor de mão dos botões: volta em tudo que é clicável (site inteiro). */
+@layer base {
+  button,
+  [role="button"],
+  select,
+  summary,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="submit"],
+  input[type="button"] {
+    cursor: pointer;
+  }
+
+  /* :is(...) iguala a especificidade de input[type=…]; vem depois, então ganha. */
+  :is(button, input, select, textarea, fieldset):disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 /* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

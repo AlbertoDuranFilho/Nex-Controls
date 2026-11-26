@@ -212,3 +212,32 @@ export function montarEmailNex(p: PedidoEmail, linkPainel: string): Email {
 
   return { assunto, html, texto };
 }
+
+export function montarEmailNotaEmitida(p: {
+  numero: number;
+  cliente_nome: string;
+  email: string;
+  danfe_url: string;
+  linkPedido: string;
+}): Email {
+  const assunto = `Nota fiscal do pedido #${p.numero}`;
+  const intro = `A nota fiscal do pedido #${p.numero} foi emitida.`;
+
+  const texto = [
+    `Olá, ${p.cliente_nome}.`,
+    "",
+    intro,
+    "",
+    `Baixar a nota (DANFE): ${p.danfe_url}`,
+    `Ver o pedido: ${p.linkPedido}`,
+  ].join("\n");
+
+  const html = envolver(
+    `<p>Olá, ${e(p.cliente_nome)}.</p>` +
+      `<p>${e(intro)}</p>` +
+      `<p><a href="${e(p.danfe_url)}">Baixar a nota (DANFE)</a><br>${e(p.danfe_url)}</p>` +
+      `<p><a href="${e(p.linkPedido)}">Ver o pedido</a><br>${e(p.linkPedido)}</p>`,
+  );
+
+  return { assunto, html, texto };
+}

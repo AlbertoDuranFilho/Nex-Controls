@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import AcoesPedido from "@/components/admin/AcoesPedido";
+import PainelNfe from "@/components/admin/PainelNfe";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { formatarMoeda } from "@/lib/formatar";
 import { STATUS_PEDIDO } from "@/lib/pedidos/transicoes";
 import { formatarDocumento } from "@/lib/validacao/documento";
+import { flags } from "@/lib/flags";
+import { nfePendente, sincronizarSePendente } from "@/services/nfe-sincronizar";
 import { obterPedidoAdmin } from "@/services/pedidos-admin";
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Recife" });
@@ -16,8 +19,15 @@ export default async function PedidoAdminPage({ params }: Props) {
   const { locale, numero } = await params;
   if (!(await ehAdmin())) redirect(`/${locale}`);
   if (!/^\d{1,15}$/.test(numero)) notFound();
-  const p = await obterPedidoAdmin(Number(numero));
+  let p = await obterPedidoAdmin(Number(numero));
   if (!p) notFound();
+
+  // Nota ainda em andamento (ou aceita sem DANFE): consulta a Mainô antes de renderizar, no
+  // máximo a cada 30 s e com timeout curto. Falha não quebra a página.
+  if (flags.nfeAutomatica && p.maino_pedido_id && nfePendente(p)) {
+    await sincronizarSePendente(p.id); // não lança e não revalida (render)
+    p = (await obterPedidoAdmin(Number(numero))) ?? p;
+  }
 
   return (
     <div className="space-y-8">
@@ -103,6 +113,21 @@ export default async function PedidoAdminPage({ params }: Props) {
         </div>
       </section>
 
+      {flags.nfeAutomatica ? (
+        <section aria-labelledby="nfe">
+          <h2 id="nfe" className="mb-3 text-lg font-semibold text-marca-preto">Nota fiscal (Mainô)</h2>
+          <PainelNfe
+            pedidoId={p.id}
+            status={p.status}
+            mainoPedidoId={p.maino_pedido_id}
+            nfeStatus={p.nfe_status}
+            nfeErro={p.nfe_erro}
+            danfeUrl={p.maino_nota_url}
+            chave={p.maino_nota_id}
+          />
+        </section>
+      ) : null}
+
       <section aria-labelledby="historico">
         <h2 id="historico" className="mb-2 text-lg font-semibold text-marca-preto">Histórico</h2>
         {p.eventos.length === 0 ? (
@@ -112,7 +137,7 @@ export default async function PedidoAdminPage({ params }: Props) {
             {p.eventos.map((e) => (
               <li key={e.id}>
                 {dataHora.format(new Date(e.criado_em))} — {e.status_de ? STATUS_PEDIDO[e.status_de] : "—"} →{" "}
-                {STATUS_PEDIDO[e.status_para]} por {e.admin_nome ?? "admin"}
+                {STATUS_PEDIDO[e.status_para]} por {e.sistema ? "sistema (Mainô)" : (e.admin_nome ?? "admin")}
               </li>
             ))}
           </ul>

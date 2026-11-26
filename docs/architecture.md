@@ -38,10 +38,22 @@ mobile/                    app (consome o mesmo projeto Supabase)
 | Preço do cliente, simulação do carrinho, cupom e criação do pedido | Funções SQL `precos_cliente`, `simular_pedido`, `criar_pedido` (security definer; o preço nunca vem do navegador) |
 | Mudança de status e link da nota | Função `admin_atualizar_pedido` (só `is_admin()`; valida a transição e grava `pedido_eventos`) |
 | E-mails do pedido (cliente e Nex) | `notificarPedido` (`web/services/pedidos.ts`, só servidor) + `marcar_pedido_notificado` (só `service_role`) |
-| Pagamento (Stone) e NF/ERP (Mainô) | Edge Functions futuras em `supabase/functions/` (`stone-*`, `maino-*`), atrás de `FEATURE_PAGAMENTO_ONLINE` e `FEATURE_NFE_AUTOMATICA`. Hoje o fluxo é manual (`gateway_provider = 'manual'`) |
+| Pagamento (Stone) | Edge Functions futuras em `supabase/functions/` (`stone-*`), atrás de `FEATURE_PAGAMENTO_ONLINE`. Hoje o fluxo é manual (`gateway_provider = 'manual'`) |
+| NF-e (Mainô) | Server Actions do Next (ver "NF-e pela Mainô" abaixo), atrás de `FEATURE_NFE_AUTOMATICA` |
 
 Chaves: `anon` no browser e no app; `SUPABASE_SERVICE_ROLE_KEY` apenas no servidor
 (nunca `NEXT_PUBLIC_`), nunca no app mobile.
+
+## NF-e pela Mainô (fase 5a)
+
+Ao contrário das demais integrações previstas, a Mainô roda em **Server Actions do Next.js**
+(não em Edge Functions): o cliente HTTP (`web/lib/maino/`) é server-only, com as credenciais
+na Vercel (`MAINO_*`). O token de acesso fica na tabela `integracao_tokens` (só service
+role); em 401 o cliente refaz o login uma vez. O admin dispara cada passo no painel do
+pedido (enviar, emitir, atualizar situação, cancelar NF-e). O resultado é aplicado de forma
+atômica pela função `sistema_registrar_nfe` (service role), que grava `nfe_*`, chave e DANFE
+e, ao autorizar um pedido `pago`, muda para `faturado` com o evento do sistema. Decisões e
+pendências: `docs/integracoes/maino-api.md`.
 
 ## Como o mobile consome
 

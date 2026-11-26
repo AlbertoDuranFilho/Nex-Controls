@@ -362,6 +362,7 @@
     "observacao": "Observación",
     "entrega": "Entrega",
     "notaFiscal": "Ver factura",
+    "notaCancelada": "Factura cancelada",
     "historico": "Historial",
     "historicoVazio": "Aún no hay cambios de estado.",
     "deAte": "{de} a {para}",

@@ -67,6 +67,33 @@ describe("verificarProducao", () => {
     expect(verificarProducao({ env: vazia, mensagens: limpas })).toHaveLength(1);
   });
 
+  describe("credenciais da Mainô com NF-e automática", () => {
+    const NFE = ["MAINO_APPLICATION_UID", "MAINO_EMAIL", "MAINO_SENHA"];
+    const credenciais = { MAINO_APPLICATION_UID: "uid", MAINO_EMAIL: "a@b.com", MAINO_SENHA: "x" };
+
+    it("com a flag e as três credenciais, passa", () => {
+      const env = { ...envCompleto, FEATURE_NFE_AUTOMATICA: "true", ...credenciais };
+      expect(verificarProducao({ env, mensagens: limpas })).toEqual([]);
+    });
+    it.each(NFE)("com a flag e sem %s, falha", (nome) => {
+      const base = { ...envCompleto, FEATURE_NFE_AUTOMATICA: "true", ...credenciais };
+      const problemas = verificarProducao({ env: { ...base, [nome]: undefined }, mensagens: limpas });
+      expect(problemas).toHaveLength(1);
+      expect(problemas[0]).toContain(nome);
+      expect(verificarProducao({ env: { ...base, [nome]: "  " }, mensagens: limpas })).toHaveLength(1);
+    });
+    it("sem a flag, não cobra as credenciais", () => {
+      expect(verificarProducao({ env: envCompleto, mensagens: limpas })).toEqual([]);
+      expect(
+        verificarProducao({ env: { ...envCompleto, FEATURE_NFE_AUTOMATICA: "false" }, mensagens: limpas }),
+      ).toEqual([]);
+    });
+    it("fora de produção não cobra", () => {
+      const env = { VERCEL_ENV: "preview", FEATURE_NFE_AUTOMATICA: "true" };
+      expect(verificarProducao({ env, mensagens: limpas })).toEqual([]);
+    });
+  });
+
   describe("endereço com pagamento online", () => {
     const decreto =
       "Endereço físico da empresa (footer.address) é obrigatório com pagamento online (Decreto 7.962/2013).";

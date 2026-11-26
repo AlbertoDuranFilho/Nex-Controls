@@ -35,6 +35,7 @@ function Navegacao() {
     >
       <Stack.Screen name="(abas)" />
       <Stack.Screen name="login" options={{ animation: "slide_from_bottom", contentStyle: { backgroundColor: cores.preto } }} />
+      <Stack.Screen name="produto/[slug]" options={{ animation: "slide_from_right" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

@@ -87,7 +87,7 @@ export default function AcoesLojista({ id, ativo, anonimizado, documento }: Prop
             <input
               id="confirmacao"
               value={confirmacao}
-              onChange={(e) => setConfirmacao(aplicarMascara(e.currentTarget, mascaraDocumento, e.nativeEvent))}
+              onChange={(e) => setConfirmacao(aplicarMascara(e.currentTarget, mascaraDocumento, e.nativeEvent, confirmacao))}
               inputMode="numeric"
               placeholder={documento ? mascaraDocumento(documento) : ""}
               autoComplete="off"

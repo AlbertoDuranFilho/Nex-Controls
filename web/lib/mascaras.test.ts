@@ -167,6 +167,20 @@ describe("colar x digitar", () => {
     expect(veioColado("1,2", "1,23")).toBe(false);
   });
 
+  it("segundo separador digitado depois da vírgula é recusado", () => {
+    expect(digitar("189,9.", mascaraDecimal)).toEqual({ valor: "189,9", cursor: 5 });
+    expect(digitar("189,90,", mascaraDecimal)).toEqual({ valor: "189,90", cursor: 6 });
+    expect(tecla({ valor: "189,90", cursor: 1 }, ".", mascaraDecimal)).toEqual({ valor: "189,90", cursor: 1 });
+    expect(digitar("5,5.", mascaraPercentual).valor).toBe("5,5");
+  });
+
+  it("colado com parte inteira 0 é decimal", () => {
+    expect(colar("0.500", mascaraDecimal).valor).toBe("0,50");
+    expect(colar("0.5", mascaraDecimal).valor).toBe("0,5");
+    expect(colar(".500", mascaraDecimal).valor).toBe(",50");
+    expect(colar("0.500", mascaraPercentual).valor).toBe("0,50");
+  });
+
   it("DDD 55 digitado não perde o 55", () => {
     expect(digitar("559999900001", mascaraTelefone).valor).toBe("(55) 99999-0000");
   });

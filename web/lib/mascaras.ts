@@ -71,7 +71,9 @@ export function mascaraDecimal(valor: string | null | undefined, colado = false,
   const inteiro = v.slice(0, i).replace(/[.,]/g, "");
   const depois = v.slice(i + 1);
   const outros = /[.,]/.test(v.slice(0, i));
-  if (colado && /^\d{3}$/.test(depois) && (v[i] === "." || outros)) return inteiro + depois;
+  // Parte inteira 0 ou vazia ("0.500") é sempre decimal: 0.500 nunca é quinhentos.
+  const zero = /^0*$/.test(inteiro);
+  if (colado && !zero && /^\d{3}$/.test(depois) && (v[i] === "." || outros)) return inteiro + depois;
   return `${inteiro},${depois.slice(0, casas)}`;
 }
 
@@ -138,6 +140,12 @@ export function mascararEntrada(
 ): { valor: string; cursor: number } {
   const decimal = ehMascaraDecimal(mascara);
   if (decimal && !colado && antes.length === anterior.length + 1) {
+    // Já tem vírgula decimal: outro "." ou "," digitado é recusado (senão a vírgula pularia:
+    // "189,9" + "." viraria "1899,").
+    const digitado = antes[cursor - 1];
+    if (anterior.includes(",") && (digitado === "." || digitado === ",")) {
+      return { valor: anterior, cursor: Math.max(0, cursor - 1) };
+    }
     const limpo = antes.replace(/[^\d.,]/g, "");
     const i = Math.max(limpo.lastIndexOf("."), limpo.lastIndexOf(","));
     if (i >= 0 && limpo.length - i - 1 > CASAS) return { valor: anterior, cursor: Math.max(0, cursor - 1) };
@@ -158,11 +166,17 @@ export function veioColado(anterior: string, atual: string, inputType?: string):
 const ultimos = new WeakMap<HTMLInputElement, string>();
 
 // Aplica a máscara no próprio input (não controlado ou controlado: quem controla lê
-// el.value depois) e devolve o cursor ao lugar certo. Passe o evento nativo (inputType).
-export function aplicarMascara(el: HTMLInputElement, mascara: Mascara, evento?: Event): string {
+// el.value depois) e devolve o cursor ao lugar certo. Passe o evento nativo (inputType) e,
+// em campo controlado, o valor atual do estado (`anteriorControlado`).
+export function aplicarMascara(
+  el: HTMLInputElement,
+  mascara: Mascara,
+  evento?: Event,
+  anteriorControlado?: string,
+): string {
   const antes = el.value;
-  // Controlado: o React mantém defaultValue = valor atual; não controlado: o WeakMap.
-  const anterior = ultimos.get(el) ?? el.defaultValue;
+  // Controlado: o valor do estado é a verdade. Não controlado: o último valor mascarado.
+  const anterior = anteriorControlado ?? ultimos.get(el) ?? el.defaultValue;
   const inputType = (evento as InputEvent | undefined)?.inputType;
   const cursor = el.selectionStart ?? antes.length;
   const r = mascararEntrada(anterior, antes, cursor, mascara, veioColado(anterior, antes, inputType));

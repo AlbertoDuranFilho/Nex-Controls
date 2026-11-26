@@ -74,7 +74,7 @@ export function Campo({
         value={value}
         onChange={
           onChange
-            ? (e) => onChange(mascara ? aplicarMascara(e.currentTarget, mascara, e.nativeEvent) : e.target.value)
+            ? (e) => onChange(mascara ? aplicarMascara(e.currentTarget, mascara, e.nativeEvent, value) : e.target.value)
             : undefined
         }
         readOnly={disabled}

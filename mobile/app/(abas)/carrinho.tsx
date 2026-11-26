@@ -14,7 +14,7 @@ import {
   WifiOff,
 } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AppState, Keyboard, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { AvisoCentral, Carregando, ExigeLogin } from "@/components/ExigeLogin";
 import { Stepper } from "@/components/Stepper";
 import { Botao } from "@/components/ui/Botao";
@@ -44,6 +44,7 @@ import { useSessao } from "@/lib/sessao";
 const t = textos.carrinho;
 
 type Carga = "carregando" | "erro" | "pronto";
+type Recalculo = { ok: false } | { ok: true; sim: Simulacao | null };
 
 const qtdsDe = (s: Simulacao) => Object.fromEntries(s.itens.map((i) => [i.produto_id, String(i.quantidade)]));
 
@@ -79,6 +80,9 @@ function ConteudoCarrinho() {
   const ocupadoRef = useRef(false);
   const cupomRef = useRef<string | null>(null);
   const infoRef = useRef(info);
+  // só a resposta da simulação mais recente vale (recarregar e alterar podem se cruzar)
+  const pedidoSimulacao = useRef(0);
+  const focado = useRef(false);
 
   useEffect(() => {
     vivo.current = true;
@@ -94,14 +98,16 @@ function ConteudoCarrinho() {
   }, [info]);
 
   // Toda alteração termina aqui: uma chamada a simular_pedido com o cupom atual.
-  const recalcular = useCallback(
-    (cupomAtual: string | null) =>
-      simularCarrinho(cupomAtual).then((r) => {
-        if (!vivo.current) return false;
+  // Resposta antiga (outra simulação começou depois) é descartada: { ok: true, sim: null }.
+  const recalcular = useCallback((cupomAtual: string | null): Promise<Recalculo> => {
+    const id = ++pedidoSimulacao.current;
+    return simularCarrinho(cupomAtual).then((r): Recalculo => {
+        if (!vivo.current) return { ok: false };
+        if (id !== pedidoSimulacao.current) return { ok: true, sim: null };
         if (!r.ok) {
           setCarga((c) => (c === "pronto" ? c : "erro"));
           setErro(t.erroAtualizar);
-          return false;
+          return { ok: false };
         }
         setSim(r.sim);
         setQtds(qtdsDe(r.sim));
@@ -114,20 +120,33 @@ function ConteudoCarrinho() {
             if (vivo.current && novos.size > 0) setInfo((a) => new Map([...a, ...novos]));
           });
         }
-        return true;
-      }),
-    [definirContagem],
-  );
+        return { ok: true, sim: r.sim };
+      });
+  }, [definirContagem]);
 
   // Ao abrir a aba (o carrinho pode ter mudado no catálogo ou no site), relê o resumo.
   useFocusEffect(
     useCallback(() => {
-      if (ocupadoRef.current) return;
-      void recalcular(cupomRef.current).then((ok) => {
-        if (ok && vivo.current) setConcluido(null);
-      });
+      focado.current = true;
+      if (!ocupadoRef.current) {
+        void recalcular(cupomRef.current).then((r) => {
+          if (r.ok && vivo.current) setConcluido(null);
+        });
+      }
+      return () => {
+        focado.current = false;
+      };
     }, [recalcular]),
   );
+
+  // Voltou ao app com a aba aberta (ex.: do navegador, depois de cadastrar o endereço no site;
+  // no Android o navegador do app não avisa quando fecha): relê o resumo.
+  useEffect(() => {
+    const assinatura = AppState.addEventListener("change", (estado) => {
+      if (estado === "active" && focado.current && !ocupadoRef.current) void recalcular(cupomRef.current);
+    });
+    return () => assinatura.remove();
+  }, [recalcular]);
 
   async function executar(acao: () => Promise<void>) {
     if (ocupadoRef.current) return;
@@ -169,8 +188,8 @@ function ConteudoCarrinho() {
     setErro(null);
     void executar(async () => {
       const r = await removerItem(usuarioId, item.produto_id);
-      const ok = await recalcular(cupomRef.current);
-      if ((!r.ok || !ok) && vivo.current) setErro(t.erroAtualizar);
+      const rc = await recalcular(cupomRef.current);
+      if ((!r.ok || !rc.ok) && vivo.current) setErro(t.erroAtualizar);
     });
   }
 
@@ -184,13 +203,55 @@ function ConteudoCarrinho() {
     });
   }
 
+  /**
+   * Quantidade digitada e ainda não gravada (campo focado ao tocar em "Gerar pedido"):
+   * grava antes de pedir. Devolve false se algo falhou ou o carrinho mudou para bloqueado.
+   */
+  async function gravarPendentes(): Promise<boolean> {
+    if (!sim || !usuarioId) return true;
+    const pendentes = sim.itens.filter(
+      (i) => i.valido && (qtds[i.produto_id] ?? String(i.quantidade)) !== String(i.quantidade),
+    );
+    if (pendentes.length === 0) return true;
+    for (const item of pendentes) {
+      if (lerQuantidade((qtds[item.produto_id] ?? "").trim()) === null) {
+        setErro(t.erroQuantidade);
+        setQtds((a) => ({ ...a, [item.produto_id]: String(item.quantidade) }));
+        return false;
+      }
+    }
+    let falhou: "quantidade_invalida" | "erro" | null = null;
+    for (const item of pendentes) {
+      const n = lerQuantidade((qtds[item.produto_id] ?? "").trim()) as number;
+      const r = await atualizarQuantidade(usuarioId, item.produto_id, n);
+      if (!r.ok) {
+        falhou = r.erro === "quantidade_invalida" ? "quantidade_invalida" : "erro";
+        break;
+      }
+    }
+    const rc = await recalcular(cupomRef.current);
+    if (!vivo.current) return false;
+    if (falhou) {
+      setErro(falhou === "quantidade_invalida" ? t.erroQuantidade : t.erroAtualizar);
+      return false;
+    }
+    if (!rc.ok || !rc.sim) return false;
+    // o total mudou: o cupom (valor mínimo) ou um item pode ter deixado de valer; o cliente revê
+    const novo = rc.sim;
+    const bloqueios = novo.bloqueios.filter((b) => b !== "carrinho_vazio");
+    return bloqueios.length === 0 && novo.cupom.situacao !== "invalido" && novo.itens.length > 0;
+  }
+
   async function gerar() {
     if (ocupadoRef.current) return;
     ocupadoRef.current = true;
+    // fecha o teclado; o blur do campo não grava de novo (ocupadoRef já está ligado)
+    Keyboard.dismiss();
     setErro(null);
     setIncerto(false);
     setEnviando(true);
     try {
+      if (!(await gravarPendentes())) return;
       const r = await gerarPedido(cupomRef.current, observacao);
       if (r.ok) {
         // e-mails do pedido em segundo plano: falha só é registrada (admin reenvia)
@@ -206,8 +267,11 @@ function ConteudoCarrinho() {
         return;
       }
       if (r.erro === "incerto") {
-        // sem resposta: não dá para saber se o pedido foi criado
+        // sem resposta: não dá para saber se o pedido foi criado. Relê o carrinho
+        // (se o pedido saiu, ele está vazio) e mantém o aviso para conferir em Pedidos.
         if (vivo.current) setIncerto(true);
+        await recalcular(cupomRef.current);
+        if (vivo.current) setErro(null);
         void atualizarContagem();
         return;
       }
@@ -268,6 +332,17 @@ function ConteudoCarrinho() {
   }
 
   if (sim.itens.length === 0) {
+    if (incerto) {
+      return (
+        <AvisoCentral
+          icone={TriangleAlert}
+          titulo={t.vazio}
+          descricao={t.erroGerarIncerto}
+          acao={{ titulo: t.irMeusPedidos, onPress: () => router.navigate("/pedidos") }}
+          testID="carrinho-incerto"
+        />
+      );
+    }
     return (
       <AvisoCentral
         icone={ShoppingCart}

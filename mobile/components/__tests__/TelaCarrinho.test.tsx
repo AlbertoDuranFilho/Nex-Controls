@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import { AppState } from "react-native";
 import TelaCarrinho from "@/app/(abas)/carrinho";
 import type { Simulacao } from "@/lib/carrinho";
 import type { criarSupabaseFalso } from "@/test-utils/supabaseFalso";
@@ -266,5 +267,130 @@ describe("Carrinho", () => {
     expect(await screen.findByTestId("carrinho-erro")).toBeTruthy();
     await fireEvent.press(screen.getByText("Tentar novamente"));
     expect(await screen.findByTestId("tela-carrinho")).toBeTruthy();
+  });
+});
+
+describe("Carrinho: correções da revisão", () => {
+  const simulacoes = () => falso.rpc.mock.calls.filter((c) => c[0] === "simular_pedido").length;
+  const criacoes = () => falso.rpc.mock.calls.filter((c) => c[0] === "criar_pedido").length;
+  const MINIMO_150 = carrinhoSite.cupomValorMinimo.replace("{valor}", "R$ 150,00");
+
+  it("quantidade digitada e não confirmada é gravada antes de gerar o pedido", async () => {
+    falso.respostas.carrinho_itens = { data: [{ produto_id: "a" }], error: null };
+    let gravadoAntes = false;
+    falso.rpc.mockImplementation(async (nome: string) => {
+      if (nome === "simular_pedido") return { data: simAtual, error: null, status: 200 };
+      if (nome === "criar_pedido") {
+        gravadoAntes = falso.chamadas.some(
+          (c) =>
+            c.tabela === "carrinho_itens" &&
+            c.metodo === "update" &&
+            (c.args[0] as { quantidade: number }).quantidade === 5,
+        );
+        return { data: { ok: true, id: "pedido-1", numero: 1042 }, error: null, status: 200 };
+      }
+      return { data: null, error: { message: "?" } };
+    });
+    await abrir();
+    // digitou 5 e tocou em Gerar sem sair do campo
+    await fireEvent.changeText(screen.getByTestId("quantidade-a"), "5");
+    simAtual = simulacao({ itens: [{ ...simulacao().itens[0], quantidade: 5, total_linha: 450 }], total: 450 });
+    await fireEvent.press(screen.getByTestId("gerar-pedido"));
+    expect(await screen.findByTestId("pedido-concluido")).toBeTruthy();
+    expect(gravadoAntes).toBe(true);
+    expect(falso.filtros("carrinho_itens")).toEqual([
+      ["lojista_id", "u1"],
+      ["produto_id", "a"],
+    ]);
+    expect(criacoes()).toBe(1);
+  });
+
+  it("se gravar a quantidade pendente falhar, não gera o pedido", async () => {
+    falso.respostas.carrinho_itens = { data: [], error: null };
+    await abrir();
+    await fireEvent.changeText(screen.getByTestId("quantidade-a"), "5");
+    await fireEvent.press(screen.getByTestId("gerar-pedido"));
+    expect(await screen.findByTestId("erro-carrinho")).toHaveTextContent(carrinhoSite.erroAtualizar);
+    expect(criacoes()).toBe(0);
+  });
+
+  it("quantidade pendente que derruba o cupom (valor mínimo) não gera o pedido", async () => {
+    falso.respostas.carrinho_itens = { data: [{ produto_id: "a" }], error: null };
+    await abrir();
+    await fireEvent.changeText(screen.getByTestId("quantidade-a"), "1");
+    simAtual = simulacao({
+      cupom: { codigo: "NEX10", situacao: "invalido", motivo: "valor_minimo", valor_minimo: 150 },
+    });
+    await fireEvent.press(screen.getByTestId("gerar-pedido"));
+    expect(await screen.findByTestId("mensagem-cupom")).toHaveTextContent(MINIMO_150);
+    expect(criacoes()).toBe(0);
+    expect(screen.getByTestId("gerar-pedido")).toBeDisabled();
+  });
+
+  it("cupom com mínimo fica inválido ao diminuir a quantidade pelo stepper", async () => {
+    falso.respostas.carrinho_itens = { data: [{ produto_id: "a" }], error: null };
+    simAtual = simulacao({
+      desconto_origem: "cupom",
+      cupom: { codigo: "NEX10", situacao: "aplicado", motivo: null, valor_minimo: null },
+    });
+    await abrir();
+    simAtual = simulacao({
+      itens: [{ ...simulacao().itens[0], quantidade: 1, total_linha: 90 }],
+      cupom: { codigo: "NEX10", situacao: "invalido", motivo: "valor_minimo", valor_minimo: 150 },
+    });
+    await fireEvent.press(screen.getByTestId("diminuir-a"));
+    expect(await screen.findByText(MINIMO_150)).toBeTruthy();
+    expect(screen.getByTestId("gerar-pedido")).toBeDisabled();
+  });
+
+  it("sem resposta ao gerar: relê o carrinho e mantém o aviso mesmo se ele ficou vazio", async () => {
+    respostaCriar = { data: null, error: { message: "FetchError" }, status: 0 };
+    await abrir();
+    const antes = simulacoes();
+    simAtual = simulacao({ itens: [], bloqueios: ["carrinho_vazio"] });
+    await fireEvent.press(screen.getByTestId("gerar-pedido"));
+    expect(await screen.findByTestId("carrinho-incerto")).toBeTruthy();
+    expect(screen.getByText(carrinhoSite.erroGerarIncerto)).toBeTruthy();
+    expect(simulacoes()).toBe(antes + 1);
+  });
+
+  it("ao voltar para o app com a aba aberta (ex.: do navegador), relê o carrinho", async () => {
+    const ouvintes: ((e: string) => void)[] = [];
+    const espiao = jest.spyOn(AppState, "addEventListener").mockImplementation((_tipo, f) => {
+      ouvintes.push(f as (e: string) => void);
+      return { remove: jest.fn() } as never;
+    });
+    simAtual = simulacao({ bloqueios: ["sem_endereco"] });
+    await abrir();
+    expect(screen.getByTestId("gerar-pedido")).toBeDisabled();
+    const antes = simulacoes();
+    simAtual = simulacao();
+    await act(async () => ouvintes.forEach((f) => f("active")));
+    await waitFor(() => expect(screen.getByTestId("gerar-pedido")).not.toBeDisabled());
+    expect(simulacoes()).toBe(antes + 1);
+    // o AppState do jest-expo já é um mock: volta a implementação dele (mockRestore a apagaria)
+    espiao.mockImplementation(() => ({ remove: jest.fn() }) as never);
+  });
+
+  it("resposta antiga de simulação não sobrescreve a mais nova", async () => {
+    falso.respostas.carrinho_itens = { data: [{ produto_id: "a" }], error: null };
+    await abrir();
+    const pendentes: ((v: unknown) => void)[] = [];
+    falso.rpc.mockImplementation((nome: string) => {
+      if (nome === "simular_pedido") return new Promise((res) => pendentes.push(res));
+      return Promise.resolve({ data: null, error: { message: "?" } });
+    });
+    // puxar para atualizar (fica pendente) e depois + (nova simulação)
+    const tela = screen.getByTestId("tela-carrinho");
+    await act(async () => {
+      void tela.props.refreshControl.props.onRefresh();
+    });
+    await fireEvent.press(screen.getByTestId("aumentar-a"));
+    await waitFor(() => expect(pendentes).toHaveLength(2));
+    const nova = simulacao({ itens: [{ ...simulacao().itens[0], quantidade: 3, total_linha: 270 }], total: 270 });
+    await act(async () => pendentes[1]({ data: nova, error: null, status: 200 }));
+    expect(screen.getByTestId("total-a")).toHaveTextContent("R$ 270,00");
+    await act(async () => pendentes[0]({ data: simulacao(), error: null, status: 200 }));
+    expect(screen.getByTestId("total-a")).toHaveTextContent("R$ 270,00");
   });
 });

@@ -43,7 +43,8 @@ npx expo export --platform android   # confere que o bundle compila, sem aparelh
 ```
 
 Os testes leem `../web/messages/pt.json` para garantir que as mensagens do carrinho e dos
-pedidos são as mesmas do site.
+pedidos são as mesmas do site. Por isso os testes do app precisam do checkout do monorepo
+inteiro (a pasta `web/` ao lado de `mobile/`), inclusive no CI.
 
 ## Gerar o `.aab` para a Google Play (EAS)
 

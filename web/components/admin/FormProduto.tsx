@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, FileText, ImagePlus, Images, ListChecks, Package, Plus, Save, Trash2, Truck } from "lucide-react";
-import { AreaAdmin, AvisoAdmin, CaixaSelecao, CampoAdmin } from "@/components/admin/CamposAdmin";
+import { AreaAdmin, AvisoAdmin, CaixaSelecao, CampoAdmin, semVirgulaPendurada } from "@/components/admin/CamposAdmin";
 import UploadCloudinary from "@/components/admin/UploadCloudinary";
 import { estiloCampo, estiloRotulo } from "@/components/conta/Campo";
 import CartaoConta from "@/components/conta/CartaoConta";
@@ -41,9 +41,10 @@ export default function FormProduto({ produto, locale }: { produto?: ProdutoAdmi
       onSubmit={(ev) => {
         // Sem action={...}: o React 19 limparia os campos quando a validação falha.
         ev.preventDefault();
-        const dados = new FormData(ev.currentTarget);
+        const dados = semVirgulaPendurada(new FormData(ev.currentTarget), ["preco"]);
         iniciar(() => action(dados));
       }}
+      method="post"
       className="max-w-4xl space-y-6">
       <input type="hidden" name="id" value={produto?.id ?? ""} />
       <input type="hidden" name="especificacoes_json" value={JSON.stringify(especificacoes)} />

@@ -97,6 +97,13 @@ test("CPF/CNPJ ganha máscara e escolhe o tipo de pessoa pelo tamanho", async ({
   // O admin ainda pode trocar o tipo à mão.
   await tipo.selectOption("PF");
   await expect(tipo).toHaveValue("PF");
+  // Depois da escolha manual, mexer no documento não troca mais o tipo.
+  await doc.fill(CNPJ);
+  await expect(tipo).toHaveValue("PF");
+  // Ponto digitado vira a vírgula decimal, com o cursor no lugar certo.
+  await page.getByLabel("Desconto (%)").pressSequentially("5.5");
+  await expect(page.getByLabel("Desconto (%)")).toHaveValue("5,5");
+  await page.getByLabel("Desconto (%)").fill("");
   const desconto = page.getByLabel("Desconto (%)");
   await desconto.fill("150");
   await expect(desconto).toHaveValue("100");

@@ -84,6 +84,7 @@ export default function FormEndereco({ locale, dados }: { locale: string; dados:
             autoComplete="postal-code"
             placeholder={PLACEHOLDER.cep}
             value={v.cep}
+            mascara={mascaraCep}
             onChange={aoMudarCep}
             required
             erro={erros.cep}

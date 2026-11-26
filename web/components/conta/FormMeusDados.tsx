@@ -75,7 +75,8 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
           autoComplete="tel"
           placeholder={PLACEHOLDER.telefone}
           value={v.telefone}
-          onChange={(x) => set("telefone")(mascaraTelefone(x))}
+          mascara={mascaraTelefone}
+          onChange={set("telefone")}
           erro={erros.telefone}
         />
         <Campo
@@ -86,7 +87,8 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
           autoComplete="tel"
           placeholder={PLACEHOLDER.telefone}
           value={v.whatsapp}
-          onChange={(x) => set("whatsapp")(mascaraTelefone(x))}
+          mascara={mascaraTelefone}
+          onChange={set("whatsapp")}
           erro={erros.whatsapp}
         />
         <Seletor

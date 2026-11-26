@@ -10,7 +10,7 @@ import CartaoConta from "@/components/conta/CartaoConta";
 import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { anonimizarLojista, definirAtivo, gerarNovaSenha } from "@/services/lojistas-admin";
-import { mascaraDocumento } from "@/lib/mascaras";
+import { aplicarMascara, mascaraDocumento } from "@/lib/mascaras";
 import { somenteDigitos } from "@/lib/validacao/documento";
 
 type Props = { id: string; ativo: boolean; anonimizado: boolean; documento: string | null };
@@ -41,9 +41,12 @@ export default function AcoesLojista({ id, ativo, anonimizado, documento }: Prop
 
   const confere =
     documento !== null && somenteDigitos(confirmacao) === somenteDigitos(documento);
-  const erroAcesso =
-    (estadoAtivo && !estadoAtivo.ok ? estadoAtivo.erro : null) ??
-    (estadoSenha && !estadoSenha.ok ? estadoSenha.erro : null);
+  // As duas ações podem falhar: mostra as duas mensagens.
+  const errosAcesso = [
+    estadoAtivo && !estadoAtivo.ok ? estadoAtivo.erro : null,
+    estadoSenha && !estadoSenha.ok ? estadoSenha.erro : null,
+  ].filter(Boolean);
+  const erroAcesso = errosAcesso.length ? errosAcesso.join(" ") : null;
 
   return (
     <div className="space-y-6">
@@ -84,7 +87,7 @@ export default function AcoesLojista({ id, ativo, anonimizado, documento }: Prop
             <input
               id="confirmacao"
               value={confirmacao}
-              onChange={(e) => setConfirmacao(mascaraDocumento(e.target.value))}
+              onChange={(e) => setConfirmacao(aplicarMascara(e.currentTarget, mascaraDocumento))}
               inputMode="numeric"
               placeholder={documento ? mascaraDocumento(documento) : ""}
               autoComplete="off"

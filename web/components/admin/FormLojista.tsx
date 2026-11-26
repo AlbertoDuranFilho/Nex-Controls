@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
 import { ArrowLeft, Building2, IdCard, MapPin, Save, UserPlus, UserRound } from "lucide-react";
 import SenhaGerada from "@/components/admin/SenhaGerada";
-import { AvisoAdmin, CampoAdmin, SeletorAdmin, soDigitos } from "@/components/admin/CamposAdmin";
+import { AvisoAdmin, CampoAdmin, SeletorAdmin, semVirgulaPendurada, soDigitos } from "@/components/admin/CamposAdmin";
 import CartaoConta from "@/components/conta/CartaoConta";
 import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
@@ -44,6 +44,7 @@ type Estado = ResultadoAdmin<{ id: string; senha: string }> | null;
 
 const DIGITOS_NOVO = ["documento"];
 const DIGITOS_EDICAO = ["telefone", "whatsapp", "cep"];
+const DECIMAIS = ["desconto_percentual"];
 
 export function FormNovoLojista({ locale }: { locale: string }) {
   const [estado, action, pendenteAcao] = useAcao<Estado, FormData>(
@@ -53,6 +54,8 @@ export function FormNovoLojista({ locale }: { locale: string }) {
   const [emTransicao, iniciar] = useTransicao();
   const pendente = pendenteAcao || emTransicao;
   const tipo = useRef<HTMLSelectElement>(null);
+  // Depois que o admin escolhe o tipo à mão, o documento não troca mais a escolha.
+  const tipoManual = useRef(false);
 
   if (estado?.ok) {
     return (
@@ -75,9 +78,10 @@ export function FormNovoLojista({ locale }: { locale: string }) {
       onSubmit={(ev) => {
         // Sem action={...}: o React 19 limparia os campos quando o cadastro é recusado.
         ev.preventDefault();
-        const dados = soDigitos(new FormData(ev.currentTarget), DIGITOS_NOVO);
+        const dados = semVirgulaPendurada(soDigitos(new FormData(ev.currentTarget), DIGITOS_NOVO), DECIMAIS);
         iniciar(() => action(dados));
       }}
+      method="post"
       className="max-w-2xl space-y-6"
     >
       <CartaoConta titulo="Dados do cliente" idTitulo="dados-cliente" icone={IdCard}>
@@ -94,10 +98,18 @@ export function FormNovoLojista({ locale }: { locale: string }) {
             aoMudar={(v) => {
               // O tipo segue o tamanho do documento; o admin ainda pode trocar.
               const t = tipoPorDocumento(v);
-              if (t && tipo.current) tipo.current.value = t;
+              if (t && tipo.current && !tipoManual.current) tipo.current.value = t;
             }}
           />
-          <SeletorAdmin ref={tipo} id="tipo_pessoa" label="Tipo de pessoa" defaultValue="PJ">
+          <SeletorAdmin
+            ref={tipo}
+            id="tipo_pessoa"
+            label="Tipo de pessoa"
+            defaultValue="PJ"
+            onChange={() => {
+              tipoManual.current = true;
+            }}
+          >
             <option value="PJ">Pessoa jurídica (CNPJ)</option>
             <option value="PF">Pessoa física (CPF)</option>
           </SeletorAdmin>
@@ -142,9 +154,10 @@ export function FormEditarLojista({ dados }: { dados: DadosEdicao }) {
     <form
       onSubmit={(ev) => {
         ev.preventDefault();
-        const form = soDigitos(new FormData(ev.currentTarget), DIGITOS_EDICAO);
+        const form = semVirgulaPendurada(soDigitos(new FormData(ev.currentTarget), DIGITOS_EDICAO), DECIMAIS);
         iniciar(() => action(form));
       }}
+      method="post"
       className="space-y-6"
     >
       <CartaoConta titulo="Dados cadastrais" idTitulo="dados-cadastrais" icone={Building2}>

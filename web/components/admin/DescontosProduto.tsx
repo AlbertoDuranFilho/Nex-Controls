@@ -10,7 +10,7 @@ import CartaoConta from "@/components/conta/CartaoConta";
 import Botao from "@/components/ui/Botao";
 import Selo from "@/components/ui/Selo";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
-import { PLACEHOLDER, mascaraPercentual } from "@/lib/mascaras";
+import { PLACEHOLDER, aplicarMascara, mascaraPercentual, semVirgulaFinal } from "@/lib/mascaras";
 import {
   definirDescontoProduto,
   removerDescontoProduto,
@@ -108,7 +108,8 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
               inputMode="decimal"
               placeholder={PLACEHOLDER.desconto}
               value={percentual}
-              onChange={(e) => setPercentual(mascaraPercentual(e.target.value))}
+              onChange={(e) => setPercentual(aplicarMascara(e.currentTarget, mascaraPercentual))}
+              onBlur={() => setPercentual((p) => semVirgulaFinal(p))}
               className={`${estiloCampo} pr-10`}
             />
             <span aria-hidden className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-marca-cinza-500">
@@ -122,7 +123,7 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
           className="min-h-12"
           carregando={pendente}
           onClick={() =>
-            executar(() => definirDescontoProduto(lojistaId, produtoId, percentual), () => {
+            executar(() => definirDescontoProduto(lojistaId, produtoId, semVirgulaFinal(percentual)), () => {
               setProdutoId("");
               setPercentual("");
             })

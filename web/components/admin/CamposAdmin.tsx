@@ -1,29 +1,14 @@
 "use client";
 
-import type { ChangeEvent, ReactNode, Ref, SelectHTMLAttributes } from "react";
+import type { ReactNode, Ref, SelectHTMLAttributes } from "react";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import { estiloCampo, estiloRotulo } from "@/components/conta/Campo";
-import { posicaoAposMascara } from "@/lib/mascaras";
+import { aplicarMascara, semVirgulaFinal } from "@/lib/mascaras";
 
 // Campos dos formulários do admin: mesmo visual da área do cliente (rounded-xl, foco preto).
 // Não controlados (defaultValue); a máscara reescreve o valor no próprio input a cada digitação.
 
 export type Mascara = (valor: string) => string;
-
-export function aplicarMascara(e: ChangeEvent<HTMLInputElement>, mascara: Mascara) {
-  const el = e.currentTarget;
-  const antes = el.value;
-  const depois = mascara(antes);
-  if (depois === antes) return;
-  const cursor = el.selectionStart ?? antes.length;
-  el.value = depois;
-  const pos = posicaoAposMascara(antes, cursor, depois);
-  try {
-    el.setSelectionRange(pos, pos);
-  } catch {
-    // tipos sem seleção (ex.: email): fica onde o navegador deixar
-  }
-}
 
 type CampoAdminProps = {
   id: string;
@@ -70,8 +55,12 @@ export function CampoAdmin({
           disabled={somenteLeitura}
           readOnly={somenteLeitura}
           onChange={(e) => {
-            if (mascara) aplicarMascara(e, mascara);
+            if (mascara) aplicarMascara(e.currentTarget, mascara);
             aoMudar?.(e.currentTarget.value);
+          }}
+          onBlur={(e) => {
+            // "5," vira "5" ao sair do campo (o servidor recusa a vírgula pendurada).
+            if (mascara) e.currentTarget.value = semVirgulaFinal(e.currentTarget.value);
           }}
           className={`${estiloCampo} ${sufixo ? "pr-10" : ""}`.trim()}
           {...resto}
@@ -174,6 +163,15 @@ export function AvisoAdmin({
       ) : null}
     </div>
   );
+}
+
+// Antes de enviar: tira a vírgula pendurada dos campos decimais ("5," → "5").
+export function semVirgulaPendurada(form: FormData, campos: string[]): FormData {
+  for (const c of campos) {
+    const v = form.get(c);
+    if (typeof v === "string") form.set(c, semVirgulaFinal(v));
+  }
+  return form;
 }
 
 // Troca os campos mascarados pelos dígitos antes de enviar (o servidor também limpa).

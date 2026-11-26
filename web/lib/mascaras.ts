@@ -33,8 +33,12 @@ export function tipoPorDocumento(valor: string): "PF" | "PJ" | null {
   return null;
 }
 
+// Com código do país (autopreenchimento "+55 81 99999-9999"): 12 ou 13 dígitos começando
+// com 55 perdem o 55, senão o DDD viraria "55".
 export function mascaraTelefone(valor: string | null | undefined): string {
-  const d = somenteDigitos(valor ?? "").slice(0, 11);
+  let d = somenteDigitos(valor ?? "");
+  if ((d.length === 12 || d.length === 13) && d.startsWith("55")) d = d.slice(2);
+  d = d.slice(0, 11);
   if (!d) return "";
   if (d.length <= 2) return `(${d}`;
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
@@ -47,18 +51,26 @@ export function mascaraCep(valor: string | null | undefined): string {
   return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
 }
 
-// Número com vírgula decimal e até `casas` casas. Com vírgula, pontos são milhar (somem);
-// sem vírgula, o último ponto vira a vírgula ("189.90" → "189,90").
+// Número com vírgula decimal e até `casas` casas ("." ou "," servem de separador decimal).
+// O último separador é o decimal; os anteriores são milhar e somem. Exceção: um único "."
+// seguido de exatamente 3 dígitos também é milhar ("1.234" → "1234"), assim como qualquer
+// último separador seguido de 3 dígitos quando há outro antes ("1,234" em "1,234.567").
+// Vírgula decimal com 3 dígitos digitados ("189,999") só perde a casa extra.
 export function mascaraDecimal(valor: string | null | undefined, casas = 2): string {
-  let v = (valor ?? "").replace(/[^\d.,]/g, "");
-  if (v.includes(",")) v = v.replace(/\./g, "");
-  else {
-    const i = v.lastIndexOf(".");
-    if (i >= 0) v = `${v.slice(0, i).replace(/\./g, "")},${v.slice(i + 1)}`;
-  }
-  const [inteiro = "", ...resto] = v.split(",");
-  if (resto.length === 0) return inteiro;
-  return `${inteiro},${resto.join("").slice(0, casas)}`;
+  const v = (valor ?? "").replace(/[^\d.,]/g, "");
+  const i = Math.max(v.lastIndexOf("."), v.lastIndexOf(","));
+  if (i < 0) return v;
+  const inteiro = v.slice(0, i).replace(/[.,]/g, "");
+  const depois = v.slice(i + 1);
+  const outros = /[.,]/.test(v.slice(0, i));
+  const milhar = /^\d{3}$/.test(depois) && (v[i] === "." || outros);
+  if (milhar) return inteiro + depois;
+  return `${inteiro},${depois.slice(0, casas)}`;
+}
+
+// Tira a vírgula pendurada ("5," → "5") antes de enviar: o servidor não aceita.
+export function semVirgulaFinal(valor: string): string {
+  return valor.replace(/,$/, "");
 }
 
 // Percentual de 0 a 100 com até 2 casas; acima de 100 vira 100.
@@ -70,17 +82,53 @@ export function mascaraPercentual(valor: string | null | undefined): string {
   return decimais === undefined ? parte : `${parte || "0"},${decimais}`;
 }
 
-// Posição do cursor depois de mascarar: mesma quantidade de caracteres "úteis" (dígitos,
-// e a vírgula nos decimais) antes dele. Sem isso, editar no meio pula o cursor para o fim.
-export function posicaoAposMascara(antes: string, cursor: number, depois: string): number {
-  const util = /[\d,]/;
+// Posição do cursor depois de mascarar.
+// - Máscaras de dígitos (documento, telefone, CEP): mesma quantidade de dígitos antes dele.
+// - Máscaras decimais: ancorada pela direita, mesma quantidade de caracteres úteis depois
+//   dele. Na entrada "." conta (pode virar a vírgula); na saída contam dígitos e vírgula.
+//   Assim "189." deixa o cursor depois da vírgula nova, e "," → "0," não o empurra.
+export function posicaoAposMascara(antes: string, cursor: number, depois: string, decimal = false): number {
+  if (decimal) {
+    let resto = 0;
+    for (let i = Math.max(0, cursor); i < antes.length; i++) if (/[\d.,]/.test(antes[i])) resto++;
+    if (resto === 0) return depois.length;
+    let vistos = 0;
+    for (let i = depois.length - 1; i >= 0; i--) {
+      if (/[\d,]/.test(depois[i])) vistos++;
+      if (vistos === resto) return i;
+    }
+    return 0;
+  }
   let alvo = 0;
-  for (let i = 0; i < cursor && i < antes.length; i++) if (util.test(antes[i])) alvo++;
+  for (let i = 0; i < cursor && i < antes.length; i++) if (/\d/.test(antes[i])) alvo++;
   if (alvo === 0) return 0;
   let vistos = 0;
   for (let i = 0; i < depois.length; i++) {
-    if (util.test(depois[i])) vistos++;
+    if (/\d/.test(depois[i])) vistos++;
     if (vistos === alvo) return i + 1;
   }
   return depois.length;
+}
+
+// Máscaras cujo cursor é ancorado pela direita (ver posicaoAposMascara).
+const DECIMAIS = new Set<(v: string) => string>([mascaraDecimal, mascaraPercentual]);
+export function ehMascaraDecimal(mascara: (v: string) => string): boolean {
+  return DECIMAIS.has(mascara);
+}
+
+// Aplica a máscara no próprio input (não controlado ou controlado: quem controla lê
+// el.value depois) e devolve o cursor ao lugar certo.
+export function aplicarMascara(el: HTMLInputElement, mascara: (valor: string) => string): string {
+  const antes = el.value;
+  const novo = mascara(antes);
+  if (novo === antes) return novo;
+  const cursor = el.selectionStart ?? antes.length;
+  el.value = novo;
+  const pos = posicaoAposMascara(antes, cursor, novo, ehMascaraDecimal(mascara));
+  try {
+    el.setSelectionRange(pos, pos);
+  } catch {
+    // tipos sem seleção (ex.: email): fica onde o navegador deixar
+  }
+  return novo;
 }

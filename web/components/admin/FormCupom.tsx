@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
 import { CalendarRange, Save, TicketPercent } from "lucide-react";
-import { AvisoAdmin, CaixaSelecao, CampoAdmin, SeletorAdmin } from "@/components/admin/CamposAdmin";
+import { AvisoAdmin, CaixaSelecao, CampoAdmin, SeletorAdmin, semVirgulaPendurada } from "@/components/admin/CamposAdmin";
 import CartaoConta from "@/components/conta/CartaoConta";
 import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
@@ -40,9 +40,10 @@ export default function FormCupom({ cupom, locale, lojistas }: Props) {
       onSubmit={(ev) => {
         // Sem action={...}: o React 19 limparia os campos quando a validação falha.
         ev.preventDefault();
-        const dados = new FormData(ev.currentTarget);
+        const dados = semVirgulaPendurada(new FormData(ev.currentTarget), ["valor", "valor_minimo_pedido"]);
         iniciar(() => action(dados));
       }}
+      method="post"
       className="max-w-4xl space-y-6"
     >
       <input type="hidden" name="id" value={cupom?.id ?? ""} />

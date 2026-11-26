@@ -33,11 +33,18 @@ export function tipoPorDocumento(valor: string): "PF" | "PJ" | null {
   return null;
 }
 
-// Com código do país (autopreenchimento "+55 81 99999-9999"): 12 ou 13 dígitos começando
-// com 55 perdem o 55, senão o DDD viraria "55".
-export function mascaraTelefone(valor: string | null | undefined): string {
-  let d = somenteDigitos(valor ?? "");
-  if ((d.length === 12 || d.length === 13) && d.startsWith("55")) d = d.slice(2);
+// Máscara: recebe o texto do campo e se ele veio colado/autopreenchido (mais de uma tecla
+// de uma vez). Algumas regras só valem para texto colado.
+export type Mascara = (valor: string, colado?: boolean) => string;
+
+// Código do país ("+55 81 99999-9999"): 12 ou 13 dígitos começando com 55 perdem o 55, mas só
+// quando o texto foi colado/autopreenchido ou começa com "+55". Digitando, um DDD 55 com um
+// dígito a mais não é cortado.
+export function mascaraTelefone(valor: string | null | undefined, colado = false): string {
+  const bruto = valor ?? "";
+  let d = somenteDigitos(bruto);
+  const comPais = colado || /^\s*\+\s*55/.test(bruto);
+  if (comPais && (d.length === 12 || d.length === 13) && d.startsWith("55")) d = d.slice(2);
   d = d.slice(0, 11);
   if (!d) return "";
   if (d.length <= 2) return `(${d}`;
@@ -52,19 +59,19 @@ export function mascaraCep(valor: string | null | undefined): string {
 }
 
 // Número com vírgula decimal e até `casas` casas ("." ou "," servem de separador decimal).
-// O último separador é o decimal; os anteriores são milhar e somem. Exceção: um único "."
-// seguido de exatamente 3 dígitos também é milhar ("1.234" → "1234"), assim como qualquer
-// último separador seguido de 3 dígitos quando há outro antes ("1,234" em "1,234.567").
-// Vírgula decimal com 3 dígitos digitados ("189,999") só perde a casa extra.
-export function mascaraDecimal(valor: string | null | undefined, casas = 2): string {
+// O último separador é o decimal; os anteriores são milhar e somem.
+// Só em texto colado: um "." único seguido de exatamente 3 dígitos é milhar ("1.234" → "1234"),
+// assim como o último separador seguido de 3 dígitos quando há outro antes ("1,234.567").
+// Digitando, casas a mais são cortadas (e aplicarMascara recusa a tecla, ver mascararEntrada):
+// "1.23" + "4" continua "1,23", nunca vira 1234.
+export function mascaraDecimal(valor: string | null | undefined, colado = false, casas = 2): string {
   const v = (valor ?? "").replace(/[^\d.,]/g, "");
   const i = Math.max(v.lastIndexOf("."), v.lastIndexOf(","));
   if (i < 0) return v;
   const inteiro = v.slice(0, i).replace(/[.,]/g, "");
   const depois = v.slice(i + 1);
   const outros = /[.,]/.test(v.slice(0, i));
-  const milhar = /^\d{3}$/.test(depois) && (v[i] === "." || outros);
-  if (milhar) return inteiro + depois;
+  if (colado && /^\d{3}$/.test(depois) && (v[i] === "." || outros)) return inteiro + depois;
   return `${inteiro},${depois.slice(0, casas)}`;
 }
 
@@ -74,8 +81,8 @@ export function semVirgulaFinal(valor: string): string {
 }
 
 // Percentual de 0 a 100 com até 2 casas; acima de 100 vira 100.
-export function mascaraPercentual(valor: string | null | undefined): string {
-  const v = mascaraDecimal(valor, 2);
+export function mascaraPercentual(valor: string | null | undefined, colado = false): string {
+  const v = mascaraDecimal(valor, colado);
   const [inteiro, decimais] = v.split(",");
   const parte = inteiro.replace(/^0+(?=\d)/, "").slice(0, 3);
   if (Number(`${parte || "0"}.${decimais ?? ""}`) > 100) return "100";
@@ -111,24 +118,61 @@ export function posicaoAposMascara(antes: string, cursor: number, depois: string
 }
 
 // Máscaras cujo cursor é ancorado pela direita (ver posicaoAposMascara).
-const DECIMAIS = new Set<(v: string) => string>([mascaraDecimal, mascaraPercentual]);
-export function ehMascaraDecimal(mascara: (v: string) => string): boolean {
+const DECIMAIS = new Set<Mascara>([mascaraDecimal, mascaraPercentual]);
+export function ehMascaraDecimal(mascara: Mascara): boolean {
   return DECIMAIS.has(mascara);
 }
 
+const CASAS = 2;
+
+// Núcleo puro de aplicarMascara: valor anterior (já mascarado), texto novo do campo, cursor
+// no texto novo e se veio colado. Devolve o valor mascarado e o cursor.
+// Decimal digitado tecla a tecla com casas demais: a tecla é recusada (valor anterior,
+// cursor onde estava).
+export function mascararEntrada(
+  anterior: string,
+  antes: string,
+  cursor: number,
+  mascara: Mascara,
+  colado: boolean,
+): { valor: string; cursor: number } {
+  const decimal = ehMascaraDecimal(mascara);
+  if (decimal && !colado && antes.length === anterior.length + 1) {
+    const limpo = antes.replace(/[^\d.,]/g, "");
+    const i = Math.max(limpo.lastIndexOf("."), limpo.lastIndexOf(","));
+    if (i >= 0 && limpo.length - i - 1 > CASAS) return { valor: anterior, cursor: Math.max(0, cursor - 1) };
+  }
+  const valor = mascara(antes, colado);
+  if (valor === antes) return { valor, cursor };
+  return { valor, cursor: posicaoAposMascara(antes, cursor, valor, decimal) };
+}
+
+// Colado: colar, arrastar, autopreenchimento ou o valor mudou mais de um caractere de uma vez.
+const TIPOS_COLADO = new Set(["insertFromPaste", "insertFromDrop", "insertReplacementText", "insertFromYank"]);
+export function veioColado(anterior: string, atual: string, inputType?: string): boolean {
+  if (inputType && TIPOS_COLADO.has(inputType)) return true;
+  return atual.length - anterior.length > 1;
+}
+
+// Último valor mascarado de cada campo (para saber o que mudou na próxima tecla).
+const ultimos = new WeakMap<HTMLInputElement, string>();
+
 // Aplica a máscara no próprio input (não controlado ou controlado: quem controla lê
-// el.value depois) e devolve o cursor ao lugar certo.
-export function aplicarMascara(el: HTMLInputElement, mascara: (valor: string) => string): string {
+// el.value depois) e devolve o cursor ao lugar certo. Passe o evento nativo (inputType).
+export function aplicarMascara(el: HTMLInputElement, mascara: Mascara, evento?: Event): string {
   const antes = el.value;
-  const novo = mascara(antes);
-  if (novo === antes) return novo;
+  // Controlado: o React mantém defaultValue = valor atual; não controlado: o WeakMap.
+  const anterior = ultimos.get(el) ?? el.defaultValue;
+  const inputType = (evento as InputEvent | undefined)?.inputType;
   const cursor = el.selectionStart ?? antes.length;
-  el.value = novo;
-  const pos = posicaoAposMascara(antes, cursor, novo, ehMascaraDecimal(mascara));
+  const r = mascararEntrada(anterior, antes, cursor, mascara, veioColado(anterior, antes, inputType));
+  ultimos.set(el, r.valor);
+  if (r.valor === antes) return r.valor;
+  el.value = r.valor;
   try {
-    el.setSelectionRange(pos, pos);
+    el.setSelectionRange(r.cursor, r.cursor);
   } catch {
     // tipos sem seleção (ex.: email): fica onde o navegador deixar
   }
-  return novo;
+  return r.valor;
 }

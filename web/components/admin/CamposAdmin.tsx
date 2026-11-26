@@ -3,12 +3,12 @@
 import type { ReactNode, Ref, SelectHTMLAttributes } from "react";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import { estiloCampo, estiloRotulo } from "@/components/conta/Campo";
-import { aplicarMascara, semVirgulaFinal } from "@/lib/mascaras";
+import { aplicarMascara, semVirgulaFinal, type Mascara } from "@/lib/mascaras";
 
 // Campos dos formulários do admin: mesmo visual da área do cliente (rounded-xl, foco preto).
 // Não controlados (defaultValue); a máscara reescreve o valor no próprio input a cada digitação.
 
-export type Mascara = (valor: string) => string;
+export type { Mascara };
 
 type CampoAdminProps = {
   id: string;
@@ -55,7 +55,7 @@ export function CampoAdmin({
           disabled={somenteLeitura}
           readOnly={somenteLeitura}
           onChange={(e) => {
-            if (mascara) aplicarMascara(e.currentTarget, mascara);
+            if (mascara) aplicarMascara(e.currentTarget, mascara, e.nativeEvent);
             aoMudar?.(e.currentTarget.value);
           }}
           onBlur={(e) => {

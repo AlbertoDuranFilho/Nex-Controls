@@ -108,7 +108,7 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
               inputMode="decimal"
               placeholder={PLACEHOLDER.desconto}
               value={percentual}
-              onChange={(e) => setPercentual(aplicarMascara(e.currentTarget, mascaraPercentual))}
+              onChange={(e) => setPercentual(aplicarMascara(e.currentTarget, mascaraPercentual, e.nativeEvent))}
               onBlur={() => setPercentual((p) => semVirgulaFinal(p))}
               className={`${estiloCampo} pr-10`}
             />

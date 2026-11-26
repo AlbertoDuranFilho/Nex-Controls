@@ -3,14 +3,15 @@ import { parseDesconto } from "@/lib/admin/formulario";
 import { parseDecimal } from "@/lib/admin/produto";
 import { somenteDigitos, validarDocumento } from "@/lib/validacao/documento";
 import {
-  ehMascaraDecimal,
   mascaraCep,
   mascaraDecimal,
   mascaraDocumento,
   mascaraPercentual,
   mascaraTelefone,
-  posicaoAposMascara,
+  mascararEntrada,
   semVirgulaFinal,
+  type Mascara,
+  veioColado,
   tipoPorDocumento,
 } from "./mascaras";
 
@@ -56,10 +57,13 @@ describe("mascaraTelefone e mascaraCep", () => {
     expect(mascaraTelefone("8133334444")).toBe("(81) 3333-4444");
     expect(mascaraTelefone("81999990000")).toBe("(81) 99999-0000");
     expect(mascaraTelefone("(81) 9")).toBe("(81) 9");
-    // Código do país (12 ou 13 dígitos começando com 55) sai.
+    // Código do país (12 ou 13 dígitos começando com 55) sai com "+55" ou quando colado.
     expect(mascaraTelefone("+55 (81) 99999-0000")).toBe("(81) 99999-0000");
     expect(mascaraTelefone("+55 81 3333-4444")).toBe("(81) 3333-4444");
+    expect(mascaraTelefone("5581999990000", true)).toBe("(81) 99999-0000");
     expect(mascaraTelefone("(55) 99999-0000")).toBe("(55) 99999-0000");
+    // Digitando: DDD 55 com um dígito a mais não perde o 55 (só corta o excesso).
+    expect(mascaraTelefone("(55) 99999-00001")).toBe("(55) 99999-0000");
   });
 
   it("CEP", () => {
@@ -84,16 +88,21 @@ describe("mascaraDecimal", () => {
   });
 
   it("colado com milhar: o último separador só é decimal com 1 ou 2 dígitos depois", () => {
-    expect(mascaraDecimal("1.234")).toBe("1234");
-    expect(mascaraDecimal("12.345.678")).toBe("12345678");
+    expect(mascaraDecimal("1.234", true)).toBe("1234");
+    expect(mascaraDecimal("12.345.678", true)).toBe("12345678");
+    expect(mascaraDecimal("1,234.56", true)).toBe("1234,56");
+    expect(mascaraDecimal("1.234.5", true)).toBe("1234,5");
+    expect(mascaraDecimal("189.", true)).toBe("189,");
+  });
+
+  it("sem colar, 3 dígitos depois do ponto nunca viram milhar", () => {
+    expect(mascaraDecimal("1.234")).toBe("1,23");
     expect(mascaraDecimal("1,234.56")).toBe("1234,56");
-    expect(mascaraDecimal("1.234.5")).toBe("1234,5");
-    expect(mascaraDecimal("189.")).toBe("189,");
   });
 
   it("o servidor lê o mesmo número", () => {
     expect(parseDecimal(mascaraDecimal("1.234,56"))).toBe(1234.56);
-    expect(parseDecimal(mascaraDecimal("1,234.56"))).toBe(1234.56);
+    expect(parseDecimal(mascaraDecimal("1,234.56", true))).toBe(1234.56);
     expect(parseDecimal(mascaraDecimal("189.90"))).toBe(189.9);
   });
 });
@@ -117,10 +126,10 @@ describe("mascaraPercentual", () => {
   });
 });
 
-// Simula o input: cada tecla entra (ou apaga) na posição do cursor, a máscara roda e o
-// cursor vai para posicaoAposMascara — o mesmo que aplicarMascara faz no navegador.
+// Simula o input: cada tecla (ou colagem) entra na posição do cursor e passa por
+// mascararEntrada — o mesmo núcleo que aplicarMascara usa no navegador.
 type Campo = { valor: string; cursor: number };
-function tecla(c: Campo, t: string, mascara: (v: string) => string): Campo {
+function tecla(c: Campo, t: string, mascara: Mascara, colar = false): Campo {
   let antes: string;
   let cursor: number;
   if (t === "Backspace") {
@@ -131,15 +140,37 @@ function tecla(c: Campo, t: string, mascara: (v: string) => string): Campo {
     antes = c.valor.slice(0, c.cursor) + t + c.valor.slice(c.cursor);
     cursor = c.cursor + t.length;
   }
-  const valor = mascara(antes);
-  return {
-    valor,
-    cursor: valor === antes ? cursor : posicaoAposMascara(antes, cursor, valor, ehMascaraDecimal(mascara)),
-  };
+  const inputType = colar ? "insertFromPaste" : t === "Backspace" ? "deleteContentBackward" : "insertText";
+  return mascararEntrada(c.valor, antes, cursor, mascara, veioColado(c.valor, antes, inputType));
 }
-function digitar(texto: string, mascara: (v: string) => string, inicio: Campo = { valor: "", cursor: 0 }): Campo {
+function digitar(texto: string, mascara: Mascara, inicio: Campo = { valor: "", cursor: 0 }): Campo {
   return [...texto].reduce((c, t) => tecla(c, t, mascara), inicio);
 }
+const colar = (texto: string, mascara: Mascara) => tecla({ valor: "", cursor: 0 }, texto, mascara, true);
+
+describe("colar x digitar", () => {
+  it("decimal digitado com casas demais recusa a tecla", () => {
+    expect(digitar("1.23", mascaraDecimal)).toEqual({ valor: "1,23", cursor: 4 });
+    expect(digitar("1.234", mascaraDecimal)).toEqual({ valor: "1,23", cursor: 4 });
+    // Tecla no meio dos decimais: recusada, cursor fica onde estava.
+    expect(tecla({ valor: "1,23", cursor: 3 }, "9", mascaraDecimal)).toEqual({ valor: "1,23", cursor: 3 });
+    expect(digitar("12,555", mascaraPercentual).valor).toBe("12,55");
+  });
+
+  it("colado: milhar e código do país", () => {
+    expect(colar("1.234", mascaraDecimal).valor).toBe("1234");
+    expect(colar("1,234.56", mascaraDecimal).valor).toBe("1234,56");
+    expect(colar("189.90", mascaraDecimal).valor).toBe("189,90");
+    expect(colar("5581999990000", mascaraTelefone).valor).toBe("(81) 99999-0000");
+    // Mais de um caractere de uma vez também conta como colado (fill, autopreenchimento).
+    expect(veioColado("", "1.234")).toBe(true);
+    expect(veioColado("1,2", "1,23")).toBe(false);
+  });
+
+  it("DDD 55 digitado não perde o 55", () => {
+    expect(digitar("559999900001", mascaraTelefone).valor).toBe("(55) 99999-0000");
+  });
+});
 
 describe("digitação com cursor", () => {
   it("ponto como separador decimal", () => {

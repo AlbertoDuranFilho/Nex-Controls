@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import { classesBotao } from "@/components/ui/Botao";
 import type { EstadoForm } from "@/services/minha-conta";
-import { aplicarMascara } from "@/lib/mascaras";
+import { aplicarMascara, type Mascara } from "@/lib/mascaras";
 
 // Mesmo visual de ui/Campo (rounded-xl, foco suave), sem altura fixa: serve a input, select e textarea.
 export const estiloCampo =
@@ -58,7 +58,7 @@ export function Campo({
   maxLength?: number;
   placeholder?: string;
   /** Máscara aplicada no próprio input, com o cursor no lugar (editar no meio não pula pro fim). */
-  mascara?: (valor: string) => string;
+  mascara?: Mascara;
   inputRef?: Ref<HTMLInputElement>;
 }) {
   return (
@@ -74,7 +74,7 @@ export function Campo({
         value={value}
         onChange={
           onChange
-            ? (e) => onChange(mascara ? aplicarMascara(e.currentTarget, mascara) : e.target.value)
+            ? (e) => onChange(mascara ? aplicarMascara(e.currentTarget, mascara, e.nativeEvent) : e.target.value)
             : undefined
         }
         readOnly={disabled}

@@ -7,6 +7,10 @@ alter table public.pedidos
   add column observacao text check (char_length(observacao) <= 500),
   add column notificado_em timestamptz;
 
+-- Código do cupom gravado já normalizado: a busca compara com upper(trim(entrada)).
+alter table public.cupons
+  add constraint cupons_codigo_normalizado check (codigo = upper(trim(codigo)));
+
 -- ===== Eventos de status =====
 create table public.pedido_eventos (
   id uuid primary key default gen_random_uuid(),

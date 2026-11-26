@@ -1,6 +1,6 @@
 begin;
 \ir _helpers.psql
-select plan(73);
+select plan(75);
 
 -- ===== cenário (superusuário) =====
 -- P1 preço 100, P2 preço 50, P3 ativo preço 10 (desativado depois), P4 sem preço.
@@ -65,6 +65,10 @@ select ok(not has_table_privilege('authenticated', 'public.pedido_eventos', 'INS
   'pedido_eventos sem escrita para authenticated e sem acesso para anon');
 select ok(not has_column_privilege('authenticated', 'public.pedido_eventos', 'admin_id', 'SELECT'),
   'authenticated não lê pedido_eventos.admin_id');
+select throws_ok($$insert into cupons (codigo, tipo, valor) values ('abc', 'percentual', 10)$$,
+  '23514', null, 'cupom com código minúsculo viola check');
+select throws_ok($$insert into cupons (codigo, tipo, valor) values (' ABC ', 'percentual', 10)$$,
+  '23514', null, 'cupom com espaços no código viola check');
 select is((select ok_ from (select icms = 0 and difal = 0 as ok_ from public.calcular_impostos('SP', 'contribuinte', 100)) t),
   true, 'calcular_impostos retorna (0, 0)');
 

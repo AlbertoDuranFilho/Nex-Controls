@@ -25,7 +25,7 @@ test("admin cria produto com preço, especificação e manual; aparece na lista 
   const codigo = `ADM1${sufixo}`;
   codigos.push(codigo);
   await entrar(page, await criarAdmin());
-  await expect(page).toHaveURL("/pt/admin/lojistas");
+  await expect(page).toHaveURL("/pt/admin");
 
   await page.getByRole("link", { name: "Produtos", exact: true }).click();
   await page.getByRole("link", { name: "Novo produto" }).click();
@@ -79,7 +79,7 @@ test("admin cria produto com preço, especificação e manual; aparece na lista 
 
 test("mostra erro de validação em português e mantém o que foi digitado", async ({ page }) => {
   await entrar(page, await criarAdmin());
-  await expect(page).toHaveURL("/pt/admin/lojistas");
+  await expect(page).toHaveURL("/pt/admin");
   await page.goto("/pt/admin/produtos/novo");
   await page.getByLabel("Código", { exact: true }).fill(`ADM2${sufixo}`);
   await page.getByLabel("Nome", { exact: true }).fill("Qualquer");

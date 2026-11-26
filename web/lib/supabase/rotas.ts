@@ -21,7 +21,7 @@ export function decidirRedirect(
   if (!locale || !LOCALES.includes(locale)) return null;
 
   // Home do lojista é o catálogo (mesmo padrão de destinoSeguro).
-  const home = papel === "admin" ? `/${locale}/admin/lojistas` : `/${locale}/catalogo`;
+  const home = papel === "admin" ? `/${locale}/admin` : `/${locale}/catalogo`;
 
   if (area === "cliente") {
     const ehLogin = sub === "login";

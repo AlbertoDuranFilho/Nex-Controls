@@ -71,13 +71,13 @@ describe("decidirRedirect", () => {
     expect(decidirRedirect("/es/admin/x", "", lojista)).toBe("/es/catalogo");
   });
 
-  it("admin em /pt/cliente vai para /pt/admin/lojistas", () => {
-    expect(decidirRedirect("/pt/cliente", "", admin)).toBe("/pt/admin/lojistas");
-    expect(decidirRedirect("/pt/cliente/pedidos", "", admin)).toBe("/pt/admin/lojistas");
+  it("admin em /pt/cliente vai para /pt/admin", () => {
+    expect(decidirRedirect("/pt/cliente", "", admin)).toBe("/pt/admin");
+    expect(decidirRedirect("/pt/cliente/pedidos", "", admin)).toBe("/pt/admin");
   });
 
-  it("admin em /pt/cliente/login vai para /pt/admin/lojistas", () => {
-    expect(decidirRedirect("/pt/cliente/login", "", admin)).toBe("/pt/admin/lojistas");
+  it("admin em /pt/cliente/login vai para /pt/admin", () => {
+    expect(decidirRedirect("/pt/cliente/login", "", admin)).toBe("/pt/admin");
   });
 
   it("lojista em /pt/cliente/login vai para /pt/catalogo", () => {

@@ -78,16 +78,15 @@ test("lojista não acessa admin", async ({ page }) => {
   await expect(page).toHaveURL("/pt/catalogo");
 });
 
-test("admin vai para o painel; admin em /es/cliente vai para /es/admin/lojistas", async ({
+test("admin vai para o painel; admin em /es/cliente vai para /es/admin", async ({
   page,
 }) => {
   const a = await criarAdmin();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, a);
-  // A página /admin/lojistas chega na Task 6: aqui só a URL importa.
-  await expect(page).toHaveURL("/pt/admin/lojistas");
+  await expect(page).toHaveURL("/pt/admin");
   await page.goto("/es/cliente");
-  await expect(page).toHaveURL("/es/admin/lojistas");
+  await expect(page).toHaveURL("/es/admin");
 });
 
 test("sair encerra a sessão", async ({ page }) => {

@@ -18,7 +18,7 @@ async function entrar(page: Page, cred: { email: string; senha: string }) {
 async function loginAdmin(page: Page) {
   const a = await criarAdmin();
   await entrar(page, a);
-  await expect(page).toHaveURL("/pt/admin/lojistas");
+  await expect(page).toHaveURL("/pt/admin");
 }
 
 async function cadastrar(
@@ -271,4 +271,67 @@ test("app_metadata adulterado para admin sem is_admin não acessa o painel", asy
   await expect(page.getByRole("heading", { name: "Clientes" })).toHaveCount(0);
   await page.goto("/pt/admin/lojistas/novo");
   await expect(page).toHaveURL("/pt");
+});
+
+test("painel tem menu lateral próprio, sem o topo e o rodapé do site", async ({ page }) => {
+  await loginAdmin(page);
+  await expect(page.getByRole("heading", { name: "Início", level: 1 })).toBeVisible();
+  const menu = page.getByRole("navigation", { name: "Administração" });
+  for (const nome of ["Início", "Clientes", "Produtos", "Cupons", "Pedidos"]) {
+    await expect(menu.getByRole("link", { name: nome, exact: true })).toBeVisible();
+  }
+  await expect(menu.getByRole("link", { name: "Início", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Ver site" })).toHaveAttribute("href", "/pt");
+  // Topo (SAC, Catálogo) e rodapé do site não aparecem no admin.
+  await expect(page.getByRole("button", { name: "SAC" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Catálogo", exact: true })).toHaveCount(0);
+  await expect(page.locator("footer")).toHaveCount(0);
+  const cartao = page.getByRole("link", { name: /Pedidos aguardando pagamento/ });
+  await expect(cartao).toHaveAttribute("href", "/pt/admin/pedidos?status=aguardando_pagamento");
+  // Selo do menu = só pedidos aguardando pagamento; sem nenhum, sem selo. O nome do link segue "Pedidos".
+  const [{ n }] = await sql<{ n: number }>(
+    "select count(*)::int as n from public.pedidos where status = 'aguardando_pagamento'",
+  );
+  await expect(cartao).toContainText(new Intl.NumberFormat("pt-BR").format(n));
+  await expect(menu.getByRole("link", { name: "Pedidos", exact: true })).toHaveAccessibleDescription(
+    n > 0 ? `${n} aguardando pagamento` : "",
+  );
+
+  // Subpágina destaca o item pai.
+  await page.goto("/pt/admin/produtos/novo");
+  await expect(menu.getByRole("link", { name: "Produtos", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(menu.getByRole("link", { name: "Início", exact: true })).not.toHaveAttribute("aria-current", "page");
+
+  // Fora do admin o topo e o rodapé voltam.
+  await page.getByRole("link", { name: "Ver site" }).click();
+  await expect(page).toHaveURL("/pt");
+  await expect(page.getByRole("button", { name: "SAC" })).toBeVisible();
+  await expect(page.locator("footer")).toHaveCount(1);
+});
+
+test.describe("painel no celular", () => {
+  test.use({ viewport: { width: 360, height: 740 } });
+
+  test("gaveta abre pelo botão, fecha com Esc e ao navegar; sem rolagem horizontal", async ({ page }) => {
+    await loginAdmin(page);
+    const abrir = page.getByRole("button", { name: "Abrir menu" });
+    await expect(abrir).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByRole("navigation", { name: "Administração" })).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+
+    await abrir.click();
+    const gaveta = page.getByRole("dialog", { name: "Menu da administração" });
+    await expect(gaveta).toBeVisible();
+    await expect(abrir).toHaveAttribute("aria-expanded", "true");
+    for (const nome of ["Início", "Clientes", "Produtos", "Cupons", "Pedidos"]) {
+      await expect(gaveta.getByRole("link", { name: nome, exact: true })).toBeVisible();
+    }
+    await page.keyboard.press("Escape");
+    await expect(gaveta).toHaveCount(0);
+
+    await abrir.click();
+    await gaveta.getByRole("link", { name: "Produtos", exact: true }).click();
+    await expect(page).toHaveURL("/pt/admin/produtos");
+    await expect(gaveta).toHaveCount(0);
+  });
 });

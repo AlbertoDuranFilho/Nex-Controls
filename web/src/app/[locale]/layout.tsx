@@ -7,6 +7,7 @@ import "../globals.css"
 import Footer from "@/components/Footer"
 import CookieConsent from "@/components/CookieConsent"
 import Navbar from "@/components/Navbar"
+import OcultarNoAdmin from "@/components/OcultarNoAdmin"
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
@@ -40,9 +41,14 @@ export default async function RootLayout({ children, params }: Props) {
             {children}
             <Analytics />
           </main>
-          <CookieConsent />
+          {/* Aviso de cookies é para o visitante do site; no painel ele cobria os botões do fim da página. */}
+          <OcultarNoAdmin>
+            <CookieConsent />
+          </OcultarNoAdmin>
         </NextIntlClientProvider>
-        <Footer locale={locale} />
+        <OcultarNoAdmin>
+          <Footer locale={locale} />
+        </OcultarNoAdmin>
       </body>
     </html>
   )

@@ -84,7 +84,7 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   const adm = await criarAdmin();
   const ctxAdmin = await browser.newContext();
   const a = await ctxAdmin.newPage();
-  await logar(a, adm, "/pt/admin/lojistas");
+  await logar(a, adm, "/pt/admin");
   await a.goto("/pt/admin/pedidos");
   await a.getByLabel("Status", { exact: true }).selectOption("aguardando_pagamento");
   await a.getByRole("button", { name: "Filtrar" }).click();
@@ -117,7 +117,7 @@ test("link da nota sem https é recusado", async ({ browser }) => {
   const adm = await criarAdmin();
   const ctx = await browser.newContext();
   const a = await ctx.newPage();
-  await logar(a, adm, "/pt/admin/lojistas");
+  await logar(a, adm, "/pt/admin");
   await a.goto(`/pt/admin/pedidos/${numero}`);
   await a.getByLabel("Link da nota").fill("http://exemplo.com/nf.pdf");
   await a.getByRole("button", { name: "Salvar" }).click();

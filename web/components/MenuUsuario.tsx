@@ -114,7 +114,7 @@ export default function MenuUsuario({ onNavegar }: { onNavegar?: () => void }) {
   }
 
   const itens: Item[] = sessao.admin
-    ? [{ href: `/${locale}/admin/lojistas`, rotulo: t("admin"), icone: LayoutDashboard }]
+    ? [{ href: `/${locale}/admin`, rotulo: t("admin"), icone: LayoutDashboard }]
     : [
         { href: `/${locale}/catalogo`, rotulo: t("catalogo"), icone: LayoutGrid },
         { href: `/${locale}/cliente/pedidos`, rotulo: t("pedidos"), icone: Package },

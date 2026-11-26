@@ -52,7 +52,7 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
 
   const ctxAdmin = await browser.newContext();
   const a = await ctxAdmin.newPage();
-  await logar(a, await criarAdmin(), "/pt/admin/lojistas");
+  await logar(a, await criarAdmin(), "/pt/admin");
   await a.goto(`/pt/admin/pedidos/${numero}`);
 
   // Antes de Pago não há ação de NF-e.

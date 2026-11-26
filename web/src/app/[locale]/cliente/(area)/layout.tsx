@@ -14,7 +14,7 @@ export default async function AreaClienteLayout({ children, params }: Props) {
   const { locale } = await params;
   const usuario = await getUsuarioAtual();
   if (!usuario) redirect(`/${locale}/cliente/login`);
-  if (usuario.papel === "admin") redirect(`/${locale}/admin/lojistas`);
+  if (usuario.papel === "admin") redirect(`/${locale}/admin`);
   const cadastro = await buscarMeuCadastro();
   if (!cadastro) redirect(`/${locale}`);
   // Anonimizado com JWT ainda válido (o ban só barra novos tokens): fora da área.

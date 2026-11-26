@@ -1,9 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function PrivacyPolicyPage() {
   const t = useTranslations("privacy");
+  const locale = useLocale();
 
   return (
     <div className="max-w-4xl mx-auto mt-30 px-6 py-12 text-gray-800 leading-relaxed">
@@ -83,7 +85,12 @@ export default function PrivacyPolicyPage() {
       <p className="mb-4">{t("sectionCadPara3")}</p>
       <p className="mb-4">{t("sectionCadPara4")}</p>
       <p className="mb-4">{t("sectionCadPara5")}</p>
-      <p className="mb-4">{t("sectionCadPara6")}</p>
+      <p className="mb-4">
+        {t("sectionCadPara6")}{" "}
+        <Link href={`/${locale}/excluir-conta`} className="underline underline-offset-2 hover:text-gray-600">
+          {t("deletionLink")}
+        </Link>
+      </p>
       <p className="mb-8">{t("sectionCadPara7")}</p>
 
       <h2 className="text-xl font-semibold mt-8 mb-4">9. {t("section8Title")}</h2>

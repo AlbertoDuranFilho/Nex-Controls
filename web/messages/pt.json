@@ -263,7 +263,8 @@
     "section8Title": "ALTERAÇÕES NESTA POLÍTICA",
     "section8Para1": "Esta Política de Privacidade poderá ser atualizada a qualquer momento para refletir mudanças em nossas práticas de tratamento de dados, aprimoramentos nos serviços oferecidos ou novas exigências legais e regulatórias.",
     "section8Para2": "Em caso de alterações relevantes, a Nex Controls comunicará os usuários por meio apropriado — como notificações na própria plataforma, envio de e-mail ou outros canais oficiais de comunicação —, garantindo a transparência no processo de atualização.",
-    "section8Para3": "A versão mais recente da Política estará sempre disponível nesta página, com indicação clara da data de vigência. Recomendamos que você consulte este documento periodicamente para se manter informado sobre como seus dados pessoais estão sendo tratados."
+    "section8Para3": "A versão mais recente da Política estará sempre disponível nesta página, com indicação clara da data de vigência. Recomendamos que você consulte este documento periodicamente para se manter informado sobre como seus dados pessoais estão sendo tratados.",
+    "deletionLink": "Veja como pedir a exclusão da sua conta."
   },
   "footer": {
     "rights": "Todos os direitos reservados",
@@ -271,7 +272,8 @@
     "company": "Nex Controls do Brasil LTDA",
     "contact": "Contato",
     "cnpj": "CNPJ: 61.697.615/0001-03 · IE: 1261377-06",
-    "privacyLink": "Política de Privacidade"
+    "privacyLink": "Política de Privacidade",
+    "deleteAccountLink": "Excluir conta"
   },
   "menuUsuario": {
     "entrar": "Entrar",
@@ -367,5 +369,26 @@
     "historicoVazio": "Nenhuma mudança de status ainda.",
     "deAte": "{de} para {para}",
     "colunaStatus": "Status"
+  },
+  "excluirConta": {
+    "metaTitle": "Excluir conta | Nex Controls",
+    "title": "Excluir sua conta Nex Controls",
+    "intro": "Esta página explica como pedir a exclusão da sua conta de cliente da Nex Controls, usada no site e no app Android \"Nex Controls\", ambos da Nex Controls do Brasil LTDA.",
+    "howTitle": "Como pedir a exclusão",
+    "how1": "Envie um e-mail para contato@nexcontrols.com com o assunto \"Pedido de exclusão de conta\", a partir do e-mail cadastrado na sua conta.",
+    "how2": "No app, toque em Conta e depois em \"Excluir minha conta\": o app abre essa mensagem pronta para você enviar.",
+    "how3": "Se precisarmos confirmar que o pedido é seu, responderemos pelo mesmo e-mail antes de excluir.",
+    "deletedTitle": "O que é excluído",
+    "deleted1": "Seu acesso: o login é bloqueado e todas as sessões abertas (site e app) são encerradas.",
+    "deleted2": "Os dados do cadastro: nome ou razão social, nome fantasia, CPF/CNPJ, e-mail, inscrição estadual, responsável, telefone, WhatsApp e endereço.",
+    "deleted3": "O CPF/CNPJ fica livre para um novo cadastro.",
+    "keptTitle": "O que é mantido e por quanto tempo",
+    "kept1": "Os pedidos já feitos e os dados fiscais deles (incluindo nome, CPF/CNPJ e endereço de entrega registrados no pedido e as notas fiscais) são mantidos por 5 anos, por obrigação legal (LGPD, art. 16, I).",
+    "kept2": "Os registros de acesso (data e hora, IP e navegador) são mantidos por 6 meses, conforme o art. 15 do Marco Civil da Internet (Lei nº 12.965/2014).",
+    "kept3": "Passados esses prazos, esses dados também são excluídos ou anonimizados.",
+    "timeTitle": "Prazo",
+    "time1": "Respondemos ao pedido e concluímos a exclusão em até 15 dias a partir da confirmação, conforme a LGPD.",
+    "moreInfo": "Mais detalhes sobre como tratamos seus dados estão na",
+    "privacyLink": "Política de Privacidade"
   }
 }

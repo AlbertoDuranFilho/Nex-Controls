@@ -18,6 +18,10 @@ export default function Footer({locale} : { locale?: string}) {
           >
             {t("privacyLink")}
           </Link>
+          <span aria-hidden="true" className="mx-1 text-gray-500">·</span>
+          <Link href={`/${locale}/excluir-conta`} className="hover:text-gray-300">
+            {t("deleteAccountLink")}
+          </Link>
         </p>
         <p className="text-gray-400 text-sm">{t('tagline')}</p>
         <address className="not-italic text-marca-cinza-400 text-xs mt-4 space-y-1">

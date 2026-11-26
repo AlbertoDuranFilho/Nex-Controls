@@ -263,7 +263,8 @@
     "section8Title": "CAMBIOS EN ESTA POLÍTICA",
     "section8Para1": "Esta Política de Privacidad podrá actualizarse en cualquier momento para reflejar cambios en nuestras prácticas de tratamiento de datos, mejoras en los servicios ofrecidos o nuevas exigencias legales y regulatorias.",
     "section8Para2": "En caso de cambios relevantes, Nex Controls comunicará a los usuarios a través de medios apropiados —como notificaciones en la plataforma, envío de correos electrónicos u otros canales oficiales de comunicación—, garantizando la transparencia en el proceso de actualización.",
-    "section8Para3": "La versión más reciente de la Política estará siempre disponible en esta página, con indicación clara de la fecha de vigencia. Recomendamos consultar este documento periódicamente para mantenerse informado sobre cómo se tratan sus datos personales."
+    "section8Para3": "La versión más reciente de la Política estará siempre disponible en esta página, con indicación clara de la fecha de vigencia. Recomendamos consultar este documento periódicamente para mantenerse informado sobre cómo se tratan sus datos personales.",
+    "deletionLink": "Vea cómo solicitar la eliminación de su cuenta."
   },
   "footer": {
     "rights": "Todos los derechos reservados",
@@ -271,7 +272,8 @@
     "company": "Nex Controls do Brasil LTDA",
     "contact": "Contacto",
     "cnpj": "CNPJ: 61.697.615/0001-03 · IE: 1261377-06",
-    "privacyLink": "Política de Privacidad"
+    "privacyLink": "Política de Privacidad",
+    "deleteAccountLink": "Eliminar cuenta"
   },
   "menuUsuario": {
     "entrar": "Entrar",
@@ -367,5 +369,26 @@
     "historicoVazio": "Aún no hay cambios de estado.",
     "deAte": "{de} a {para}",
     "colunaStatus": "Estado"
+  },
+  "excluirConta": {
+    "metaTitle": "Eliminar cuenta | Nex Controls",
+    "title": "Eliminar su cuenta Nex Controls",
+    "intro": "Esta página explica cómo solicitar la eliminación de su cuenta de cliente de Nex Controls, usada en el sitio web y en la app Android \"Nex Controls\", ambos de Nex Controls do Brasil LTDA.",
+    "howTitle": "Cómo solicitar la eliminación",
+    "how1": "Envíe un correo a contato@nexcontrols.com con el asunto \"Solicitud de eliminación de cuenta\" desde el correo registrado en su cuenta.",
+    "how2": "En la app, toque Cuenta y luego \"Excluir minha conta\" (Eliminar mi cuenta): la app abre ese mensaje listo para enviar.",
+    "how3": "Si necesitamos confirmar que la solicitud es suya, responderemos al mismo correo antes de eliminar.",
+    "deletedTitle": "Qué se elimina",
+    "deleted1": "Su acceso: el inicio de sesión se bloquea y se cierran todas las sesiones abiertas (sitio y app).",
+    "deleted2": "Los datos del registro: nombre o razón social, nombre comercial, CPF/CNPJ, correo, inscripción estatal, responsable, teléfono, WhatsApp y dirección.",
+    "deleted3": "El CPF/CNPJ queda libre para un nuevo registro.",
+    "keptTitle": "Qué se conserva y por cuánto tiempo",
+    "kept1": "Los pedidos ya realizados y sus datos fiscales (incluidos el nombre, CPF/CNPJ y dirección de entrega registrados en el pedido y las facturas) se conservan durante 5 años, por obligación legal (LGPD, art. 16, I).",
+    "kept2": "Los registros de acceso (fecha y hora, IP y navegador) se conservan durante 6 meses, conforme al art. 15 del Marco Civil de Internet (Ley nº 12.965/2014).",
+    "kept3": "Pasados estos plazos, esos datos también se eliminan o anonimizan.",
+    "timeTitle": "Plazo",
+    "time1": "Respondemos a la solicitud y completamos la eliminación en un plazo de hasta 15 días desde la confirmación, conforme a la LGPD.",
+    "moreInfo": "Más detalles sobre cómo tratamos sus datos en la",
+    "privacyLink": "Política de Privacidad"
   }
 }

@@ -263,7 +263,8 @@
     "section8Title": "CHANGES TO THIS POLICY",
     "section8Para1": "This Privacy Policy may be updated at any time to reflect changes in our data processing practices, service improvements, or new legal and regulatory requirements.",
     "section8Para2": "If significant changes occur, Nex Controls will inform users through appropriate means — such as platform notifications, emails, or other official communication channels — ensuring transparency during the update process.",
-    "section8Para3": "The most recent version of the Policy will always be available on this page, with a clear indication of the effective date. We recommend checking this document periodically to stay informed about how your personal data is handled."
+    "section8Para3": "The most recent version of the Policy will always be available on this page, with a clear indication of the effective date. We recommend checking this document periodically to stay informed about how your personal data is handled.",
+    "deletionLink": "See how to request the deletion of your account."
   },
   "footer": {
     "rights": "All rights reserved",
@@ -271,7 +272,8 @@
     "company": "Nex Controls do Brasil LTDA",
     "contact": "Contact",
     "cnpj": "CNPJ: 61.697.615/0001-03 · IE: 1261377-06",
-    "privacyLink": "Privacy Policy"
+    "privacyLink": "Privacy Policy",
+    "deleteAccountLink": "Delete account"
   },
   "menuUsuario": {
     "entrar": "Sign in",
@@ -367,5 +369,26 @@
     "historicoVazio": "No status changes yet.",
     "deAte": "{de} to {para}",
     "colunaStatus": "Status"
+  },
+  "excluirConta": {
+    "metaTitle": "Delete account | Nex Controls",
+    "title": "Delete your Nex Controls account",
+    "intro": "This page explains how to request the deletion of your Nex Controls customer account, used on the website and in the \"Nex Controls\" Android app, both by Nex Controls do Brasil LTDA.",
+    "howTitle": "How to request deletion",
+    "how1": "Send an e-mail to contato@nexcontrols.com with the subject \"Account deletion request\" from the e-mail address registered in your account.",
+    "how2": "In the app, tap Account and then \"Excluir minha conta\" (Delete my account): the app opens this message ready for you to send.",
+    "how3": "If we need to confirm that the request is yours, we will reply to the same e-mail before deleting.",
+    "deletedTitle": "What is deleted",
+    "deleted1": "Your access: sign-in is blocked and all open sessions (website and app) are ended.",
+    "deleted2": "Your registration data: name or company name, trade name, CPF/CNPJ, e-mail, state registration, contact person, phone, WhatsApp and address.",
+    "deleted3": "The CPF/CNPJ becomes available for a new registration.",
+    "keptTitle": "What is kept and for how long",
+    "kept1": "Orders already placed and their tax data (including the name, CPF/CNPJ and delivery address recorded on the order, and the invoices) are kept for 5 years, as required by law (LGPD, art. 16, I).",
+    "kept2": "Access logs (date and time, IP and browser) are kept for 6 months, under art. 15 of the Brazilian Internet Civil Framework (Law 12.965/2014).",
+    "kept3": "After these periods, this data is also deleted or anonymized.",
+    "timeTitle": "Timeframe",
+    "time1": "We reply to the request and complete the deletion within 15 days of confirmation, as set by the LGPD.",
+    "moreInfo": "More details on how we handle your data are in the",
+    "privacyLink": "Privacy Policy"
   }
 }

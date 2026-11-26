@@ -56,4 +56,13 @@
 - [ ] Detalhe do pedido admin: cabeçalho com número + `Selo` de status, grid 2/3 + 1/3 (itens e totais | cliente, endereço, ações, NF-e), linha do tempo com ícones igual à do cliente (reuse o componente da fase 6 se existir).
 - [ ] Importar planilha: zona de arquivo arredondada com `FileSpreadsheet`, link do modelo com `Download`, resultado em cartão com selos.
 - [ ] `PainelNfe`, `SenhaGerada`, `AcoesLojista`, `AcoesPedido`, `BotaoCupomAtivo`: botões `Botao`, mensagens em caixas arredondadas.
+- [ ] **Máscaras e placeholders (pedido do usuário, 2026-11-26)** — criar `web/lib/mascaras.ts` (funções puras + testes Vitest) e usar nos formulários do admin **e** da área do cliente (`web/components/conta/*`):
+  - CPF/CNPJ num campo só que se identifica pelo tamanho: até 11 dígitos → `000.000.000-00`, 12–14 → `00.000.000/0000-00`; ao colar já formatado funciona; o envio continua mandando só dígitos (a validação atual em `lib/validacao/documento.ts` não muda). No cadastro de cliente, o "Tipo de pessoa" é escolhido sozinho pelo tamanho (o usuário ainda pode trocar). Placeholder `000.000.000-00 ou 00.000.000/0000-00`. (CNPJ alfanumérico continua pendente à parte.)
+  - Telefone/WhatsApp: `(00) 0000-0000` / `(00) 00000-0000` conforme o tamanho; placeholder `(81) 99999-9999`.
+  - Desconto (%): só números com até 2 casas, 0–100, sufixo `%` visível dentro do campo; placeholder `0`.
+  - E-mail: `type="email"`, `autoComplete`, `inputMode="email"`, placeholder `nome@empresa.com.br`.
+  - CEP `00000-000`, preços em R$ com placeholder `0,00` onde existir; IE com placeholder.
+  - `inputMode="numeric"` nos campos numéricos (teclado certo no celular). Rótulos e `name` iguais (e2e).
+- [ ] **Cursor de mão em tudo que é clicável** (Tailwind 4 tirou o padrão): em `globals.css`, `@layer base` com `button, [role="button"], select, summary, label[for], input[type=checkbox|radio|file|submit|button] { cursor: pointer }` e `:disabled, [aria-disabled="true"] { cursor: not-allowed }`. Vale para o site inteiro.
+- [ ] **Login sem topo e rodapé do site** (recomendado e aceito): em `/[locale]/cliente/login` o `Navbar` e o `Footer`/`CookieConsent` não aparecem (mesmo mecanismo do admin); a tela já tem logo e "Voltar ao site". Ajustar o `pt-24` da página. e2e: login sem navbar; "Voltar ao site" leva à home.
 - [ ] e2e ajustados só se texto mudou de propósito. Tudo verde. Commit.

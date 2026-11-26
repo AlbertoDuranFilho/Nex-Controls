@@ -52,7 +52,7 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
 
   const ctxAdmin = await browser.newContext();
   const a = await ctxAdmin.newPage();
-  await logar(a, await criarAdmin(), "/pt/admin/lojistas");
+  await logar(a, await criarAdmin(), "/pt/admin");
   await a.goto(`/pt/admin/pedidos/${numero}`);
 
   // Antes de Pago não há ação de NF-e.
@@ -93,7 +93,8 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
 
   // A Mainô recebeu o pedido com numero SITE-<n> e itens com código.
   const reqs = (await (await request.get(`${URL_MAINO_FALSA}/__requisicoes`)).json()) as Requisicao[];
-  const criacao = reqs.find((r) => r.metodo === "POST" && r.caminho.startsWith("/api/v2/pedidos?"));
+  // A Mainô falsa acumula as requisições da execução inteira (--repeat-each): vale a última criação.
+  const criacao = reqs.filter((r) => r.metodo === "POST" && r.caminho.startsWith("/api/v2/pedidos?")).at(-1);
   expect(criacao?.autorizado).toBe(true);
   const corpo = JSON.stringify(criacao?.corpo);
   expect(corpo).toContain(`"numero":"SITE-${numero}"`);
@@ -103,7 +104,7 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
   // Área do cliente: link da nota e status Faturado.
   const ctxCliente = await browser.newContext();
   const c = await ctxCliente.newPage();
-  await logar(c, lojista, "/pt/cliente");
+  await logar(c, lojista, "/pt/catalogo");
   await c.goto(`/pt/cliente/pedidos/${numero}`);
   await expect(c.getByTestId("status-pedido")).toHaveText("Faturado");
   await expect(c.getByRole("link", { name: /nota fiscal/i })).toHaveAttribute(

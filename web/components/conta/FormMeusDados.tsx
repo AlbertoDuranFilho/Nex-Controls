@@ -1,11 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { salvarMeusDados, type EstadoForm } from "@/services/minha-conta";
 import { formatarDocumento } from "@/lib/validacao/documento";
 import { mascaraTelefone } from "@/lib/conta/campos";
-import { Campo, Retorno, Seletor, estiloBotao } from "@/components/conta/Campo";
+import { Save } from "lucide-react";
+import { Campo, Retorno, Seletor } from "@/components/conta/Campo";
+import Botao from "@/components/ui/Botao";
 
 export type DadosCadastrais = {
   nome: string;
@@ -22,7 +25,7 @@ const inicial: EstadoForm = { status: "idle" };
 
 export default function FormMeusDados({ locale, dados }: { locale: string; dados: DadosCadastrais }) {
   const t = useTranslations("conta.dados");
-  const [estado, action, pendente] = useActionState(salvarMeusDados, inicial);
+  const [estado, action, pendente] = useAcao(salvarMeusDados, inicial);
   // Controlados: o React 19 limpa campos não controlados depois de uma action de formulário.
   const [v, setV] = useState({
     nome_fantasia: dados.nome_fantasia ?? "",
@@ -109,9 +112,9 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
       </div>
 
       <Retorno estado={estado} pendente={pendente} />
-      <button type="submit" disabled={pendente} className={estiloBotao}>
+      <Botao type="submit" carregando={pendente} icone={Save} className="px-6">
         {t("salvar")}
-      </button>
+      </Botao>
     </form>
   );
 }

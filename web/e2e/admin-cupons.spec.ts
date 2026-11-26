@@ -11,7 +11,7 @@ async function entrar(page: Page, cred: { email: string; senha: string }) {
   await page.getByLabel("Email", { exact: true }).fill(cred.email);
   await page.getByLabel("Senha", { exact: true }).fill(cred.senha);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page).toHaveURL("/pt/admin/lojistas");
+  await expect(page).toHaveURL("/pt/admin");
 }
 
 test.afterEach(async () => {

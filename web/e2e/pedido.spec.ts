@@ -23,7 +23,7 @@ async function logar(page: Page, u: { email: string; senha: string }) {
   await page.getByLabel("Email", { exact: true }).fill(u.email);
   await page.getByLabel("Senha", { exact: true }).fill(u.senha);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 }
 
 // Lojista com 10% de desconto geral e 2× um produto de R$ 100 no carrinho.
@@ -78,7 +78,7 @@ test("cupom com mínimo fica inválido quando a quantidade cai", async ({ page }
   await aplicarCupom(page, cupomMinimo);
   await expect(total).toContainText(/R\$\s150,00/);
 
-  const qtd = page.getByLabel(`Quantidade de ${nome}`);
+  const qtd = page.getByLabel(`Quantidade de ${nome}`, { exact: true });
   await qtd.fill("1");
   await qtd.press("Enter");
   await expect(page.getByTestId("mensagem-cupom")).toContainText(/R\$\s150,00/);
@@ -89,7 +89,7 @@ test("cupom com mínimo fica inválido quando a quantidade cai", async ({ page }
 
 test("quantidade 0 é recusada e o valor anterior fica", async ({ page }) => {
   const { u, nome } = await cenario(page);
-  const qtd = page.getByLabel(`Quantidade de ${nome}`);
+  const qtd = page.getByLabel(`Quantidade de ${nome}`, { exact: true });
   await qtd.fill("0");
   await qtd.press("Enter");
   await expect(page.getByText("Informe uma quantidade de 1 a 9999.")).toBeVisible();

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import {
@@ -36,7 +37,7 @@ const botao =
 
 export default function PainelNfe({ pedidoId, status, mainoPedidoId, nfeStatus, nfeErro, danfeUrl, chave }: Props) {
   const router = useRouter();
-  const [pendente, iniciar] = useTransition();
+  const [pendente, iniciar] = useTransicao();
   const [mensagem, setMensagem] = useState<{ ok: boolean; texto: string } | null>(null);
 
   function executar(acao: (id: string) => Promise<ResultadoAdmin<SituacaoNfe>>, confirmacao?: string) {

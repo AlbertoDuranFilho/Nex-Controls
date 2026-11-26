@@ -11,7 +11,9 @@ async function logar(page: Page, u: { email: string; senha: string }, locale = "
   await page
     .getByRole("button", { name: locale === "en" ? "Sign in" : "Entrar", exact: true })
     .click();
-  await expect(page).toHaveURL(`/${locale}/cliente`);
+  // O login cai no catálogo; os testes daqui são sobre a página "Meus dados".
+  await expect(page).toHaveURL(`/${locale}/catalogo`);
+  await page.goto(`/${locale}/cliente`);
 }
 
 async function lojistaNoBanco(id: string) {
@@ -167,7 +169,11 @@ test("troca de e-mail pede confirmação nos dois", async ({ page }) => {
   expect(await emailNoAuth()).toBe(novo);
   expect((await lojistaNoBanco(u.id)).email).toBe(novo);
 
+  await page.getByRole("button", { name: /^Olá,/ }).click(); // abre o menu da conta
+
   await page.getByRole("button", { name: "Sair" }).click();
+  // Espera o Sair terminar: senão a página /cliente recarrega para login?next=/pt/cliente.
+  await expect(page).toHaveURL("/pt");
   await logar(page, { email: novo, senha: u.senha });
 });
 
@@ -203,6 +209,9 @@ test("senha com flag ligada: aparece Segurança e troca a senha", async ({ page 
   await page.getByRole("button", { name: "Alterar senha", exact: true }).click();
   await expect(page.getByText("Senha alterada", { exact: true })).toBeVisible();
 
+  await page.getByRole("button", { name: /^Olá,/ }).click(); // abre o menu da conta
+
   await page.getByRole("button", { name: "Sair" }).click();
+  await expect(page).toHaveURL("/pt");
   await logar(page, { email: u.email, senha: "NovaSenha#456" });
 });

@@ -1,18 +1,20 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
+import { CircleAlert, LogIn, Mail } from "lucide-react";
 import { entrar, type EstadoLogin } from "@/services/auth";
+import Botao from "@/components/ui/Botao";
+import Campo from "@/components/ui/Campo";
+import CampoSenha from "@/components/ui/CampoSenha";
 
 const inicial: EstadoLogin = { erro: null };
 
 export default function LoginForm({ locale, next }: { locale: string; next: string }) {
   const t = useTranslations("login");
-  const [estado, action, pendente] = useActionState(entrar, inicial);
-  const [mostrar, setMostrar] = useState(false);
+  const [estado, action, pendente] = useAcao(entrar, inicial);
 
-  const campo =
-    "w-full border border-marca-cinza-300 bg-marca-branco px-3 py-3 text-marca-preto outline-none focus:border-marca-preto";
+  const rotulo = "mb-2 block text-sm font-medium text-marca-cinza-800";
 
   return (
     <form action={action} className="space-y-5">
@@ -20,54 +22,48 @@ export default function LoginForm({ locale, next }: { locale: string; next: stri
       <input type="hidden" name="next" value={next} />
 
       <div>
-        <label htmlFor="email" className="mb-1 block text-sm font-medium text-marca-cinza-800">
+        <label htmlFor="email" className={rotulo}>
           {t("email")}
         </label>
-        <input
+        <Campo
           id="email"
           name="email"
           type="email"
           autoComplete="email"
+          inputMode="email"
+          placeholder={t("emailPlaceholder")}
           required
-          className={campo}
+          icone={Mail}
         />
       </div>
 
       <div>
-        <label htmlFor="senha" className="mb-1 block text-sm font-medium text-marca-cinza-800">
+        <label htmlFor="senha" className={rotulo}>
           {t("password")}
         </label>
-        <div className="relative">
-          <input
-            id="senha"
-            name="senha"
-            type={mostrar ? "text" : "password"}
-            autoComplete="current-password"
-            required
-            className={`${campo} pr-24`}
-          />
-          <button
-            type="button"
-            onClick={() => setMostrar((v) => !v)}
-            aria-pressed={mostrar}
-            className="absolute inset-y-0 right-0 px-3 text-xs font-medium text-marca-cinza-600 hover:text-marca-preto"
-          >
-            {mostrar ? t("ocultarSenha") : t("mostrarSenha")}
-          </button>
-        </div>
+        <CampoSenha
+          id="senha"
+          name="senha"
+          autoComplete="current-password"
+          required
+        />
       </div>
 
-      <p role="alert" className="min-h-5 text-sm text-marca-preto">
+      <p
+        role="alert"
+        className={
+          estado.erro
+            ? "flex items-center gap-2 rounded-xl bg-marca-cinza-100 px-4 py-3 text-sm font-medium text-marca-preto ring-1 ring-marca-cinza-300 ring-inset"
+            : "sr-only"
+        }
+      >
+        {estado.erro && <CircleAlert aria-hidden className="size-4 shrink-0" />}
         {estado.erro}
       </p>
 
-      <button
-        type="submit"
-        disabled={pendente}
-        className="w-full bg-marca-preto py-3 font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800 disabled:cursor-not-allowed disabled:bg-marca-cinza-500"
-      >
+      <Botao type="submit" tamanho="lg" icone={LogIn} carregando={pendente} className="w-full">
         {t("submit")}
-      </button>
+      </Botao>
     </form>
   );
 }

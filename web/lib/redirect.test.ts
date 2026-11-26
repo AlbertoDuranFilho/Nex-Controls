@@ -6,6 +6,11 @@ describe("destinoSeguro", () => {
     expect(destinoSeguro("/pt/cliente/endereco", "pt")).toBe("/pt/cliente/endereco");
   });
 
+  it("sem destino, o padrão é o catálogo do próprio locale", () => {
+    expect(destinoSeguro(null, "en")).toBe("/en/catalogo");
+    expect(destinoSeguro("", "es")).toBe("/es/catalogo");
+  });
+
   it.each([
     "//evil.com",
     "https://evil.com",
@@ -17,6 +22,6 @@ describe("destinoSeguro", () => {
     undefined,
     "",
   ])("cai no padrão para entrada %j", (mal) => {
-    expect(destinoSeguro(mal, "pt")).toBe("/pt/cliente");
+    expect(destinoSeguro(mal, "pt")).toBe("/pt/catalogo");
   });
 });

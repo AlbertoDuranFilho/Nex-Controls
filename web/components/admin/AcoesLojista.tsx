@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import SenhaGerada from "@/components/admin/SenhaGerada";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import {
@@ -17,15 +18,15 @@ const botaoContorno =
 type Props = { id: string; ativo: boolean; anonimizado: boolean; documento: string | null };
 
 export default function AcoesLojista({ id, ativo, anonimizado, documento }: Props) {
-  const [estadoAtivo, acaoAtivo, pendenteAtivo] = useActionState<ResultadoAdmin | null, FormData>(
+  const [estadoAtivo, acaoAtivo, pendenteAtivo] = useAcao<ResultadoAdmin | null, FormData>(
     async () => definirAtivo(id, !ativo),
     null,
   );
-  const [estadoSenha, acaoSenha, pendenteSenha] = useActionState<
+  const [estadoSenha, acaoSenha, pendenteSenha] = useAcao<
     ResultadoAdmin<{ senha: string }> | null,
     FormData
   >(async () => gerarNovaSenha(id), null);
-  const [estadoAnon, acaoAnon, pendenteAnon] = useActionState<ResultadoAdmin | null, FormData>(
+  const [estadoAnon, acaoAnon, pendenteAnon] = useAcao<ResultadoAdmin | null, FormData>(
     async () => anonimizarLojista(id),
     null,
   );

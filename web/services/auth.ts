@@ -31,7 +31,7 @@ export async function entrar(_prev: EstadoLogin, form: FormData): Promise<Estado
 
   await registrarAcesso(data.user.id);
 
-  if (data.user.app_metadata?.papel === "admin") redirect(`/${locale}/admin/lojistas`);
+  if (data.user.app_metadata?.papel === "admin") redirect(`/${locale}/admin`);
   redirect(destinoSeguro(typeof next === "string" ? next : null, locale));
 }
 

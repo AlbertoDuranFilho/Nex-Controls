@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { STATUS_PEDIDO, opcoesDeStatus, type PedidoStatus } from "@/lib/pedidos/transicoes";
 import { atualizarPedido, reenviarEmails } from "@/services/pedidos-admin";
@@ -18,8 +18,8 @@ const campo =
   "mt-1 block w-full border border-marca-cinza-200 bg-marca-branco px-3 py-2 text-sm text-marca-preto focus:border-marca-preto focus:outline-none";
 
 export default function AcoesPedido({ pedidoId, numero, status, notaId, notaUrl, notificado }: Props) {
-  const [estado, salvar, salvando] = useActionState<ResultadoAdmin | null, FormData>(atualizarPedido, null);
-  const [envio, reenviar, enviando] = useActionState<ResultadoAdmin | null, FormData>(
+  const [estado, salvar, salvando] = useAcao<ResultadoAdmin | null, FormData>(atualizarPedido, null);
+  const [envio, reenviar, enviando] = useAcao<ResultadoAdmin | null, FormData>(
     async () => reenviarEmails(numero),
     null,
   );

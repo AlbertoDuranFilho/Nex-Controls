@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import TelaCatalogo from "@/app/(abas)/index";
 import type { ValorSessao } from "@/lib/sessao";
 
@@ -41,6 +41,13 @@ function linha(id: string, codigo: string, nome: string) {
     produto_imagens: [],
     produto_especificacoes: [],
   };
+}
+
+async function puxar() {
+  const lista = screen.getByTestId("lista-produtos");
+  await act(async () => {
+    await lista.props.refreshControl.props.onRefresh();
+  });
 }
 
 function sessao(parcial: Partial<ValorSessao>) {
@@ -124,6 +131,37 @@ describe("Catálogo", () => {
     expect(screen.queryByTestId("adicionar-a")).toBeNull();
     await fireEvent.press(screen.getByText("Tentar de novo"));
     expect(await screen.findByTestId("adicionar-a")).toBeTruthy();
+    expect(mockRpc).toHaveBeenCalledTimes(2);
+  });
+
+  it("puxar para atualizar com falha nos preços mantém os preços já mostrados e avisa", async () => {
+    sessao({ papel: "lojista", lojistaAtivo: true, usuarioId: "u1" });
+    mockRpc.mockResolvedValueOnce({
+      data: [{ produto_id: "a", preco_tabela: 50, preco_final: 50, desconto_percentual: 0 }],
+      error: null,
+    });
+    mockRpc.mockResolvedValueOnce({ data: null, error: { message: "falhou" } });
+    await render(<TelaCatalogo />);
+    expect(await screen.findByTestId("adicionar-a")).toBeTruthy();
+    await puxar();
+    expect(await screen.findByTestId("aviso-erro-precos")).toBeTruthy();
+    expect(screen.getByTestId("adicionar-a")).toBeTruthy();
+    expect(mockRpc).toHaveBeenCalledTimes(2);
+  });
+
+  it("puxar para atualizar tenta os preços de novo mesmo se a lista falhar", async () => {
+    sessao({ papel: "lojista", lojistaAtivo: true, usuarioId: "u1" });
+    mockRpc.mockResolvedValueOnce({ data: null, error: { message: "falhou" } });
+    mockRpc.mockResolvedValueOnce({
+      data: [{ produto_id: "a", preco_tabela: 50, preco_final: 50, desconto_percentual: 0 }],
+      error: null,
+    });
+    await render(<TelaCatalogo />);
+    expect(await screen.findByTestId("aviso-erro-precos")).toBeTruthy();
+    mockProdutos.erro = { message: "offline" };
+    await puxar();
+    expect(await screen.findByTestId("adicionar-a")).toBeTruthy();
+    expect(screen.getByTestId("aviso-erro-catalogo")).toBeTruthy();
     expect(mockRpc).toHaveBeenCalledTimes(2);
   });
 

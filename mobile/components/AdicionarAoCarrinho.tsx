@@ -29,6 +29,7 @@ export function AdicionarAoCarrinho({ produtoId, variante = "compacto" }: Props)
   const [adicionado, setAdicionado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const montado = useRef(true);
+  const enviandoRef = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -54,17 +55,25 @@ export function AdicionarAoCarrinho({ produtoId, variante = "compacto" }: Props)
   }
 
   async function adicionar() {
-    if (quantidade === null || enviando) return;
+    // ref, não estado: dois toques no mesmo quadro não podem enviar duas vezes
+    if (quantidade === null || enviandoRef.current) return;
+    enviandoRef.current = true;
     setErro(null);
     setAdicionado(false);
     setEnviando(true);
-    const r = await adicionarAoCarrinho(produtoId, quantidade);
+    let r: Awaited<ReturnType<typeof adicionarAoCarrinho>>;
+    try {
+      r = await adicionarAoCarrinho(produtoId, quantidade);
+    } finally {
+      enviandoRef.current = false;
+    }
+    // o item já foi gravado: o contador da aba é atualizado mesmo se o cartão saiu da tela
+    if (r.ok) void atualizarContagem();
     if (!montado.current) return;
     setEnviando(false);
     if (r.ok) {
       setAdicionado(true);
       AccessibilityInfo.announceForAccessibility(textos.catalogo.adicionadoAoCarrinho);
-      void atualizarContagem();
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
         if (montado.current) setAdicionado(false);

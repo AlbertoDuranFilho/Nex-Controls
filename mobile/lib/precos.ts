@@ -130,7 +130,9 @@ const VAZIO: MapaPrecos = new Map();
  */
 export function usePrecosCliente(ids: readonly string[] | null): ValorPrecosCliente {
   const { carregando, papel, lojistaAtivo, usuarioId } = useSessao();
+  // última resposta (ok ou erro) e últimos preços bons, cada um com a lista/usuário a que vale
   const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [ultimoOk, setUltimoOk] = useState<Omit<Resultado, "versao" | "situacao"> | null>(null);
   const [versao, setVersao] = useState(0);
 
   const chave = ids ? ids.join(",") : null;
@@ -149,23 +151,31 @@ export function usePrecosCliente(ids: readonly string[] | null): ValorPrecosClie
         situacao: r.ok ? "ok" : "erro",
         precos: r.ok ? r.precos : VAZIO,
       });
+      if (r.ok) setUltimoOk({ chave, usuarioId, precos: r.precos });
     });
     return () => {
       vivo = false;
     };
   }, [deveBuscar, chave, usuarioId, versao]);
 
-  // Resultado de outra lista/usuário não vale. Ao recarregar a mesma lista, mantém os
-  // preços já mostrados até a resposta nova chegar (sem piscar no puxar para atualizar).
+  // Resultado de outra lista/usuário não vale. `situacao` (para o aviso) é a da busca atual;
+  // os cartões continuam com os últimos preços bons da mesma lista enquanto recarrega e
+  // mesmo se a nova busca falhar (aí só aparece o aviso). Sem preços bons ainda: carregando/erro.
   let situacao: SituacaoPrecos = "ocioso";
+  let situacaoCartoes: SituacaoPrecos = "ocioso";
   let precos: MapaPrecos = VAZIO;
   if (deveBuscar) {
-    const valido = resultado !== null && resultado.chave === chave && resultado.usuarioId === usuarioId;
-    if (!valido || (resultado.versao !== versao && resultado.situacao === "erro")) {
-      situacao = "carregando";
+    const atual =
+      resultado !== null && resultado.chave === chave && resultado.usuarioId === usuarioId && resultado.versao === versao
+        ? resultado
+        : null;
+    situacao = atual ? atual.situacao : "carregando";
+    const guardado = ultimoOk !== null && ultimoOk.chave === chave && ultimoOk.usuarioId === usuarioId;
+    if (guardado) {
+      situacaoCartoes = "ok";
+      precos = ultimoOk.precos;
     } else {
-      situacao = resultado.situacao;
-      precos = resultado.precos;
+      situacaoCartoes = situacao;
     }
   }
 
@@ -176,10 +186,10 @@ export function usePrecosCliente(ids: readonly string[] | null): ValorPrecosClie
         carregandoSessao: carregando,
         papel,
         lojistaAtivo,
-        situacao,
+        situacao: situacaoCartoes,
         preco: precos.get(produtoId),
       }),
-    [carregando, papel, lojistaAtivo, situacao, precos],
+    [carregando, papel, lojistaAtivo, situacaoCartoes, precos],
   );
 
   return useMemo(() => ({ situacao, estadoDe, recarregar }), [situacao, estadoDe, recarregar]);

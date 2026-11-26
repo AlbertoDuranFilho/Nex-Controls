@@ -78,8 +78,9 @@ export default function TelaProduto() {
   const atualizar = useCallback(async () => {
     setAtualizando(true);
     if (papel === "erro") recarregarPerfil();
-    const ok = await carregar();
-    if (ok) recarregarPrecos();
+    await carregar();
+    // mesmo se o produto não recarregar, tenta de novo os preços
+    recarregarPrecos();
     if (vivo.current) setAtualizando(false);
   }, [carregar, papel, recarregarPerfil, recarregarPrecos]);
 

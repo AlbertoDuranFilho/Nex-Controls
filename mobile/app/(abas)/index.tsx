@@ -78,8 +78,9 @@ export default function TelaCatalogo() {
   const puxarParaAtualizar = useCallback(async () => {
     setAtualizando(true);
     if (papel === "erro") recarregarPerfil();
-    const ok = await carregar();
-    if (ok) recarregarPrecos();
+    await carregar();
+    // mesmo se a lista não recarregar, tenta de novo os preços da lista mostrada
+    recarregarPrecos();
     if (vivo.current) setAtualizando(false);
   }, [carregar, papel, recarregarPerfil, recarregarPrecos]);
 

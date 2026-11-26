@@ -40,14 +40,15 @@ isso o catálogo e o formulário de contato do site atual estão quebrados.
   fiscais, preço), descontos por produto para cada cliente, cupons, e
   pedidos com troca de status.
 - Formulário de contato funcionando sem Strapi.
+- **Importação de produtos por planilha** (aprovada pelo usuário). O Strapi
+  está fora do ar e a cópia local tem 1 produto; o usuário preenche o
+  modelo `web/public/modelos/modelo-produtos.xlsx`. Ver "Importação".
 - Nenhuma parte do site depende mais do Strapi.
 
 **Não-metas (agora)**
 - Integração com Stone e com Mainô (fica só o esqueleto descrito abaixo).
 - Cálculo de frete: aparece como **"a combinar"** e é gravado como 0.
 - Cálculo de ICMS/DIFAL: a função existe e retorna 0.
-- Importar produtos por planilha. O Strapi está fora do ar e a cópia local
-  tem 1 produto, então o cadastro é feito pelo painel.
 - App mobile, que terá fase própria.
 - Redesign premium: usar os tokens preto/branco já existentes, sem o azul
   antigo.
@@ -281,9 +282,42 @@ Ao gerar o pedido:
     "reenviar e-mails".
 - A navegação do admin ganha: Lojistas, Produtos, Cupons e Pedidos.
 
+## Importação de produtos
+- Tela `/admin/produtos/importar`: link para baixar o modelo, envio do
+  `.xlsx` e uma **prévia** antes de gravar. A prévia mostra os produtos
+  novos, os atualizados e os erros por linha (ex.: "linha 7: NCM precisa
+  de 8 dígitos").
+- O botão "Importar" só fica ativo sem erros.
+- Leitura no servidor (Server Action de admin) com `exceljs`. Limite de 5 MB.
+- Abas e colunas são exatamente as do modelo:
+  - **Produtos:** `codigo*`, `nome*`, `preco`, `ativo` (SIM/NAO),
+    `destaque`, `compatibilidade`, `descricao`, `aplicacoes`, `ncm`
+    (8 dígitos), `cest` (7), `ean` (8/12/13/14), `origem` (0–8), `unidade`,
+    `peso_kg`, `altura_cm`, `largura_cm`, `comprimento_cm`, `manual`.
+  - **Especificacoes:** `codigo`, `nome`, `valor`. A ordem das linhas é a
+    ordem no site.
+  - **Imagens:** `codigo`, `imagem`, `alt`. A primeira imagem é a capa.
+- O **código identifica o produto**:
+  - código que já existe é atualizado;
+  - as especificações e imagens dele são substituídas pelas da planilha;
+  - código novo é criado, com o slug gerado.
+- A gravação acontece em uma transação: a função
+  `admin_importar_produtos(jsonb)`, só para admin, grava tudo ou nada.
+- `imagem`/`manual` com link `https://` são gravados como estão. Com nome de
+  arquivo, o item fica marcado como **"pendente de envio"** e o admin sobe o
+  arquivo pela edição do produto. Nesse caso, a imagem não é gravada e o
+  manual fica nulo até o envio.
+- Decisão minha: o upload dos arquivos locais do Strapi
+  (`backend/public/uploads`) para o Cloudinary, se o usuário quiser, é um
+  script à parte. Não entra no painel.
+
 ## Banco (migrations novas; as antigas não são editadas)
 - `produtos.slug text unique not null`, com preenchimento para as linhas
   existentes.
+- `produtos.ean text check (ean ~ '^(\d{8}|\d{12,14})$')` e
+  `produtos.cest char(7)`. A NF-e exige GTIN ("SEM GTIN" quando vazio), e o
+  CEST é exigido em alguns produtos. Os dois também ficam no formulário do
+  produto.
 - `pedidos.observacao text check (char_length <= 500)` e
   `pedidos.notificado_em timestamptz`.
 - Tabela `pedido_eventos`:

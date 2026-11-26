@@ -24,10 +24,19 @@ function cnpjAleatorio() {
   return String(Math.floor(Math.random() * 1e14)).padStart(14, "0");
 }
 
-type DadosLojista = { nome: string; ativo: boolean };
+type DadosLojista = { nome: string; ativo: boolean; desconto: number; endereco: boolean };
+
+export const ENDERECO_TESTE = {
+  cep: "01310100",
+  logradouro: "Av. Paulista",
+  numero: "1000",
+  bairro: "Bela Vista",
+  cidade: "São Paulo",
+  uf: "SP",
+};
 
 export async function criarLojista(dados: Partial<DadosLojista> = {}) {
-  const { nome = "Loja Teste", ativo = true } = dados;
+  const { nome = "Loja Teste", ativo = true, desconto = 0, endereco = false } = dados;
   const db = admin();
   const email = emailUnico("lojista");
   const { data, error } = await db.auth.admin.createUser({
@@ -45,6 +54,8 @@ export async function criarLojista(dados: Partial<DadosLojista> = {}) {
     nome,
     email,
     ativo,
+    desconto_percentual: desconto,
+    ...(endereco ? ENDERECO_TESTE : {}),
   });
   if (e2) throw e2;
   return { id, email, senha: SENHA_PADRAO };
@@ -70,6 +81,11 @@ export async function criarAdmin() {
 
 export async function limparUsuarios() {
   const db = admin();
+  // pedidos.lojista_id não tem cascade: os pedidos de teste saem antes dos lojistas.
+  await sql(
+    "delete from public.pedidos where lojista_id in (select id from public.lojistas where email like $1)",
+    [`%@${DOMINIO}`],
+  );
   await db.from("lojistas").delete().like("email", `%@${DOMINIO}`);
   const { data, error } = await db.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (error) throw error;
@@ -137,4 +153,30 @@ export async function darDesconto(lojistaId: string, produtoId: string, pct: num
 
 export async function removerProdutos(codigos: string[]) {
   await admin().from("produtos").delete().in("codigo", codigos);
+}
+
+export async function colocarNoCarrinho(lojistaId: string, produtoId: string, quantidade: number) {
+  const { error } = await admin()
+    .from("carrinho_itens")
+    .insert({ lojista_id: lojistaId, produto_id: produtoId, quantidade });
+  if (error) throw error;
+}
+
+type DadosCupom = {
+  codigo: string;
+  tipo: "percentual" | "valor";
+  valor: number;
+  valor_minimo_pedido?: number | null;
+};
+
+// O código tem de chegar normalizado (check do banco): upper(trim()).
+export async function criarCupom(dados: DadosCupom) {
+  const { error } = await admin()
+    .from("cupons")
+    .insert({ ...dados, codigo: dados.codigo.trim().toUpperCase() });
+  if (error) throw error;
+}
+
+export async function removerCupons(codigos: string[]) {
+  await admin().from("cupons").delete().in("codigo", codigos);
 }

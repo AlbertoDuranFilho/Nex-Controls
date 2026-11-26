@@ -19,6 +19,7 @@ export default function NavConta({
   const itens = [
     { href: base, rotulo: t("meusDados") },
     { href: `${base}/endereco`, rotulo: t("endereco") },
+    { href: `${base}/carrinho`, rotulo: t("carrinho") },
     ...(trocaSenha ? [{ href: `${base}/seguranca`, rotulo: t("seguranca") }] : []),
   ];
 

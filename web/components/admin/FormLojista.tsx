@@ -1,15 +1,22 @@
 "use client";
 
-import { useAcao } from "@/lib/react/destravar-transicao";
-import Link from "next/link";
+import { useRef } from "react";
+import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
+import { ArrowLeft, Building2, IdCard, MapPin, Save, UserPlus, UserRound } from "lucide-react";
 import SenhaGerada from "@/components/admin/SenhaGerada";
+import { AvisoAdmin, CampoAdmin, SeletorAdmin, soDigitos } from "@/components/admin/CamposAdmin";
+import CartaoConta from "@/components/conta/CartaoConta";
+import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
+import { atualizarLojista, criarLojista } from "@/services/lojistas-admin";
 import {
-  atualizarLojista,
-  criarLojista,
-
-} from "@/services/lojistas-admin";
-import { formatarDocumento } from "@/lib/validacao/documento";
+  PLACEHOLDER,
+  mascaraCep,
+  mascaraDocumento,
+  mascaraPercentual,
+  mascaraTelefone,
+  tipoPorDocumento,
+} from "@/lib/mascaras";
 
 export type DadosEdicao = {
   id: string;
@@ -33,186 +40,201 @@ export type DadosEdicao = {
   uf: string | null;
 };
 
-const campo =
-  "w-full border border-marca-cinza-300 bg-marca-branco px-3 py-3 text-marca-preto outline-none focus:border-marca-preto disabled:bg-marca-cinza-100 disabled:text-marca-cinza-600";
-const rotulo = "mb-1 block text-sm font-medium text-marca-cinza-800";
-const botao =
-  "bg-marca-preto px-6 py-3 font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800 disabled:cursor-not-allowed disabled:bg-marca-cinza-500";
-
 type Estado = ResultadoAdmin<{ id: string; senha: string }> | null;
 
-function Campo({
-  id,
-  label,
-  defaultValue,
-  required,
-  type = "text",
-  inputMode,
-}: {
-  id: string;
-  label: string;
-  defaultValue?: string | null;
-  required?: boolean;
-  type?: string;
-  inputMode?: "numeric" | "tel" | "decimal";
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className={rotulo}>
-        {label}
-      </label>
-      <input
-        id={id}
-        name={id}
-        type={type}
-        inputMode={inputMode}
-        required={required}
-        defaultValue={defaultValue ?? ""}
-        className={campo}
-      />
-    </div>
-  );
-}
+const DIGITOS_NOVO = ["documento"];
+const DIGITOS_EDICAO = ["telefone", "whatsapp", "cep"];
 
 export function FormNovoLojista({ locale }: { locale: string }) {
-  const [estado, action, pendente] = useAcao<Estado, FormData>(
+  const [estado, action, pendenteAcao] = useAcao<Estado, FormData>(
     async (_anterior, form) => criarLojista(form),
     null,
   );
+  const [emTransicao, iniciar] = useTransicao();
+  const pendente = pendenteAcao || emTransicao;
+  const tipo = useRef<HTMLSelectElement>(null);
 
   if (estado?.ok) {
     return (
-      <div className="space-y-5">
-        <p className="text-marca-preto">Cliente cadastrado.</p>
+      <CartaoConta titulo="Cliente cadastrado" idTitulo="cliente-cadastrado" icone={UserPlus}>
         <SenhaGerada senha={estado.dados.senha} />
-        <div className="flex gap-4 text-sm">
-          <Link
-            href={`/${locale}/admin/lojistas/${estado.dados.id}`}
-            className="font-medium text-marca-preto underline underline-offset-2"
-          >
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Botao href={`/${locale}/admin/lojistas/${estado.dados.id}`} icone={UserRound}>
             Ver cliente
-          </Link>
-          <Link
-            href={`/${locale}/admin/lojistas`}
-            className="text-marca-cinza-600 underline underline-offset-2 hover:text-marca-preto"
-          >
+          </Botao>
+          <Botao href={`/${locale}/admin/lojistas`} variante="secundario" icone={ArrowLeft}>
             Voltar à lista
-          </Link>
+          </Botao>
         </div>
-      </div>
+      </CartaoConta>
     );
   }
 
   return (
-    <form action={action} className="max-w-xl space-y-5">
-      <div>
-        <label htmlFor="tipo_pessoa" className={rotulo}>
-          Tipo de pessoa
-        </label>
-        <select id="tipo_pessoa" name="tipo_pessoa" defaultValue="PJ" className={campo}>
-          <option value="PJ">Pessoa jurídica (CNPJ)</option>
-          <option value="PF">Pessoa física (CPF)</option>
-        </select>
-      </div>
-      <Campo id="documento" label="CPF/CNPJ" required inputMode="numeric" />
-      <Campo id="nome" label="Nome ou razão social" required />
-      <Campo id="email" label="E-mail" type="email" required />
-      <Campo id="desconto_percentual" label="Desconto (%)" inputMode="decimal" />
+    <form
+      onSubmit={(ev) => {
+        // Sem action={...}: o React 19 limparia os campos quando o cadastro é recusado.
+        ev.preventDefault();
+        const dados = soDigitos(new FormData(ev.currentTarget), DIGITOS_NOVO);
+        iniciar(() => action(dados));
+      }}
+      className="max-w-2xl space-y-6"
+    >
+      <CartaoConta titulo="Dados do cliente" idTitulo="dados-cliente" icone={IdCard}>
+        {/* Coluna da esquerda mais larga: cabe o placeholder do CPF/CNPJ inteiro. */}
+        <div className="grid gap-5 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <CampoAdmin
+            id="documento"
+            label="CPF/CNPJ"
+            required
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder={PLACEHOLDER.documento}
+            mascara={mascaraDocumento}
+            aoMudar={(v) => {
+              // O tipo segue o tamanho do documento; o admin ainda pode trocar.
+              const t = tipoPorDocumento(v);
+              if (t && tipo.current) tipo.current.value = t;
+            }}
+          />
+          <SeletorAdmin ref={tipo} id="tipo_pessoa" label="Tipo de pessoa" defaultValue="PJ">
+            <option value="PJ">Pessoa jurídica (CNPJ)</option>
+            <option value="PF">Pessoa física (CPF)</option>
+          </SeletorAdmin>
+          <CampoAdmin id="nome" label="Nome ou razão social" required className="sm:col-span-2" />
+          <CampoAdmin
+            id="email"
+            label="E-mail"
+            type="email"
+            inputMode="email"
+            autoComplete="off"
+            placeholder={PLACEHOLDER.email}
+            required
+          />
+          <CampoAdmin
+            id="desconto_percentual"
+            label="Desconto (%)"
+            inputMode="decimal"
+            placeholder={PLACEHOLDER.desconto}
+            mascara={mascaraPercentual}
+            sufixo="%"
+          />
+        </div>
+      </CartaoConta>
 
-      <p role="alert" className="min-h-5 text-sm text-marca-preto">
-        {estado && !estado.ok ? estado.erro : null}
-      </p>
-      <button type="submit" disabled={pendente} className={botao}>
+      <AvisoAdmin tipo="erro">{estado && !estado.ok ? estado.erro : null}</AvisoAdmin>
+      <Botao type="submit" carregando={pendente} icone={UserPlus} className="px-6">
         Cadastrar cliente
-      </button>
+      </Botao>
     </form>
   );
 }
 
 export function FormEditarLojista({ dados }: { dados: DadosEdicao }) {
-  const [estado, action, pendente] = useAcao<ResultadoAdmin | null, FormData>(
+  const [estado, action, pendenteAcao] = useAcao<ResultadoAdmin | null, FormData>(
     async (_anterior, form) => atualizarLojista(dados.id, form),
     null,
   );
+  const [emTransicao, iniciar] = useTransicao();
+  const pendente = pendenteAcao || emTransicao;
 
   return (
-    <form action={action} className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="tipo_pessoa" className={rotulo}>
-            Tipo de pessoa
-          </label>
-          <input
+    <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
+        const form = soDigitos(new FormData(ev.currentTarget), DIGITOS_EDICAO);
+        iniciar(() => action(form));
+      }}
+      className="space-y-6"
+    >
+      <CartaoConta titulo="Dados cadastrais" idTitulo="dados-cadastrais" icone={Building2}>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <CampoAdmin
             id="tipo_pessoa"
-            value={dados.tipo_pessoa === "PJ" ? "Pessoa jurídica" : "Pessoa física"}
-            disabled
-            readOnly
-            className={campo}
+            label="Tipo de pessoa"
+            defaultValue={dados.tipo_pessoa === "PJ" ? "Pessoa jurídica" : "Pessoa física"}
+            somenteLeitura
           />
-        </div>
-        <div>
-          <label htmlFor="documento" className={rotulo}>
-            CPF/CNPJ
-          </label>
-          <input
-            id="documento"
-            value={formatarDocumento(dados.documento)}
-            disabled
-            readOnly
-            className={campo}
+          <CampoAdmin id="documento" label="CPF/CNPJ" defaultValue={mascaraDocumento(dados.documento)} somenteLeitura />
+          <CampoAdmin id="nome" label="Nome ou razão social" defaultValue={dados.nome} required />
+          <CampoAdmin id="nome_fantasia" label="Nome fantasia" defaultValue={dados.nome_fantasia} />
+          <CampoAdmin
+            id="email"
+            label="E-mail"
+            type="email"
+            inputMode="email"
+            autoComplete="off"
+            placeholder={PLACEHOLDER.email}
+            defaultValue={dados.email}
+            required
           />
-        </div>
-        <Campo id="nome" label="Nome ou razão social" defaultValue={dados.nome} required />
-        <Campo id="nome_fantasia" label="Nome fantasia" defaultValue={dados.nome_fantasia} />
-        <Campo id="email" label="E-mail" type="email" defaultValue={dados.email} required />
-        <Campo
-          id="desconto_percentual"
-          label="Desconto (%)"
-          inputMode="decimal"
-          defaultValue={String(dados.desconto_percentual).replace(".", ",")}
-        />
-        <Campo id="responsavel_nome" label="Responsável" defaultValue={dados.responsavel_nome} />
-        <Campo id="telefone" label="Telefone" inputMode="tel" defaultValue={dados.telefone} />
-        <Campo id="whatsapp" label="WhatsApp" inputMode="tel" defaultValue={dados.whatsapp} />
-        <Campo
-          id="inscricao_estadual"
-          label="Inscrição estadual"
-          defaultValue={dados.inscricao_estadual}
-        />
-        <div>
-          <label htmlFor="indicador_ie" className={rotulo}>
-            Indicador de IE
-          </label>
-          <select
-            id="indicador_ie"
-            name="indicador_ie"
-            defaultValue={dados.indicador_ie}
-            className={campo}
-          >
+          <CampoAdmin
+            id="desconto_percentual"
+            label="Desconto (%)"
+            inputMode="decimal"
+            placeholder={PLACEHOLDER.desconto}
+            mascara={mascaraPercentual}
+            sufixo="%"
+            defaultValue={String(dados.desconto_percentual).replace(".", ",")}
+          />
+          <CampoAdmin id="responsavel_nome" label="Responsável" defaultValue={dados.responsavel_nome} />
+          <CampoAdmin
+            id="telefone"
+            label="Telefone"
+            type="tel"
+            inputMode="tel"
+            placeholder={PLACEHOLDER.telefone}
+            mascara={mascaraTelefone}
+            defaultValue={mascaraTelefone(dados.telefone)}
+          />
+          <CampoAdmin
+            id="whatsapp"
+            label="WhatsApp"
+            type="tel"
+            inputMode="tel"
+            placeholder={PLACEHOLDER.telefone}
+            mascara={mascaraTelefone}
+            defaultValue={mascaraTelefone(dados.whatsapp)}
+          />
+          <CampoAdmin
+            id="inscricao_estadual"
+            label="Inscrição estadual"
+            placeholder={PLACEHOLDER.inscricaoEstadual}
+            defaultValue={dados.inscricao_estadual}
+          />
+          <SeletorAdmin id="indicador_ie" label="Indicador de IE" defaultValue={dados.indicador_ie}>
             <option value="contribuinte">Contribuinte</option>
             <option value="isento">Isento</option>
             <option value="nao_contribuinte">Não contribuinte</option>
-          </select>
+          </SeletorAdmin>
         </div>
-      </div>
+      </CartaoConta>
 
-      <h2 className="pt-2 text-lg font-bold text-marca-preto">Endereço</h2>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Campo id="cep" label="CEP" inputMode="numeric" defaultValue={dados.cep} />
-        <Campo id="logradouro" label="Logradouro" defaultValue={dados.logradouro} />
-        <Campo id="numero" label="Número" defaultValue={dados.numero} />
-        <Campo id="complemento" label="Complemento" defaultValue={dados.complemento} />
-        <Campo id="bairro" label="Bairro" defaultValue={dados.bairro} />
-        <Campo id="cidade" label="Cidade" defaultValue={dados.cidade} />
-        <Campo id="uf" label="UF" defaultValue={dados.uf} />
-      </div>
+      <CartaoConta titulo="Endereço" idTitulo="endereco" icone={MapPin}>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <CampoAdmin
+            id="cep"
+            label="CEP"
+            inputMode="numeric"
+            placeholder={PLACEHOLDER.cep}
+            mascara={mascaraCep}
+            defaultValue={mascaraCep(dados.cep)}
+          />
+          <CampoAdmin id="logradouro" label="Logradouro" defaultValue={dados.logradouro} />
+          <CampoAdmin id="numero" label="Número" defaultValue={dados.numero} />
+          <CampoAdmin id="complemento" label="Complemento" defaultValue={dados.complemento} />
+          <CampoAdmin id="bairro" label="Bairro" defaultValue={dados.bairro} />
+          <CampoAdmin id="cidade" label="Cidade" defaultValue={dados.cidade} />
+          <CampoAdmin id="uf" label="UF" defaultValue={dados.uf} maxLength={2} />
+        </div>
+      </CartaoConta>
 
-      <p role="alert" className="min-h-5 text-sm text-marca-preto">
+      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"}>
         {estado ? (estado.ok ? "Alterações salvas." : estado.erro) : null}
-      </p>
-      <button type="submit" disabled={pendente} className={botao}>
+      </AvisoAdmin>
+      <Botao type="submit" carregando={pendente} icone={Save} className="px-6">
         Salvar alterações
-      </button>
+      </Botao>
     </form>
   );
 }

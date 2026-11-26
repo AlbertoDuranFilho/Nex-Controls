@@ -82,6 +82,26 @@ test("cria cliente PJ com documento formatado e senha aparece uma vez", async ({
   await expect(linha).toContainText("Ativo");
 });
 
+test("CPF/CNPJ ganha máscara e escolhe o tipo de pessoa pelo tamanho", async ({ page }) => {
+  await loginAdmin(page);
+  await page.goto("/pt/admin/lojistas/novo");
+  const doc = page.getByLabel("CPF/CNPJ");
+  const tipo = page.getByLabel("Tipo de pessoa");
+  await expect(doc).toHaveAttribute("placeholder", "000.000.000-00 ou 00.000.000/0000-00");
+  await doc.fill("52998224725");
+  await expect(doc).toHaveValue("529.982.247-25");
+  await expect(tipo).toHaveValue("PF");
+  await doc.fill(CNPJ_DIGITOS);
+  await expect(doc).toHaveValue(CNPJ);
+  await expect(tipo).toHaveValue("PJ");
+  // O admin ainda pode trocar o tipo à mão.
+  await tipo.selectOption("PF");
+  await expect(tipo).toHaveValue("PF");
+  const desconto = page.getByLabel("Desconto (%)");
+  await desconto.fill("150");
+  await expect(desconto).toHaveValue("100");
+});
+
 test("cliente criado consegue logar com a senha provisória", async ({ page, browser }) => {
   await loginAdmin(page);
   const email = emailNovo();

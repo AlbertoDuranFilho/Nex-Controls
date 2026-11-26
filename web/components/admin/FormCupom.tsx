@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAcao, useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
+import { CalendarRange, Save, TicketPercent } from "lucide-react";
+import { AvisoAdmin, CaixaSelecao, CampoAdmin, SeletorAdmin } from "@/components/admin/CamposAdmin";
+import CartaoConta from "@/components/conta/CartaoConta";
+import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
+import { PLACEHOLDER, mascaraDecimal } from "@/lib/mascaras";
 import { paraDataRecife } from "@/lib/admin/cupom";
 import { salvarCupom, type CupomAdmin } from "@/services/cupons-admin";
-
-const campo =
-  "w-full border border-marca-cinza-300 bg-marca-branco px-3 py-3 text-marca-preto outline-none focus:border-marca-preto";
-const rotulo = "mb-1 block text-sm font-medium text-marca-cinza-800";
-const botao =
-  "bg-marca-preto px-6 py-3 font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800 disabled:cursor-not-allowed disabled:bg-marca-cinza-500";
 
 type Estado = ResultadoAdmin<{ id: string }> | null;
 
@@ -28,6 +27,7 @@ export default function FormCupom({ cupom, locale, lojistas }: Props) {
   const [estado, action, pendenteAcao] = useAcao<Estado, FormData>(salvarCupom, null);
   const [emTransicao, iniciar] = useTransicao();
   const pendente = pendenteAcao || emTransicao;
+  const [tipo, setTipo] = useState(cupom?.tipo ?? "percentual");
 
   // Cupom recém-criado vai para a edição (reenviar criaria de novo).
   const criadoId = !cupom && estado?.ok ? estado.dados.id : null;
@@ -43,70 +43,75 @@ export default function FormCupom({ cupom, locale, lojistas }: Props) {
         const dados = new FormData(ev.currentTarget);
         iniciar(() => action(dados));
       }}
-      className="max-w-3xl space-y-5"
+      className="max-w-4xl space-y-6"
     >
       <input type="hidden" name="id" value={cupom?.id ?? ""} />
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="codigo" className={rotulo}>Código</label>
-          <input id="codigo" name="codigo" type="text" required defaultValue={cupom?.codigo ?? ""} className={campo} />
-        </div>
-        <div>
-          <label htmlFor="tipo" className={rotulo}>Tipo</label>
-          <select id="tipo" name="tipo" defaultValue={cupom?.tipo ?? "percentual"} className={campo}>
+      <CartaoConta titulo="Desconto" idTitulo="desconto" icone={TicketPercent}>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <CampoAdmin id="codigo" label="Código" required defaultValue={cupom?.codigo} placeholder="Ex.: NATAL10" />
+          <SeletorAdmin
+            id="tipo"
+            label="Tipo"
+            defaultValue={cupom?.tipo ?? "percentual"}
+            onChange={(e) => setTipo(e.target.value === "valor" ? "valor" : "percentual")}
+          >
             <option value="percentual">Percentual (%)</option>
             <option value="valor">Valor fixo (R$)</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="valor" className={rotulo}>Valor</label>
-          <input id="valor" name="valor" type="text" inputMode="decimal" required defaultValue={decimal(cupom?.valor ?? null)} className={campo} />
-        </div>
-        <div>
-          <label htmlFor="valor_minimo_pedido" className={rotulo}>Valor mínimo do pedido (R$)</label>
-          <input id="valor_minimo_pedido" name="valor_minimo_pedido" type="text" inputMode="decimal" defaultValue={decimal(cupom?.valor_minimo_pedido ?? null)} className={campo} />
-        </div>
-        <div>
-          <label htmlFor="valido_de" className={rotulo}>Válido de</label>
-          <input id="valido_de" name="valido_de" type="date" defaultValue={paraDataRecife(cupom?.valido_de ?? null)} className={campo} />
-        </div>
-        <div>
-          <label htmlFor="valido_ate" className={rotulo}>Válido até</label>
-          <input id="valido_ate" name="valido_ate" type="date" defaultValue={paraDataRecife(cupom?.valido_ate ?? null)} className={campo} />
-        </div>
-        <div>
-          <label htmlFor="max_usos" className={rotulo}>Máximo de usos (vazio = ilimitado)</label>
-          <input id="max_usos" name="max_usos" type="text" inputMode="numeric" defaultValue={cupom?.max_usos ?? ""} className={campo} />
-        </div>
-        <div>
-          <label htmlFor="lojista_id" className={rotulo}>Cliente</label>
-          <select id="lojista_id" name="lojista_id" defaultValue={cupom?.lojista_id ?? ""} className={campo}>
+          </SeletorAdmin>
+          <CampoAdmin
+            id="valor"
+            label="Valor"
+            inputMode="decimal"
+            required
+            placeholder={tipo === "valor" ? PLACEHOLDER.preco : PLACEHOLDER.desconto}
+            mascara={mascaraDecimal}
+            sufixo={tipo === "valor" ? "R$" : "%"}
+            defaultValue={decimal(cupom?.valor ?? null)}
+          />
+          <CampoAdmin
+            id="valor_minimo_pedido"
+            label="Valor mínimo do pedido (R$)"
+            inputMode="decimal"
+            placeholder={PLACEHOLDER.preco}
+            mascara={mascaraDecimal}
+            defaultValue={decimal(cupom?.valor_minimo_pedido ?? null)}
+          />
+          <SeletorAdmin id="lojista_id" label="Cliente" defaultValue={cupom?.lojista_id ?? ""}>
             <option value="">Todos os clientes</option>
             {lojistas.map((l) => (
               <option key={l.id} value={l.id}>{l.nome}</option>
             ))}
-          </select>
+          </SeletorAdmin>
         </div>
-      </div>
-      <label className="flex items-center gap-2 text-sm text-marca-preto">
-        <input type="checkbox" name="ativo" defaultChecked={cupom?.ativo ?? true} />
-        Cupom ativo
-      </label>
+      </CartaoConta>
 
-      {estado && !estado.ok ? (
-        <p role="alert" className="border border-marca-cinza-300 bg-marca-cinza-50 px-3 py-2 text-sm text-marca-preto">
-          {estado.erro}
-        </p>
-      ) : null}
-      {cupom && estado?.ok ? (
-        <p role="alert" className="border border-marca-cinza-300 bg-marca-cinza-50 px-3 py-2 text-sm text-marca-preto">
-          Cupom salvo.
-        </p>
-      ) : null}
+      <CartaoConta titulo="Validade e limite" idTitulo="validade" icone={CalendarRange}>
+        <div className="grid gap-5 sm:grid-cols-3">
+          <CampoAdmin id="valido_de" label="Válido de" type="date" defaultValue={paraDataRecife(cupom?.valido_de ?? null)} />
+          <CampoAdmin id="valido_ate" label="Válido até" type="date" defaultValue={paraDataRecife(cupom?.valido_ate ?? null)} />
+          <CampoAdmin
+            id="max_usos"
+            label="Máximo de usos (vazio = ilimitado)"
+            inputMode="numeric"
+            placeholder="ilimitado"
+            mascara={(v) => v.replace(/\D/g, "")}
+            defaultValue={cupom?.max_usos ?? ""}
+          />
+        </div>
+        <div className="mt-5">
+          <CaixaSelecao name="ativo" defaultChecked={cupom?.ativo ?? true}>
+            Cupom ativo
+          </CaixaSelecao>
+        </div>
+      </CartaoConta>
 
-      <button type="submit" disabled={pendente} className={botao}>
+      <AvisoAdmin tipo={estado?.ok ? "ok" : "erro"}>
+        {estado && !estado.ok ? estado.erro : cupom && estado?.ok ? "Cupom salvo." : null}
+      </AvisoAdmin>
+
+      <Botao type="submit" carregando={pendente} icone={Save} className="px-6">
         Salvar cupom
-      </button>
+      </Botao>
     </form>
   );
 }

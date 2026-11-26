@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { useTransicao } from "@/lib/react/destravar-transicao";
 import { useRouter } from "next/navigation";
+import { BadgePercent, Plus, Trash2 } from "lucide-react";
+import { AvisoAdmin } from "@/components/admin/CamposAdmin";
+import { estiloCampo, estiloRotulo } from "@/components/conta/Campo";
+import CartaoConta from "@/components/conta/CartaoConta";
+import Botao from "@/components/ui/Botao";
+import Selo from "@/components/ui/Selo";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
+import { PLACEHOLDER, mascaraPercentual } from "@/lib/mascaras";
 import {
   definirDescontoProduto,
   removerDescontoProduto,
   type DescontoProduto,
 } from "@/services/descontos-admin";
 
-const campo =
-  "w-full border border-marca-cinza-300 bg-marca-branco px-3 py-2 text-marca-preto outline-none focus:border-marca-preto";
-const botaoSec =
-  "border border-marca-preto px-3 py-2 text-sm font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco disabled:cursor-not-allowed disabled:opacity-50";
 
 type Props = {
   lojistaId: string;
@@ -41,16 +44,16 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
   }
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-bold text-marca-preto">Descontos por produto</h2>
-      <p className="text-sm text-marca-cinza-600">
-        O desconto do produto vale no lugar do desconto geral do cliente, para aquele produto.
-      </p>
-
+    <CartaoConta
+      titulo="Descontos por produto"
+      idTitulo="descontos-produto"
+      icone={BadgePercent}
+      descricao="O desconto do produto vale no lugar do desconto geral do cliente, para aquele produto."
+    >
       {descontos.length === 0 ? (
-        <p className="text-sm text-marca-cinza-600">Nenhum desconto por produto.</p>
+        <p className="rounded-xl bg-marca-cinza-50 px-4 py-3 text-sm text-marca-cinza-600">Nenhum desconto por produto.</p>
       ) : (
-        <div className="overflow-x-auto border border-marca-cinza-200">
+        <div className="overflow-x-auto rounded-xl border border-marca-cinza-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-marca-cinza-50 text-marca-cinza-600">
               <tr>
@@ -63,18 +66,21 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
             <tbody>
               {descontos.map((d) => (
                 <tr key={d.produto_id} className="border-t border-marca-cinza-200">
-                  <td className="px-4 py-3 whitespace-nowrap">{d.codigo}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-marca-cinza-800">{d.codigo}</td>
                   <td className="px-4 py-3 text-marca-preto">{d.nome}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{String(d.desconto_percentual).replace(".", ",")}%</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <Selo tom="escuro">{String(d.desconto_percentual).replace(".", ",")}%</Selo>
+                  </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
+                    <Botao
+                      variante="fantasma"
+                      tamanho="sm"
+                      icone={Trash2}
                       disabled={pendente}
                       onClick={() => executar(() => removerDescontoProduto(lojistaId, d.produto_id))}
-                      className="text-marca-preto underline underline-offset-2 disabled:text-marca-cinza-400"
                     >
                       Remover
-                    </button>
+                    </Botao>
                   </td>
                 </tr>
               ))}
@@ -83,44 +89,49 @@ export default function DescontosProduto({ lojistaId, descontos, produtos }: Pro
         </div>
       )}
 
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="min-w-64 flex-1">
-          <label htmlFor="desc-produto" className="mb-1 block text-sm font-medium text-marca-cinza-800">Produto</label>
-          <select id="desc-produto" value={produtoId} onChange={(e) => setProdutoId(e.target.value)} className={campo}>
+      <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_11rem_auto] sm:items-end">
+        <div>
+          <label htmlFor="desc-produto" className={estiloRotulo}>Produto</label>
+          <select id="desc-produto" value={produtoId} onChange={(e) => setProdutoId(e.target.value)} className={estiloCampo}>
             <option value="">Selecione…</option>
             {produtos.map((p) => (
               <option key={p.id} value={p.id}>{`${p.codigo} — ${p.nome}`}</option>
             ))}
           </select>
         </div>
-        <div className="w-32">
-          <label htmlFor="desc-pct" className="mb-1 block text-sm font-medium text-marca-cinza-800">Desconto do produto (%)</label>
-          <input
-            id="desc-pct"
-            type="text"
-            inputMode="decimal"
-            value={percentual}
-            onChange={(e) => setPercentual(e.target.value)}
-            className={campo}
-          />
+        <div>
+          <label htmlFor="desc-pct" className={estiloRotulo}>Desconto do produto (%)</label>
+          <div className="relative">
+            <input
+              id="desc-pct"
+              type="text"
+              inputMode="decimal"
+              placeholder={PLACEHOLDER.desconto}
+              value={percentual}
+              onChange={(e) => setPercentual(mascaraPercentual(e.target.value))}
+              className={`${estiloCampo} pr-10`}
+            />
+            <span aria-hidden className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-marca-cinza-500">
+              %
+            </span>
+          </div>
         </div>
-        <button
-          type="button"
-          disabled={pendente}
+        <Botao
+          variante="secundario"
+          icone={Plus}
+          className="min-h-12"
+          carregando={pendente}
           onClick={() =>
             executar(() => definirDescontoProduto(lojistaId, produtoId, percentual), () => {
               setProdutoId("");
               setPercentual("");
             })
           }
-          className={botaoSec}
         >
           Definir desconto
-        </button>
+        </Botao>
       </div>
-      {mensagem ? (
-        <p role="alert" className="text-sm text-marca-preto">{mensagem}</p>
-      ) : null}
-    </section>
+      <AvisoAdmin tipo="erro" className="mt-4 empty:mt-0">{mensagem}</AvisoAdmin>
+    </CartaoConta>
   );
 }

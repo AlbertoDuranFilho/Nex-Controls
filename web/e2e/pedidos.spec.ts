@@ -100,7 +100,9 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   await a.getByLabel("Link da nota").fill(NOTA);
   await a.getByRole("button", { name: "Salvar" }).click();
   await expect(a.getByText("Pedido atualizado.")).toBeVisible();
-  await expect(a.getByTestId("historico").getByRole("listitem")).toHaveCount(1);
+  // Linha do tempo igual à do cliente: "Pedido criado" + a mudança para Pago.
+  await expect(a.getByTestId("historico").getByRole("listitem")).toHaveCount(2);
+  await expect(a.getByTestId("historico")).toContainText("Aguardando pagamento → Pago por");
   await expect(a.getByTestId("historico")).toContainText("Admin Teste");
   await ctxAdmin.close();
 

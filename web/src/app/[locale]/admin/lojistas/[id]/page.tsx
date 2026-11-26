@@ -1,5 +1,7 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
+import VoltarAdmin from "@/components/admin/VoltarAdmin";
+import Selo from "@/components/ui/Selo";
 import AcoesLojista from "@/components/admin/AcoesLojista";
 import { FormEditarLojista } from "@/components/admin/FormLojista";
 import DescontosProduto from "@/components/admin/DescontosProduto";
@@ -27,18 +29,14 @@ export default async function EditarLojistaPage({ params }: Props) {
   const status = anonimizado ? "Anonimizado" : l.ativo ? "Ativo" : "Inativo";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <Link
-          href={`/${locale}/admin/lojistas`}
-          className="text-sm text-marca-cinza-600 hover:text-marca-preto"
-        >
-          ← Clientes
-        </Link>
-        <h1 className="mt-3 text-2xl font-bold text-marca-preto">{l.nome}</h1>
-        <p className="mt-1 text-sm text-marca-cinza-600">
-          Status: <span data-testid="status-cliente" className="font-medium text-marca-preto">{status}</span>
-        </p>
+        <VoltarAdmin href={`/${locale}/admin/lojistas`}>Voltar para clientes</VoltarAdmin>
+        <CabecalhoAdmin titulo={l.nome} descricao={l.email} className="">
+          <Selo tom={!anonimizado && l.ativo ? "verde" : "neutro"} data-testid="status-cliente">
+            {status}
+          </Selo>
+        </CabecalhoAdmin>
       </div>
 
       {anonimizado ? null : (
@@ -68,23 +66,14 @@ export default async function EditarLojistaPage({ params }: Props) {
       )}
 
       {anonimizado ? null : (
-        <div className="border-t border-marca-cinza-200 pt-8">
-          <DescontosProduto
+        <DescontosProduto
             lojistaId={l.id}
             descontos={await listarDescontosProduto(l.id)}
             produtos={(await listarProdutosAdmin()).map((p) => ({ id: p.id, codigo: p.codigo, nome: p.nome }))}
           />
-        </div>
       )}
 
-      <div className={anonimizado ? "" : "border-t border-marca-cinza-200 pt-8"}>
-        <AcoesLojista
-          id={l.id}
-          ativo={l.ativo}
-          anonimizado={anonimizado}
-          documento={l.documento}
-        />
-      </div>
+      <AcoesLojista id={l.id} ativo={l.ativo} anonimizado={anonimizado} documento={l.documento} />
     </div>
   );
 }

@@ -80,7 +80,8 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
   await a.getByRole("button", { name: "Atualizar situação" }).click();
 
   await expect(a.getByTestId("nfe-status")).toHaveText("Autorizada");
-  await expect(a.getByRole("heading", { name: new RegExp(`Pedido #${numero} — Faturado`) })).toBeVisible();
+  await expect(a.getByRole("heading", { name: `Pedido #${numero}`, level: 1 })).toBeVisible();
+  await expect(a.getByTestId("status-pedido")).toHaveText("Faturado");
   await expect(a.getByRole("link", { name: "DANFE (PDF)" })).toHaveAttribute(
     "href",
     `https://maino.test/danfe/${maino_pedido_id}.pdf`,

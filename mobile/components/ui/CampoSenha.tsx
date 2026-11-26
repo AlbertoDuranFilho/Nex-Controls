@@ -30,7 +30,6 @@ export function CampoSenha({ rotulo = textos.login.senha, ...resto }: CampoSenha
           onPress={() => setVisivel((v) => !v)}
           accessibilityRole="button"
           accessibilityLabel={rotuloBotao}
-          accessibilityState={{ checked: visivel }}
           hitSlop={4}
           testID="campo-senha-alternar"
           style={({ pressed }) => [estilos.olho, pressed && estilos.olhoPressionado]}

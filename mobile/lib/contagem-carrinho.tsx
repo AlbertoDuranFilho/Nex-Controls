@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { AppState } from "react-native";
 import { useSessao } from "./sessao";
 import { supabase } from "./supabase";
 
@@ -50,6 +51,11 @@ export function ContagemCarrinhoProvider({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     void atualizarContagem();
+    // o carrinho pode ter mudado no site: relê ao voltar para o app
+    const assinatura = AppState.addEventListener("change", (estado) => {
+      if (estado === "active") void atualizarContagem();
+    });
+    return () => assinatura.remove();
   }, [atualizarContagem]);
 
   const definirContagem = useCallback((n: number) => setContagem(Math.max(0, Math.floor(n))), []);

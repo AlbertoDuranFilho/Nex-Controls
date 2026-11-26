@@ -53,6 +53,9 @@ export const armazenamentoSeguro = {
     return pedacos.join("");
   },
 
+  // Não é atômico: se o app morrer no meio (ou duas gravações se cruzarem), os pedaços
+  // podem misturar sessão velha e nova. O texto vira JSON inválido, o supabase-js o descarta
+  // e o usuário só precisa entrar de novo — falha segura, nunca uma sessão "trocada".
   async setItem(chave: string, valor: string): Promise<void> {
     const base = chaveSegura(chave);
     const anterior = await lerQuantidade(base);

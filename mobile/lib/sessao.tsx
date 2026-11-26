@@ -1,8 +1,9 @@
 import type { Session } from "@supabase/supabase-js";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { AppState } from "react-native";
 import { textos } from "@/constants/textos";
-import { mensagemErroLogin, PERFIL_VISITANTE, resolverPerfil } from "./perfil";
+import { mensagemErroLogin, PERFIL_ERRO, PERFIL_VISITANTE, resolverPerfil } from "./perfil";
 import type { Papel, Perfil } from "./perfil";
 import { supabase } from "./supabase";
 
@@ -18,14 +19,18 @@ export type ValorSessao = {
   sessao: Session | null;
   usuarioId: string | null;
   email: string | null;
+  /** "erro" = logado, mas papel/cadastro não confirmados (mostre o aviso com "Tentar de novo") */
   papel: Papel;
-  /** lojista com cadastro ativo (is_lojista_ativo). Falso para visitante/admin. */
+  /** lojista com cadastro ativo (is_lojista_ativo). Falso para visitante/admin/erro. */
   lojistaAtivo: boolean;
   /** true enquanto a sessão salva é lida ou o papel do usuário ainda está sendo descoberto */
   carregando: boolean;
+  /** true quando uma sessão de admin restaurada foi desconectada (mostrar "Use o painel no site") */
+  avisoAdmin: boolean;
+  limparAvisoAdmin: () => void;
   entrar: (email: string, senha: string) => Promise<ResultadoEntrar>;
   sair: () => Promise<void>;
-  /** relê papel/cadastro ativo (ex.: puxar para atualizar na Conta) */
+  /** relê papel/cadastro ativo; se estava em erro, volta a "carregando" enquanto tenta */
   recarregarPerfil: () => void;
 };
 
@@ -38,9 +43,24 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const [sessaoLida, setSessaoLida] = useState(false);
   const [resolvido, setResolvido] = useState<PerfilResolvido | null>(null);
   const [versao, setVersao] = useState(0);
+  const [avisoAdmin, setAvisoAdmin] = useState(false);
   const sessaoRef = useRef<Session | null>(null);
+  // enquanto entrar() roda, ele mesmo resolve o perfil (evita checagem dupla de admin)
+  const entrandoRef = useRef(false);
+  const emErroRef = useRef(false);
 
   const usuarioId = sessao?.user.id ?? null;
+  const perfilAtual = usuarioId && resolvido?.usuarioId === usuarioId ? resolvido.perfil : null;
+
+  useEffect(() => {
+    emErroRef.current = perfilAtual?.papel === "erro";
+  }, [perfilAtual]);
+
+  // Tenta de novo (mostrando "carregando") quando o perfil ficou em erro.
+  const tentarDeNovo = useCallback(() => {
+    setResolvido((atual) => (atual?.perfil.papel === "erro" ? null : atual));
+    setVersao((v) => v + 1);
+  }, []);
 
   useEffect(() => {
     let vivo = true;
@@ -56,23 +76,34 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       .then(({ data }) => aplicar(data.session))
       .catch(() => aplicar(null));
     // Callback síncrono: nada de await de chamadas do Supabase aqui (trava o cliente).
-    const { data } = supabase.auth.onAuthStateChange((_evento, nova) => aplicar(nova));
+    const { data } = supabase.auth.onAuthStateChange((evento, nova) => {
+      aplicar(nova);
+      // rede voltou (o refresh funcionou): se o perfil estava em erro, tenta de novo
+      if (evento === "TOKEN_REFRESHED" && emErroRef.current) tentarDeNovo();
+    });
+    const assinaturaApp = AppState.addEventListener("change", (estado) => {
+      if (estado === "active" && emErroRef.current) tentarDeNovo();
+    });
     return () => {
       vivo = false;
       data.subscription.unsubscribe();
+      assinaturaApp.remove();
     };
-  }, []);
+  }, [tentarDeNovo]);
 
   useEffect(() => {
-    if (!usuarioId) return;
+    if (!usuarioId || entrandoRef.current) return;
     let vivo = true;
     resolverPerfil(supabase, sessaoRef.current)
-      .catch((): Perfil => ({ papel: "lojista", lojistaAtivo: false }))
+      .catch((): Perfil => PERFIL_ERRO)
       .then((perfil) => {
         if (!vivo) return;
         setResolvido({ usuarioId, perfil });
-        // Admin não usa o app: desconecta (a tela de login mostra o aviso).
-        if (perfil.papel === "admin") void supabase.auth.signOut({ scope: "local" });
+        // Sessão de admin restaurada: admin não usa o app; desconecta e avisa.
+        if (perfil.papel === "admin") {
+          setAvisoAdmin(true);
+          void supabase.auth.signOut({ scope: "local" });
+        }
       });
     return () => {
       vivo = false;
@@ -82,6 +113,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const entrar = useCallback(async (email: string, senha: string): Promise<ResultadoEntrar> => {
     const emailLimpo = email.trim();
     if (!emailLimpo || !senha) return { tipo: "erro", mensagem: textos.login.erroCamposVazios };
+    entrandoRef.current = true;
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: emailLimpo,
@@ -90,14 +122,21 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       if (error || !data.session) {
         return { tipo: "erro", mensagem: mensagemErroLogin(error ?? { message: "" }) };
       }
-      const perfil = await resolverPerfil(supabase, data.session);
+      const novoId = data.session.user.id;
+      const perfil = await resolverPerfil(supabase, data.session).catch((): Perfil => PERFIL_ERRO);
       if (perfil.papel === "admin") {
         await supabase.auth.signOut({ scope: "local" });
         return { tipo: "admin" };
       }
+      // lojista (ou erro, que as abas mostram com "Tentar de novo")
+      setResolvido({ usuarioId: novoId, perfil });
       return { tipo: "ok" };
     } catch {
+      // sessão pode ter sido criada antes da falha: deixa o efeito resolver o perfil
+      setVersao((v) => v + 1);
       return { tipo: "erro", mensagem: textos.geral.semConexao };
+    } finally {
+      entrandoRef.current = false;
     }
   }, []);
 
@@ -112,11 +151,9 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     setSessao(null);
   }, []);
 
-  const recarregarPerfil = useCallback(() => setVersao((v) => v + 1), []);
+  const limparAvisoAdmin = useCallback(() => setAvisoAdmin(false), []);
 
   const valor = useMemo<ValorSessao>(() => {
-    const perfilAtual =
-      usuarioId && resolvido?.usuarioId === usuarioId ? resolvido.perfil : null;
     const perfil = perfilAtual ?? PERFIL_VISITANTE;
     return {
       sessao,
@@ -125,11 +162,13 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       papel: perfil.papel,
       lojistaAtivo: perfil.lojistaAtivo,
       carregando: !sessaoLida || (usuarioId !== null && perfilAtual === null),
+      avisoAdmin,
+      limparAvisoAdmin,
       entrar,
       sair,
-      recarregarPerfil,
+      recarregarPerfil: tentarDeNovo,
     };
-  }, [sessao, usuarioId, resolvido, sessaoLida, entrar, sair, recarregarPerfil]);
+  }, [sessao, usuarioId, perfilAtual, sessaoLida, avisoAdmin, limparAvisoAdmin, entrar, sair, tentarDeNovo]);
 
   return <SessaoContexto.Provider value={valor}>{children}</SessaoContexto.Provider>;
 }

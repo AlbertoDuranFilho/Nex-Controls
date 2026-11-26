@@ -2,7 +2,11 @@ import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import { textos } from "@/constants/textos";
 import type { Database } from "@/types/database";
 
-export type Papel = "visitante" | "lojista" | "admin";
+/**
+ * "erro": há sessão, mas não deu para confirmar papel/cadastro (rede, RLS…).
+ * Nunca vira resposta: as telas mostram "Não foi possível carregar seus dados" + "Tentar de novo".
+ */
+export type Papel = "visitante" | "lojista" | "admin" | "erro";
 
 export type Perfil = {
   papel: Papel;
@@ -11,11 +15,15 @@ export type Perfil = {
 };
 
 export const PERFIL_VISITANTE: Perfil = { papel: "visitante", lojistaAtivo: false };
+export const PERFIL_ERRO: Perfil = { papel: "erro", lojistaAtivo: false };
+const PERFIL_ADMIN: Perfil = { papel: "admin", lojistaAtivo: false };
 
 /**
  * Descobre o papel do usuário com a sessão dele (RLS), espelhando o site:
  * - admin = app_metadata.papel "admin" E profiles.is_admin = true (o metadata sozinho não basta);
  * - qualquer outro usuário logado é lojista; ativo = rpc is_lojista_ativo().
+ * Falhas não viram resposta: metadata admin + erro ao ler profiles => trata como admin (fecha:
+ * o app desconecta); erro no is_lojista_ativo => "erro" (não "inativo").
  */
 export async function resolverPerfil(
   cliente: SupabaseClient<Database>,
@@ -25,16 +33,25 @@ export async function resolverPerfil(
   if (!usuario) return PERFIL_VISITANTE;
 
   if (usuario.app_metadata?.papel === "admin") {
-    const { data } = await cliente
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", usuario.id)
-      .maybeSingle();
-    if (data?.is_admin === true) return { papel: "admin", lojistaAtivo: false };
+    try {
+      const { data, error } = await cliente
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", usuario.id)
+        .maybeSingle();
+      if (error || data?.is_admin === true) return PERFIL_ADMIN;
+    } catch {
+      return PERFIL_ADMIN;
+    }
   }
 
-  const { data: ativo, error } = await cliente.rpc("is_lojista_ativo");
-  return { papel: "lojista", lojistaAtivo: !error && ativo === true };
+  try {
+    const { data: ativo, error } = await cliente.rpc("is_lojista_ativo");
+    if (error || typeof ativo !== "boolean") return PERFIL_ERRO;
+    return { papel: "lojista", lojistaAtivo: ativo };
+  } catch {
+    return PERFIL_ERRO;
+  }
 }
 
 /** Traduz o erro do login do Supabase para uma frase amigável. */

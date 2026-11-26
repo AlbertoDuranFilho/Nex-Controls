@@ -50,6 +50,9 @@ export const textos = {
     cadastroInativoTitulo: "Cadastro inativo",
     cadastroInativo: "Seu cadastro está inativo. Fale com a Nex para reativar.",
     sair: "Sair",
+    erroPerfilTitulo: "Não foi possível carregar seus dados",
+    erroPerfilDescricao: "Verifique sua conexão com a internet e tente de novo.",
+    tentarDeNovo: "Tentar de novo",
   },
   catalogo: {
     titulo: "Catálogo",

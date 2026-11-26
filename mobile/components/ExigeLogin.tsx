@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import type { LucideIcon } from "lucide-react-native";
-import { LogIn, ShieldAlert } from "lucide-react-native";
+import { LogIn, RefreshCw, ShieldAlert, WifiOff } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Botao } from "@/components/ui/Botao";
@@ -50,6 +50,20 @@ export function AvisoCentral({ icone: Icone, titulo, descricao, acao, testID }: 
   );
 }
 
+/** Logado, mas papel/cadastro não confirmados (rede/RLS). Nunca tratar como "inativo". */
+export function ErroPerfil() {
+  const { recarregarPerfil } = useSessao();
+  return (
+    <AvisoCentral
+      icone={WifiOff}
+      titulo={textos.sessao.erroPerfilTitulo}
+      descricao={textos.sessao.erroPerfilDescricao}
+      acao={{ titulo: textos.sessao.tentarDeNovo, onPress: recarregarPerfil, icone: RefreshCw }}
+      testID="erro-perfil"
+    />
+  );
+}
+
 export function EntreParaContinuar() {
   const router = useRouter();
   return (
@@ -71,6 +85,7 @@ export function EntreParaContinuar() {
 export function ExigeLogin({ children, exigirAtivo = false }: { children: ReactNode; exigirAtivo?: boolean }) {
   const { carregando, papel, lojistaAtivo, sair } = useSessao();
   if (carregando) return <Carregando />;
+  if (papel === "erro") return <ErroPerfil />;
   if (papel !== "lojista") return <EntreParaContinuar />;
   if (exigirAtivo && !lojistaAtivo) {
     return (

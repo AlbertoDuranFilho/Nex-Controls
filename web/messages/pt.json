@@ -417,5 +417,8 @@
     "vazioDica": "Quando você gerar um pedido, ele aparece aqui.",
     "criado": "Pedido realizado",
     "resumo": "Resumo"
+  },
+  "comum": {
+    "carregando": "Carregando…"
   }
 }

@@ -34,14 +34,14 @@ export default async function LoginPage({ params, searchParams }: Props) {
           className="absolute -right-32 -bottom-32 -z-10 size-[28rem] rounded-full bg-marca-branco/[0.06] blur-3xl"
         />
 
-        <div className="flex h-full flex-col items-center px-6 pt-10 pb-20 md:items-start md:justify-center md:px-12 md:py-16 lg:px-20">
+        <div className="flex h-full flex-col items-center px-6 pt-10 pb-20 text-center md:justify-center md:px-12 md:py-16 lg:px-20">
           <LogoNex clara className="w-36 md:w-64 lg:w-80" />
 
-          <div className="hidden md:block">
-            <p className="mt-10 max-w-md text-2xl leading-snug font-light text-marca-cinza-200 lg:text-3xl">
+          <div className="hidden flex-col items-center md:flex">
+            <p className="mt-10 max-w-md text-2xl leading-snug font-light text-balance text-marca-cinza-200 lg:text-3xl">
               {t("slogan")}
             </p>
-            <ul className="mt-10 space-y-4">
+            <ul className="mt-10 space-y-4 text-left">
               {beneficios.map(({ icone: Icone, texto }) => (
                 <li key={texto} className="flex items-center gap-3 text-sm text-marca-cinza-300">
                   <span className="grid size-9 place-items-center rounded-xl bg-marca-branco/[0.08] ring-1 ring-marca-branco/10">

@@ -417,5 +417,8 @@
     "vazioDica": "Orders you place will show up here.",
     "criado": "Order placed",
     "resumo": "Summary"
+  },
+  "comum": {
+    "carregando": "Loading…"
   }
 }

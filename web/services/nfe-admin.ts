@@ -80,6 +80,8 @@ function paraMaino(p: PedidoRow): PedidoParaMaino {
     entrega_uf: p.entrega_uf,
     frete_valor: Number(p.frete_valor),
     observacao: p.observacao,
+    desconto_origem: p.desconto_origem,
+    desconto_valor: Number(p.desconto_valor),
     itens: [...p.pedido_itens]
       .sort((a, b) => a.produto_codigo.localeCompare(b.produto_codigo))
       .map((i) => ({

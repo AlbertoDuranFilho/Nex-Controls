@@ -55,7 +55,10 @@ function pedido(extra: Record<string, unknown> = {}) {
     entrega_cidade: "São Paulo",
     entrega_uf: "SP",
     frete_valor: 0,
+    desconto_origem: "nenhum",
+    desconto_valor: 0,
     observacao: null,
+    nfe_atualizado_em: null,
     pedido_itens: [{ produto_codigo: "P1", produto_nome: "Placa", quantidade: 2, preco_unitario: 90 }],
     lojistas: { email: "compras@loja.com", telefone: "(11) 3333-4444" },
     ...extra,
@@ -137,6 +140,14 @@ describe("enviarPedidoMaino", () => {
     expect((corpo as { numero: string }).numero).toBe("SITE-1042");
     expect(argsRpc(rpc)).toMatchObject({ p_pedido_id: ID, p_maino_pedido_id: "9", p_erro: null });
     expect(r.ok && r.dados.maino_pedido_id).toBe("m-9");
+  });
+
+  it("cupom do pedido vai como valor_desconto por unidade nos itens", async () => {
+    bancoFalso([pedido({ desconto_origem: "cupom", desconto_valor: 18 })]);
+    chamarMaino.mockResolvedValue({ ok: true, status: 201, dados: { id: 9 } });
+    await enviarPedidoMaino(ID);
+    const corpo = chamarMaino.mock.calls[0][3] as { itens: { pu: number; quantidade: number; valor_desconto?: number }[] };
+    expect(corpo.itens).toEqual([expect.objectContaining({ pu: 90, quantidade: 2, valor_desconto: 9 })]);
   });
 
   it("aceita o id em pedido.id", async () => {

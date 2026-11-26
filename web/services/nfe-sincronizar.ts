@@ -49,7 +49,10 @@ export type PedidoRow = {
   entrega_cidade: string;
   entrega_uf: string;
   frete_valor: number;
+  desconto_origem: "nenhum" | "cliente" | "cupom";
+  desconto_valor: number;
   observacao: string | null;
+  nfe_atualizado_em: string | null;
   pedido_itens: { produto_codigo: string; produto_nome: string; quantidade: number; preco_unitario: number }[];
   lojistas: { email: string; telefone: string | null } | null;
 };
@@ -60,7 +63,7 @@ const COLUNAS =
   "id, numero, status, maino_pedido_id, nfe_status, nfe_erro, maino_nota_url, " +
   "cliente_nome, cliente_documento, cliente_tipo_pessoa, cliente_indicador_ie, cliente_inscricao_estadual, " +
   "entrega_cep, entrega_logradouro, entrega_numero, entrega_complemento, entrega_bairro, entrega_cidade, entrega_uf, " +
-  "frete_valor, observacao, pedido_itens(produto_codigo, produto_nome, quantidade, preco_unitario), " +
+  "frete_valor, desconto_origem, desconto_valor, observacao, nfe_atualizado_em, pedido_itens(produto_codigo, produto_nome, quantidade, preco_unitario), " +
   "lojistas(email, telefone)";
 
 export async function lerPedido(db: ReturnType<typeof createAdminClient>, id: string): Promise<PedidoRow | null> {

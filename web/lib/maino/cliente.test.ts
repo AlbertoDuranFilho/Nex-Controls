@@ -148,6 +148,27 @@ describe("chamarMaino", () => {
     expect(esperar).toHaveBeenCalledWith(5000);
   });
 
+  it("opções do render: timeout menor e espera do 429 de no máximo 1 s", async () => {
+    const { store } = loja("t");
+    const esperar = vi.fn(async () => {});
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    const f = vi
+      .fn()
+      .mockResolvedValueOnce(resposta(429, {}, { "Retry-After": "60" }))
+      .mockResolvedValueOnce(resposta(200, {}));
+    await chamarMaino(cfg, "GET", "/x", undefined, {
+      fetch: f as unknown as typeof fetch,
+      tokens: store,
+      esperar,
+      timeoutMs: 5000,
+      esperaMaxMs: 1000,
+    });
+    expect(esperar).toHaveBeenCalledWith(1000);
+    expect(timeout).toHaveBeenCalledWith(5000);
+    expect(timeout).not.toHaveBeenCalledWith(15000);
+    timeout.mockRestore();
+  });
+
   it("422 achata errors", async () => {
     const { store } = loja("t");
     const f = vi

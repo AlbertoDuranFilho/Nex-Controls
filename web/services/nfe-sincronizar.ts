@@ -88,7 +88,11 @@ type ArgsRegistro = {
   erro: string | null;
 };
 
-/** Grava via sistema_registrar_nfe; devolve o booleano (ACEITA virou faturado) ou null se falhou. */
+/**
+ * Grava via sistema_registrar_nfe; devolve o booleano do banco ou null se falhou.
+ * true = avisar o cliente agora (nota ACEITA com DANFE que acabou de faturar o pedido ou
+ * cuja DANFE acabou de chegar); o banco decide sob lock, então o e-mail sai uma vez só.
+ */
 export async function registrar(ctx: Contexto, a: ArgsRegistro): Promise<boolean | null> {
   const { data, error } = await ctx.db.rpc("sistema_registrar_nfe", {
     p_pedido_id: ctx.pedido.id,
@@ -120,31 +124,57 @@ type NotaMaino = { chave_acesso?: unknown; status?: unknown; danfe_url?: unknown
 
 const textoOuUndefined = (v: unknown) => (typeof v === "string" && v.trim() !== "" ? v.trim() : undefined);
 
+/** A Mainô documenta `{ nota_fiscal: {...} }`, mas aceitamos também a nota "achatada". */
+export function lerNota(dados: unknown): NotaMaino | null {
+  if (!dados || typeof dados !== "object") return null;
+  const d = dados as { nota_fiscal?: unknown; status?: unknown };
+  if (d.nota_fiscal && typeof d.nota_fiscal === "object") return d.nota_fiscal as NotaMaino;
+  if ("status" in d) return d as NotaMaino;
+  return null;
+}
+
+/** Só links https vão para o banco/cliente; outro formato não bloqueia o faturamento. */
+const danfeSegura = (v: unknown) => {
+  const t = textoOuUndefined(v);
+  return t && t.startsWith("https://") ? t : undefined;
+};
+
+export type OpcoesSync = { timeoutMs?: number; esperaMaxMs?: number };
+
 /** Consulta a nota na Mainô e grava; envia o e-mail uma única vez (quando o banco diz true). Não revalida. */
-export async function sincronizarCore(ctx: Contexto, mainoId: string): Promise<ResultadoAdmin<SituacaoNfe>> {
-  const r = await chamarMaino<{ nota_fiscal?: NotaMaino | null }>(
+export async function sincronizarCore(
+  ctx: Contexto,
+  mainoId: string,
+  opcoes: OpcoesSync = {},
+): Promise<ResultadoAdmin<SituacaoNfe>> {
+  const r = await chamarMaino<unknown>(
     ctx.cfg,
     "GET",
     `/pedidos/${encodeURIComponent(mainoId)}/nota_fiscal`,
+    undefined,
+    opcoes,
   );
   if (!r.ok) return falhar(ctx, r.erro);
 
-  const nota = r.dados?.nota_fiscal;
+  const nota = lerNota(r.dados);
   const status = textoOuUndefined(nota?.status);
   if (!nota || !status || !STATUS_NFE.includes(status)) {
     return falhar(ctx, "A Mainô devolveu uma situação de nota desconhecida.");
   }
-  const danfe = textoOuUndefined(nota.danfe_url);
+  const danfe = danfeSegura(nota.danfe_url);
+  if (textoOuUndefined(nota.danfe_url) && !danfe) {
+    console.error("[nfe] DANFE ignorada (link não é https)", ctx.pedido.numero);
+  }
 
-  const virouFaturado = await registrar(ctx, {
+  const avisar = await registrar(ctx, {
     status,
     chave: textoOuUndefined(nota.chave_acesso),
     danfe_url: danfe,
     erro: null,
   });
-  if (virouFaturado === null) return erro(MSG_GENERICA);
+  if (avisar === null) return erro(MSG_GENERICA);
 
-  if (virouFaturado) agendarEmailNota(ctx.pedido, danfe ?? ctx.pedido.maino_nota_url);
+  if (avisar) agendarEmailNota(ctx.pedido, danfe ?? ctx.pedido.maino_nota_url);
   return concluir(ctx);
 }
 
@@ -173,20 +203,36 @@ function agendarEmailNota(p: PedidoRow, danfe: string | null) {
   });
 }
 
+/** Nota que ainda pode mudar na Mainô: em andamento, ou aceita sem a DANFE. */
+export function nfePendente(p: { nfe_status: string | null; maino_nota_url: string | null }): boolean {
+  return (
+    p.nfe_status === "NAO_TRANSMITIDA" ||
+    p.nfe_status === "EM_TRANSMISSAO" ||
+    (p.nfe_status === "ACEITA" && !p.maino_nota_url)
+  );
+}
+
+/** Intervalo mínimo entre consultas feitas pelo render da página. */
+export const INTERVALO_RENDER_MS = 30_000;
+/** No render a página não pode ficar presa: timeout curto e no máximo 1 s de espera no 429. */
+export const OPCOES_RENDER: OpcoesSync = { timeoutMs: 5_000, esperaMaxMs: 1_000 };
+
 /**
  * Para páginas (já protegidas por admin): sincroniza a nota de um pedido em andamento.
  * Não lança e não revalida; sem flag, credenciais ou envio à Mainô simplesmente não faz nada.
+ * Consultado há menos de 30 s, também não faz nada (o botão "Atualizar situação" força).
  */
-export async function sincronizarSePendente(pedidoId: string): Promise<void> {
+export async function sincronizarSePendente(pedidoId: string, agora: number = Date.now()): Promise<void> {
   try {
     if (!flags.nfeAutomatica) return;
     const cfg = lerConfigMaino();
     if (!cfg) return;
     const db = createAdminClient();
     const pedido = await lerPedido(db, pedidoId);
-    if (!pedido?.maino_pedido_id) return;
-    if (pedido.nfe_status !== "NAO_TRANSMITIDA" && pedido.nfe_status !== "EM_TRANSMISSAO") return;
-    await sincronizarCore({ db, cfg, pedido }, pedido.maino_pedido_id);
+    if (!pedido?.maino_pedido_id || !nfePendente(pedido)) return;
+    const ultima = pedido.nfe_atualizado_em ? Date.parse(pedido.nfe_atualizado_em) : NaN;
+    if (Number.isFinite(ultima) && agora - ultima < INTERVALO_RENDER_MS) return;
+    await sincronizarCore({ db, cfg, pedido }, pedido.maino_pedido_id, OPCOES_RENDER);
   } catch {
     // falha da Mainô ou do banco não quebra a página
   }

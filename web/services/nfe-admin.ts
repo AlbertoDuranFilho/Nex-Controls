@@ -12,6 +12,7 @@ import { montarPedidoMaino, type PedidoParaMaino } from "@/lib/maino/montar-pedi
 import {
   concluir,
   erro,
+  ERRO_MAX,
   falhar,
   lerPedido,
   MSG_GENERICA,
@@ -129,10 +130,19 @@ export async function enviarPedidoMaino(pedidoId: string): Promise<ResultadoAdmi
   const id = lerIdMaino(r.dados);
   if (!id) return falharERevalidar(ctx, "A Mainô não devolveu o identificador do pedido.");
 
-  const gravado = await registrar(ctx, { maino_pedido_id: id, erro: null });
+  // O pedido já existe na Mainô: perder o id aqui faria um novo envio duplicar o SITE-<n>.
+  let gravado = await registrar(ctx, { maino_pedido_id: id, erro: null });
+  if (gravado === null) gravado = await registrar(ctx, { maino_pedido_id: id, erro: null });
   if (gravado === null) {
+    console.error("[nfe] pedido criado na Mainô sem gravar o id", {
+      numero: pedido.numero,
+      maino_pedido_id: id,
+    });
     revalidar();
-    return erro(MSG_GENERICA);
+    return erro(
+      `O pedido foi criado na Mainô como SITE-${pedido.numero} (id ${id}), mas não foi possível ` +
+        "registrar isso no site. Não envie de novo: fale com o suporte para vincular o id manualmente.",
+    );
   }
   return concluirERevalidar(ctx);
 }
@@ -158,7 +168,19 @@ export async function emitirNfeMaino(pedidoId: string): Promise<ResultadoAdmin<S
     "POST",
     `/pedidos/${encodeURIComponent(pedido.maino_pedido_id)}/nota_fiscal`,
   );
-  if (!r.ok) return falharERevalidar(ctx, r.erro);
+  // Pedido aceito (ou sem resposta: status 0 = timeout/rede, a Mainô pode ter recebido):
+  // marca NAO_TRANSMITIDA antes de consultar, para o painel oferecer "Atualizar situação"
+  // e não "Emitir NF-e" de novo se a consulta seguinte falhar.
+  if (!r.ok && r.status !== 0) return falharERevalidar(ctx, r.erro);
+  const marcado = await registrar(ctx, { status: "NAO_TRANSMITIDA", erro: r.ok ? null : r.erro.slice(0, ERRO_MAX) });
+  if (!r.ok) {
+    revalidar();
+    return erro(r.erro);
+  }
+  if (marcado === null) {
+    revalidar();
+    return erro(MSG_GENERICA);
+  }
   return sincronizar(ctx, pedido.maino_pedido_id);
 }
 

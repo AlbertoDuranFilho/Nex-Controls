@@ -58,7 +58,10 @@ export default function PainelNfe({ pedidoId, status, mainoPedidoId, nfeStatus, 
 
   const enviar = status === "pago" && !mainoPedidoId;
   const emitir = status === "pago" && !!mainoPedidoId && (!nfeStatus || nfeStatus === "REJEITADA");
-  const atualizar = !!mainoPedidoId && (nfeStatus === "NAO_TRANSMITIDA" || nfeStatus === "EM_TRANSMISSAO");
+  // ACEITA sem DANFE também: a Mainô pode gerar o PDF depois da autorização.
+  const atualizar =
+    !!mainoPedidoId &&
+    (nfeStatus === "NAO_TRANSMITIDA" || nfeStatus === "EM_TRANSMISSAO" || (nfeStatus === "ACEITA" && !danfeUrl));
   const cancelar = !!mainoPedidoId && nfeStatus === "ACEITA";
 
   const situacao = nfeStatus
@@ -83,7 +86,7 @@ export default function PainelNfe({ pedidoId, status, mainoPedidoId, nfeStatus, 
       {danfeUrl ? (
         <p>
           <a href={danfeUrl} target="_blank" rel="noopener noreferrer" className="text-marca-preto underline underline-offset-2">
-            DANFE (PDF)
+            {nfeStatus === "CANCELADA" ? "DANFE (PDF, nota cancelada)" : "DANFE (PDF)"}
           </a>
         </p>
       ) : null}

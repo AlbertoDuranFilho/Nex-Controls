@@ -16,10 +16,14 @@ export type TokenStore = {
   gravar(token: string): Promise<void>;
 };
 
-type Deps = {
+export type Deps = {
   fetch?: typeof fetch;
   tokens?: TokenStore;
   esperar?: (ms: number) => Promise<void>;
+  /** Timeout de cada requisição (padrão 15 s). O render da página usa um menor. */
+  timeoutMs?: number;
+  /** Espera máxima antes de repetir após 429 (padrão 5 s). */
+  esperaMaxMs?: number;
 };
 
 const TIMEOUT_MSG = "Mainô não respondeu a tempo.";
@@ -83,9 +87,10 @@ async function requisitar(
   f: typeof fetch,
   url: string,
   init: { method: string; headers: Record<string, string>; body?: string },
+  timeoutMs: number = TIMEOUT_MS,
 ): Promise<{ res: Response } | { erro: RespostaMaino<never> & { ok: false } }> {
   try {
-    const res = await f(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
+    const res = await f(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
     return { res };
   } catch (e) {
     return {
@@ -102,6 +107,7 @@ async function requisitar(
 async function entrar(
   cfg: ConfigMaino,
   f: typeof fetch,
+  timeoutMs: number,
 ): Promise<{ token: string } | { erro: RespostaMaino<never> & { ok: false } }> {
   const r = await requisitar(f, `${cfg.apiUrl}/authentication`, {
     method: "POST",
@@ -111,7 +117,7 @@ async function entrar(
       email: cfg.email,
       password: cfg.senha,
     }),
-  });
+  }, timeoutMs);
   if ("erro" in r) return r;
   const corpo = await lerJson(r.res);
   if (!r.res.ok) {
@@ -145,9 +151,11 @@ export async function chamarMaino<T>(
   const f = deps.fetch ?? fetch;
   const tokens = deps.tokens ?? tokenStorePadrao();
   const esperar = deps.esperar ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  const timeoutMs = deps.timeoutMs ?? TIMEOUT_MS;
+  const esperaMax = deps.esperaMaxMs ?? ESPERA_MAX_MS;
 
   async function login(): Promise<{ token: string } | { erro: RespostaMaino<never> & { ok: false } }> {
-    const l = await entrar(cfg, f);
+    const l = await entrar(cfg, f, timeoutMs);
     if ("token" in l) {
       try {
         await tokens.gravar(l.token);
@@ -179,7 +187,7 @@ export async function chamarMaino<T>(
         ...(corpo !== undefined ? { "Content-Type": "application/json" } : {}),
       },
       ...(corpo !== undefined ? { body: JSON.stringify(corpo) } : {}),
-    });
+    }, timeoutMs);
 
   let r = await enviar(token);
   if ("erro" in r) return r.erro;
@@ -194,7 +202,7 @@ export async function chamarMaino<T>(
 
   if (r.res.status === 429) {
     const seg = Number(r.res.headers.get("Retry-After"));
-    const ms = Math.min(Number.isFinite(seg) && seg > 0 ? seg * 1000 : 1000, ESPERA_MAX_MS);
+    const ms = Math.min(Number.isFinite(seg) && seg > 0 ? seg * 1000 : 1000, esperaMax);
     await esperar(ms);
     const novo = await enviar(token);
     if ("erro" in novo) return novo.erro;

@@ -1,0 +1,52 @@
+name: backup
+
+on:
+  schedule:
+    - cron: "0 6 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    env:
+      PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Dump do banco de producao
+        run: |
+          set -euo pipefail
+          npx supabase db dump --db-url "$PROD_DB_URL" -f dump.sql
+          npx supabase db dump --db-url "$PROD_DB_URL" --data-only -f dump-data.sql
+          # O dump padrao exclui schemas gerenciados: auth.users (identidade dos clientes) fica de fora.
+          # Sem audit_log_entries (IPs e e-mails, inclusive de anonimizados) nem flow_state (transitorio).
+          npx supabase db dump --db-url "$PROD_DB_URL" --data-only --use-copy --schema auth -x auth.audit_log_entries,auth.flow_state -f dump-auth.sql
+
+      - name: Criptografar e remover texto claro
+        run: |
+          set -euo pipefail
+          stamp=$(date -u +%Y%m%d)
+          for f in dump dump-data dump-auth; do
+            printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+              --symmetric --cipher-algo AES256 --passphrase-fd 0 \
+              -o "$f-$stamp.sql.gpg" "$f.sql"
+            rm -f "$f.sql"
+          done
+          ls -1 *.gpg
+
+      - name: Enviar artefato (somente .gpg)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-producao
+          path: "*.gpg"
+          if-no-files-found: error
+          retention-days: 90

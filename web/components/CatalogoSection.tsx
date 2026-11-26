@@ -1,75 +1,37 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { getProdutos } from "@/services/strapi";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import ProductCard from "@/components/ProductCard";
-import { useTranslations } from "next-intl";
-import type { Produto } from "@/types/Produto";
+import type { ProdutoPublico } from "@/services/catalogo";
 
-function ProductSkeleton() {
-  return (
-    <div className="flex flex-col h-full bg-gray-200 animate-pulse rounded-lg overflow-hidden">
-      <div className="h-32 bg-gray-300" />
-      <div className="p-4 flex flex-col flex-grow items-center justify-center">
-        <div className="h-4 w-24 bg-gray-300 mb-2 rounded" />
-        <div className="h-3 w-16 bg-gray-300 rounded" />
-      </div>
-      <div className="h-8 bg-gray-300" />
-    </div>
-  );
-}
+const DESTAQUES = 8;
 
-export default function CatalogoSection({ initialProdutos }: { initialProdutos: Produto[] }) {
+export default function CatalogoSection({ produtos }: { produtos: ProdutoPublico[] }) {
   const t = useTranslations("catalog");
-  const [produtos, setProdutos] = useState<Produto[]>(initialProdutos);
-  const [loading, setLoading] = useState(!initialProdutos.length);
-
-  // Retry automático: tenta a cada 5s até carregar produtos
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    async function fetchProdutos() {
-      const data = await getProdutos();
-      if (data.length > 0) {
-        setProdutos(data);
-        setLoading(false);
-        if (interval) clearInterval(interval); // 🚀 para retries
-      }
-    }
-
-    // Se não tiver produtos → tenta imediatamente
-    if (!produtos.length) {
-      fetchProdutos();
-      interval = setInterval(fetchProdutos, 5000); // retry a cada 5s
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, []);
+  const locale = useLocale();
 
   return (
-    <section id="catalogo" className="py-20 px-6 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold text-center mb-10">{t("title")}</h2>
+    <section id="catalogo" className="mx-auto max-w-6xl px-6 py-20">
+      <h2 className="mb-10 text-center text-3xl font-bold">{t("title")}</h2>
 
-      {loading ? (
-        <div>
-            <p className="text-center text-gray-500 mb-6">{t("loading")}</p>
-            <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-                <ProductSkeleton key={i} />
+      {produtos.length === 0 ? (
+        <div className="py-10 text-center text-marca-cinza-500">{t("unavailable")}</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {produtos.slice(0, DESTAQUES).map((p) => (
+              <ProductCard key={p.id} produto={p} />
             ))}
-            </div>
-        </div>
-        ) : produtos.length === 0 ? (
-        <div className="text-center text-gray-500 py-10">{t("unavailable")}</div>
-        ) : (
-        <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {produtos.map((prod) => (
-            <ProductCard key={prod.id} produto={prod} />
-            ))}
-        </div>
-    )}
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              href={`/${locale}/catalogo`}
+              className="inline-block border border-marca-preto px-6 py-3 text-sm font-semibold text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco"
+            >
+              {t("verCatalogoCompleto")}
+            </Link>
+          </div>
+        </>
+      )}
     </section>
   );
 }

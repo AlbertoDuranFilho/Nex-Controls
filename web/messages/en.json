@@ -7,7 +7,8 @@
     "contact": "Contact",
     "email": "commercial@nexcontrols.com",
     "phone": "",
-    "clientArea": "Client Area"
+    "clientArea": "Client Area",
+    "abrirMenu": "Open menu"
   },
   "home": {
     "headline": "Technology in Every Detail",
@@ -25,6 +26,23 @@
   "catalog": {
     "title": "Product Catalog",
     "learnMore": "Learn more",
+    "verCatalogoCompleto": "View full catalog",
+    "buscar": "Search products",
+    "buscaPlaceholder": "Search by name or code",
+    "nenhumResultado": "No products found.",
+    "precoLogin": "Sign in to see the price",
+    "contaInativa": "Your account is inactive. Please contact Nex Controls.",
+    "sobConsulta": "Price on request.",
+    "quantidade": "Quantity",
+    "adicionar": "Add to cart",
+    "adicionando": "Adding...",
+    "adicionado": "Added to cart",
+    "verCarrinho": "View cart",
+    "erroQuantidade": "Enter a quantity from 1 to 9999.",
+    "erroLogin": "Your session expired. Please sign in again.",
+    "erroIndisponivel": "This product could not be added right now.",
+    "carrinho": "Cart",
+    "loading": "Loading products...",
     "backToCatalog": "Back to catalog",
     "unavailable": "Products unavailable at the moment. Please try again shortly."
   },
@@ -41,9 +59,13 @@
     "successMessage": "We have received your message and will contact you soon.",
     "errorTitle": "❌ Sending failed",
     "errorMessage": "There was a problem sending your message. Please try again.",
-    "okButton": "Ok"
+    "okButton": "Ok",
+    "errors": {
+      "nome": "Enter your name (2 to 100 characters).",
+      "email": "Enter a valid email.",
+      "mensagem": "The message must be 10 to 2000 characters."
+    }
   },
-  
   "product": {
     "compatibility": "Compatibility",
     "requestQuote": "Request Quote",
@@ -59,7 +81,6 @@
       "applications": "Applied products list"
     }
   },
-  
   "banners": {
     "app": {
       "title": "Technology",
@@ -73,7 +94,6 @@
       "description": "Nex Controls operates with social responsibility by minimizing impacts on society and the environment. Committed to sustainability, our factory uses solar panels."
     }
   },
-
   "infoBanner": {
     "appTitle": "Application",
     "appSubtitle": "Download our App",
@@ -84,20 +104,102 @@
     "secureTitle": "Secure Site",
     "secureSubtitle": "Your data is protected"
   },
-
   "login": {
     "title": "Client Area",
     "email": "Email",
     "password": "Password",
-    "submit": "Login",
-    "forgotPassword": "Forgot your password?",
-    "recover": "Recover",
+    "submit": "Sign in",
     "back": "Back",
-    "loginErrorTitle": "Login Error",
-    "loginErrorMessage": "Incorrect email or password. Please try again.",
-    "okButton": "Ok"
+    "erroCredenciais": "Invalid email or password.",
+    "mostrarSenha": "Show",
+    "ocultarSenha": "Hide"
   },
- 
+  "conta": {
+    "nav": {
+      "aria": "My account",
+      "meusDados": "My details",
+      "endereco": "Address",
+      "seguranca": "Security",
+      "carrinho": "Cart",
+      "pedidos": "Orders"
+    },
+    "dados": {
+      "titulo": "My details",
+      "documento": "Tax ID (CPF/CNPJ)",
+      "nome": "Name or company name",
+      "nomeFantasia": "Trade name",
+      "responsavel": "Contact name",
+      "telefone": "Phone",
+      "whatsapp": "WhatsApp",
+      "indicadorIe": "State registration status",
+      "contribuinte": "Taxpayer",
+      "isento": "Exempt",
+      "naoContribuinte": "Non-taxpayer",
+      "inscricaoEstadual": "State registration number",
+      "salvar": "Save"
+    },
+    "endereco": {
+      "titulo": "Address",
+      "cep": "Postal code (CEP)",
+      "logradouro": "Street",
+      "numero": "Number",
+      "complemento": "Complement",
+      "bairro": "Neighborhood",
+      "cidade": "City",
+      "uf": "State",
+      "salvar": "Save",
+      "buscando": "Looking up postal code…",
+      "naoEncontrado": "We could not find this postal code, please fill in manually."
+    },
+    "email": {
+      "titulo": "Login email",
+      "atual": "Current email",
+      "novo": "New email",
+      "alterar": "Change email",
+      "aguardando": "Waiting for confirmation in both emails (current and new) for:",
+      "enviado": "Request sent. Confirm using the links sent to both emails.",
+      "retorno": {
+        "confirmado": "Email changed successfully.",
+        "pendente": "First link confirmed. The other email still needs to be confirmed.",
+        "erro": "We could not confirm the email. The link may have expired or already been used; check your current email below or request the change again."
+      }
+    },
+    "seguranca": {
+      "titulo": "Security",
+      "nova": "New password",
+      "confirmar": "Confirm new password",
+      "mostrar": "Show passwords",
+      "ocultar": "Hide passwords",
+      "salvar": "Change password",
+      "alterada": "Password changed"
+    },
+    "estado": {
+      "salvando": "Saving…",
+      "salvo": "Saved",
+      "erro": "Error while saving"
+    },
+    "erros": {
+      "revise": "Please review the highlighted fields.",
+      "sessao": "Your session has expired. Please sign in again.",
+      "invalido": "Invalid value.",
+      "longo": "Text is too long.",
+      "telefone": "Enter a valid area code and number.",
+      "ieObrigatoria": "Enter the state registration number or choose Exempt.",
+      "salvar": "Could not save. Please try again.",
+      "cep": "Invalid postal code.",
+      "obrigatorio": "Required field.",
+      "uf": "Choose a state.",
+      "email": "Invalid email.",
+      "emailIgual": "This is already your current email.",
+      "emailEmUso": "This email is already in use.",
+      "limite": "Too many requests. Wait a moment and try again.",
+      "indisponivel": "Feature unavailable.",
+      "senhaCurta": "Password must be at least 8 characters.",
+      "senhaDiferente": "Passwords do not match.",
+      "senhaIgual": "Choose a password different from the current one.",
+      "senhaFraca": "Weak password. Choose another one."
+    }
+  },
   "privacy": {
     "title": "Nex Controls Privacy Policy",
     "lastUpdate": "Last updated: 09/09/2025.",
@@ -113,12 +215,12 @@
     "section1Para3": "We also record your communications with us via emails, social media interactions, or customer support.",
     "section1Para4": "Automatically, we record some technical and navigation information while you use our Services. This includes data such as IP address, browser type and settings, device type, and operating system. We also use cookies and similar technologies to store preferences, keep sessions active, and improve your platform experience. We do not collect sensitive data, financial information, or other details beyond what is essential to meet your needs.",
     "section2Title": "PURPOSES AND LEGAL BASES FOR DATA PROCESSING",
-    "section2Para1": "The information is primarily processed to contact you in order to inform about new features, updates, offers, or opportunities, and also to send requested quotes, always respecting your consent where required by law.",
+    "section2Para1": "The information is primarily processed to contact you in order to inform about new features, updates, offers, or opportunities, and also to send requested quotes, always respecting your consent where required by law. Sending communications and offers is a separate, optional purpose based on consent, which can be withdrawn at any time, and is distinct from the processing of registration and purchases, whose legal bases are described in section 8.",
     "section2Para2": "Additionally, we process personal data to comply with legal obligations, respond to requests from competent authorities, and exercise our rights in potential judicial or administrative proceedings. We may also use anonymized or aggregated data — which does not allow identifying individuals — for analysis, performance studies, development of new solutions, and continuous improvement of our models and features.",
     "section3Title": "DATA RETENTION",
     "section3Para1": "We keep your personal data only for as long as necessary to fulfill the purposes outlined in this Policy, including compliance with legal and regulatory obligations, resolution of potential disputes, and preservation of service security and integrity.",
     "section3Para2": "This retention period may vary depending on factors such as the nature of the data collected, the specific processing purpose, legal or regulatory requirements, and your account settings on the platform.",
-    "section3Para3": "When the applicable period expires or the data subject requests, where possible, the data will be securely deleted or anonymized, allowing its use only for statistical purposes, analysis, or internal improvements without identifying the subject.",
+    "section3Para3": "When the applicable period expires or the data subject requests, where possible, the data will be securely deleted or anonymized, allowing its use only for statistical purposes, analysis, or internal improvements without identifying the subject. Data subject to legal retention (tax records and access logs) is kept for the periods described in section 8.",
     "section4Title": "DATA SUBJECT RIGHTS",
     "section4Para1": "As the subject of your personal data, you have several rights guaranteed by applicable law, particularly Brazil’s LGPD. Nex Controls respects these rights and ensures you can exercise them simply, clearly, and transparently.",
     "section4Para2": "Main rights include:",
@@ -127,8 +229,8 @@
     "section4Item3": "Deletion of personal data, where applicable and within legal limits",
     "section4Item4": "Portability, enabling the transfer of data to another provider or controller",
     "section4Item5": "Restriction or opposition to processing in cases permitted by law",
-    "section4Item6": "Withdrawal of consent whenever this is the legal basis for processing.",
-    "section4Para3": "You can exercise these rights by contacting us through the Customer Service channel (SAC).",
+    "section4Item6": "Withdrawal of consent, where processing is based on it (for example, communications and offers). Withdrawal does not affect processing needed to perform the contract or to comply with legal obligations.",
+    "section4Para3": "You can exercise these rights, including portability, by sending a request to our privacy contact, contato@nexcontrols.com. The Customer Service channel (SAC) may also be used as an additional channel.",
     "section5Title": "INFORMATION SECURITY",
     "section5Para1": "At Nex Controls, the protection of personal data is taken seriously. Therefore, we adopt basic security measures such as:",
     "section5Item1": "Restricted access only to authorized individuals",
@@ -144,16 +246,125 @@
     "section7Item3": "Statistics and usage analysis: understanding how users interact with the platform, supporting continuous improvements",
     "section7Item4": "Security: identifying and preventing risks such as unauthorized access or malicious activities.",
     "section7Para2": "We use strictly necessary cookies, which are essential for platform operation and do not allow user identification. Other cookies used for functionality, performance, and targeting are optional, and their storage can be refused or modified at any time by the user through browser settings or the consent banner displayed on the platform. Refusing some cookies may impact certain features.",
+    "sectionCadTitle": "REGISTRATION AND PURCHASES",
+    "sectionCadPara1": "Registration and purchases in the customer area are handled by Nex Controls do Brasil LTDA (PE, Brazil), the data controller. The data protection officer contact (LGPD) is contato@nexcontrols.com.",
+    "sectionCadPara2": "At registration we collect only the data needed for sales, delivery and invoicing (data minimization):",
+    "sectionCadItem1": "Type of person (individual or company) and CPF/CNPJ tax ID",
+    "sectionCadItem2": "Name or company name and trade name",
+    "sectionCadItem3": "E-mail",
+    "sectionCadItem4": "State registration (inscrição estadual) and IE indicator",
+    "sectionCadItem5": "Contact person, phone and WhatsApp",
+    "sectionCadItem6": "Address",
+    "sectionCadPara3": "Purpose: sales, delivery and issuing invoices. Legal bases: performance of a contract and compliance with a legal (tax) obligation.",
+    "sectionCadPara4": "Retention: tax data from orders is kept for 5 years (LGPD, art. 16, I). Access logs (date and time, IP and browser) are kept for 6 months, as required by art. 15 of the Marco Civil da Internet (Law No. 12,965/2014).",
+    "sectionCadPara5": "Rights: you can view and correct your data in the customer area and exercise the other rights described in this Policy by e-mailing contato@nexcontrols.com.",
+    "sectionCadPara6": "Deletion: deletion requests are handled by anonymization. Account access is blocked, personal data is erased and the tax data of orders is preserved for the legal period of 5 years. The CPF/CNPJ becomes available for a new registration.",
+    "sectionCadPara7": "Hosting: registration data is hosted in Brazil (Supabase, region sa-east-1). Product images and manuals are stored on Cloudinary.",
     "section8Title": "CHANGES TO THIS POLICY",
     "section8Para1": "This Privacy Policy may be updated at any time to reflect changes in our data processing practices, service improvements, or new legal and regulatory requirements.",
     "section8Para2": "If significant changes occur, Nex Controls will inform users through appropriate means — such as platform notifications, emails, or other official communication channels — ensuring transparency during the update process.",
     "section8Para3": "The most recent version of the Policy will always be available on this page, with a clear indication of the effective date. We recommend checking this document periodically to stay informed about how your personal data is handled."
   },
-
-
   "footer": {
     "rights": "All rights reserved",
     "tagline": "Specialists in electronic boards and equipment",
+    "company": "Nex Controls do Brasil LTDA",
+    "contact": "Contact",
+    "cnpj": "CNPJ: 61.697.615/0001-03 · IE: 1261377-06",
     "privacyLink": "Privacy Policy"
+  },
+  "menuUsuario": {
+    "entrar": "Sign in",
+    "ola": "Hello, {nome}",
+    "minhaConta": "My account",
+    "admin": "Admin",
+    "sair": "Sign out"
+  },
+  "carrinho": {
+    "titulo": "Cart",
+    "vazio": "Your cart is empty.",
+    "irCatalogo": "Browse catalog",
+    "produto": "Product",
+    "quantidade": "Quantity",
+    "quantidadeDe": "Quantity of {nome}",
+    "precoUnitario": "Unit price",
+    "totalLinha": "Total",
+    "remover": "Remove",
+    "removerDe": "Remove {nome}",
+    "itemInativo": "Product unavailable. Remove it to continue.",
+    "itemSemPreco": "Product has no price right now. Remove it to continue.",
+    "erroQuantidade": "Enter a quantity from 1 to 9999.",
+    "erroAtualizar": "Could not update the cart. Please try again.",
+    "cupom": "Coupon",
+    "aplicar": "Apply",
+    "tirarCupom": "Remove coupon",
+    "cupomAplicado": "Coupon {codigo} applied.",
+    "cupomPior": "Your current discount is already higher than coupon {codigo}. We kept your discount.",
+    "cupomInexistente": "Coupon not found.",
+    "cupomInativo": "This coupon is no longer active.",
+    "cupomForaValidade": "This coupon is outside its validity period.",
+    "cupomEsgotado": "This coupon has reached its usage limit.",
+    "cupomJaUsado": "You have already used this coupon.",
+    "cupomValorMinimo": "This coupon requires a minimum order of {valor} (list price).",
+    "cupomErro": "This coupon could not be applied.",
+    "resumo": "Summary",
+    "subtotal": "Subtotal (list price)",
+    "descontoCliente": "Your discount",
+    "descontoCupom": "Coupon {codigo} discount",
+    "frete": "Shipping: to be arranged",
+    "total": "Total",
+    "observacao": "Notes",
+    "observacaoAjuda": "Optional. E.g. delivery time, landmark.",
+    "gerar": "Place order",
+    "gerando": "Placing order...",
+    "aviso": "Nex will contact you to arrange shipping and payment.",
+    "bloqueioContaInativa": "Your account is inactive. Please contact Nex Controls.",
+    "bloqueioCarrinhoVazio": "Your cart is empty.",
+    "bloqueioSemEndereco": "Add your delivery address to place the order.",
+    "bloqueioItensInvalidos": "Some items in your cart are unavailable. Remove them to continue.",
+    "bloqueioErro": "Could not place the order right now. Please try again.",
+    "erroObservacaoLonga": "Notes can have at most 500 characters.",
+    "cadastrarEndereco": "Add address",
+    "erroGerarIncerto": "We could not confirm the order. Check My orders before trying again.",
+    "irMeusPedidos": "Go to My orders",
+    "erroCarregar": "Could not load the cart. Please try again in a moment."
+  },
+  "pedidos": {
+    "titulo": "My orders",
+    "vazio": "You have not placed any orders yet.",
+    "irCatalogo": "View catalog",
+    "numero": "Order",
+    "data": "Date",
+    "status": {
+      "aguardando_pagamento": "Awaiting payment",
+      "pago": "Paid",
+      "faturado": "Invoiced",
+      "enviado": "Shipped",
+      "entregue": "Delivered",
+      "cancelado": "Cancelled",
+      "erro_pagamento": "Payment error",
+      "devolvido": "Returned"
+    },
+    "total": "Total",
+    "voltar": "Back to orders",
+    "confirmacao": "We received your order. Nex will contact you to arrange shipping and payment.",
+    "itens": "Items",
+    "produto": "Product",
+    "quantidade": "Quantity",
+    "precoUnitario": "Unit price",
+    "totalLinha": "Total",
+    "subtotal": "Subtotal",
+    "desconto": "Discount",
+    "cupom": "Coupon",
+    "descontoCliente": "Your discount",
+    "frete": "Shipping",
+    "freteACombinar": "to be arranged",
+    "observacao": "Note",
+    "entrega": "Delivery",
+    "notaFiscal": "View invoice",
+    "historico": "History",
+    "historicoVazio": "No status changes yet.",
+    "deAte": "{de} to {para}",
+    "colunaStatus": "Status"
   }
 }

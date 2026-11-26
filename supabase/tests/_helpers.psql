@@ -1,0 +1,63 @@
+-- Helpers de teste. Incluído por \ir dentro da transação de cada teste
+-- (begin; \ir _helpers.psql). Tudo é revertido no rollback; nada vai para migrations.
+create schema if not exists tests;
+grant usage on schema tests to anon, authenticated;
+
+-- Cria um usuário em auth.users (dispara o trigger que cria profiles).
+create or replace function tests.criar_usuario(p_email text) returns uuid
+language plpgsql security definer set search_path = public, auth as $$
+declare v_id uuid := gen_random_uuid();
+begin
+  insert into auth.users (id, instance_id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+  values (v_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+          p_email, '{}'::jsonb, '{}'::jsonb, now(), now());
+  return v_id;
+end;
+$$;
+
+create or replace function tests.autenticar_como(p_uid uuid) returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', p_uid, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+end;
+$$;
+
+create or replace function tests.anonimo() returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
+  set local role anon;
+end;
+$$;
+
+-- Volta ao superusuário (necessário para escrever em auth.users e checar constraints).
+create or replace function tests.como_superuser() returns void
+language plpgsql as $$
+begin
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
+end;
+$$;
+
+-- ids do cenário acessíveis dentro de strings $$...$$ (psql não interpola variáveis ali)
+create or replace function tests.id(p_nome text) returns uuid
+language sql stable as $$ select current_setting('tests.' || p_nome)::uuid $$;
+
+-- Cenário padrão: admin a; lojistas l1, l2 ativos e l3 desativado.
+select tests.criar_usuario('admin@nex.test') as a \gset
+select tests.criar_usuario('l1@loja.test') as l1 \gset
+select tests.criar_usuario('l2@loja.test') as l2 \gset
+select tests.criar_usuario('l3@loja.test') as l3 \gset
+
+select set_config('tests.a', :'a', true), set_config('tests.l1', :'l1', true),
+       set_config('tests.l2', :'l2', true), set_config('tests.l3', :'l3', true);
+
+update public.profiles set is_admin = true, nome = 'Admin' where id = :'a';
+update auth.users set raw_app_meta_data = '{"is_admin": true}'::jsonb where id = :'a';
+
+insert into public.lojistas (id, tipo_pessoa, documento, nome, email, ativo) values
+  (:'l1', 'PF', '11111111111', 'Lojista Um',   'l1@loja.test', true),
+  (:'l2', 'PJ', '22222222222222', 'Lojista Dois', 'l2@loja.test', true),
+  (:'l3', 'PF', '33333333333', 'Lojista Tres', 'l3@loja.test', false);

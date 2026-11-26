@@ -5,6 +5,21 @@
   --foreground: #171717;
 }
 
+@theme {
+  --color-marca-preto: #000;
+  --color-marca-branco: #fff;
+  --color-marca-cinza-50: #fafafa;
+  --color-marca-cinza-100: #f4f4f5;
+  --color-marca-cinza-200: #e4e4e7;
+  --color-marca-cinza-300: #d4d4d8;
+  --color-marca-cinza-400: #a1a1aa;
+  --color-marca-cinza-500: #71717a;
+  --color-marca-cinza-600: #52525b;
+  --color-marca-cinza-700: #3f3f46;
+  --color-marca-cinza-800: #27272a;
+  --color-marca-cinza-900: #18181b;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

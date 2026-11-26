@@ -6,27 +6,39 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "prebuild": "node scripts/verificar-producao.mjs"
   },
   "dependencies": {
-    "@strapi/blocks-react-renderer": "^1.0.2",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.2",
     "@vercel/analytics": "^1.5.0",
-    "next": "15.5.2",
+    "exceljs": "4.4.0",
+    "next": "15.5.29",
     "next-intl": "^4.3.5",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-google-recaptcha": "^3.1.0"
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
+    "react-google-recaptcha": "^3.1.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-google-recaptcha": "^2.1.9",
+    "@vitest/coverage-v8": "^3.2.7",
     "eslint": "^9",
-    "eslint-config-next": "15.5.2",
+    "eslint-config-next": "15.5.29",
+    "pg": "^8.23.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }

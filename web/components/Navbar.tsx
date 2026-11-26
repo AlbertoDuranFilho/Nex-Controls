@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
+import MenuUsuario from "./MenuUsuario";
+import IconeCarrinho from "./carrinho/IconeCarrinho";
 import { usePathname, useRouter } from "next/navigation";
 
 
@@ -36,7 +38,12 @@ export default function Navbar() {
     }, 300); // tempo igual da animação (0.3s)
   }
 
-  const handleChange = (lang: string) => {
+  // Fecha o drawer ao navegar (inclui o redirect do Sair, feito por Server Action).
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  const handleChange =(lang: string) => {
     const segments = pathname.split("/");
     segments[1] = lang;
     router.push(segments.join("/") || "/");
@@ -94,19 +101,15 @@ export default function Navbar() {
           {/* Select Idioma */}
           <LanguageSwitcher />
 
-          {/* Botão área do cliente */}
-          <Link
-            href={`/${currentLocale}/cliente/login`}
-            className="border px-3 py-1.5 rounded-md font-medium hover:bg-gray-100 text-sm text-gray-800 transition-colors"
-          >
-            {t('clientArea')}
-          </Link>
+          <IconeCarrinho />
+          <MenuUsuario />
         </div>
       
 
       {/* Botão Hamburguer Mobile */}
         <button
           onClick={() => setMenuOpen(true)}
+          aria-label={t("abrirMenu")}
           className="md:hidden p-2 rounded focus:outline-none"
         >
           <svg
@@ -174,13 +177,10 @@ export default function Navbar() {
             </div>
 
             {/* Área do Cliente */}
-            <Link
-              href={`/${currentLocale}/cliente/login`}
-              onClick={() => setMenuOpen(false)}
-              className="mt-4 border px-3 py-2 rounded-md font-medium hover:bg-gray-100 text-sm text-center"
-            >
-              {t("clientArea")}
-            </Link>
+            <div className="mt-4 flex flex-col gap-4">
+              <IconeCarrinho onNavegar={() => setMenuOpen(false)} />
+              <MenuUsuario onNavegar={() => setMenuOpen(false)} />
+            </div>
           </div>
         </div>
       )}

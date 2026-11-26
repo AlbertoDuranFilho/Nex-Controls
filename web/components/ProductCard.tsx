@@ -1,52 +1,44 @@
 import Image from "next/image";
+import { imagemNaoOtimizada } from "@/lib/imagem";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { Produto } from "@/types/Produto";
+import { useLocale, useTranslations } from "next-intl";
+import type { ProdutoPublico } from "@/services/catalogo";
 
-interface ProductCardProps {
-  produto: Produto; 
-}
-
-export default function ProductCard({ produto }: ProductCardProps) {
+export default function ProductCard({ produto }: { produto: ProdutoPublico }) {
   const t = useTranslations("catalog");
-  const img = produto.imagens?.[0]?.url ?? "/placeholder.png";
+  const locale = useLocale();
+  const img = produto.imagens[0];
 
   return (
-    <div className="flex flex-col h-full bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow hover:border hover:border-blue-700 ">
-      <div className="relative w-full h-32 flex items-center justify-center p-4 bg-white">
+    <div className="flex h-full flex-col overflow-hidden border border-marca-cinza-200 bg-marca-branco transition-colors hover:border-marca-preto">
+      <div className="relative flex h-32 w-full items-center justify-center bg-marca-branco p-4">
         {img ? (
           <Image
-            src={img}
-            alt={produto.nome}
+            src={img.url}
+            unoptimized={imagemNaoOtimizada(img.url)}
+            alt={img.alt ?? produto.nome}
             width={160}
             height={120}
-            className="object-contain max-h-[100px]"
+            className="max-h-[100px] object-contain"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm" />
+          <div className="h-full w-full bg-marca-cinza-100" />
         )}
-
-        {/* Código do produto como badge */}
-        <span className="absolute top-2 left-2 bg-blue-800 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md z-10">
+        <span className="absolute left-2 top-2 z-10 bg-marca-preto px-2 py-1 text-xs font-semibold text-marca-branco">
           {produto.codigo}
         </span>
       </div>
 
-      {/* Conteúdo */}
-      <div className="flex flex-col items-center flex-grow text-center px-4 pb-4">
-        <p className="text-sm text-gray-700 mt-1 flex-grow">
-          {produto.nome}
-        </p>
+      <div className="flex flex-grow flex-col items-center px-4 pb-4 text-center">
+        <p className="mt-1 flex-grow text-sm text-marca-cinza-700">{produto.nome}</p>
       </div>
 
-        {/* Botão */}
-        <Link
-          href={`/catalogo/${produto.documentId}`}
-          className="block text-center bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 rounded-b-md"
-        >
-          {t("learnMore")} →
-        </Link>
-      </div>
-   
+      <Link
+        href={`/${locale}/catalogo/${produto.slug}`}
+        className="block bg-marca-preto py-2 text-center text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800"
+      >
+        {t("learnMore")} →
+      </Link>
+    </div>
   );
 }

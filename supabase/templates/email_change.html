@@ -1,0 +1,5 @@
+<h2>Confirme a alteração de e-mail</h2>
+<p>Recebemos um pedido para alterar o e-mail da sua conta Nex Controls de {{ .Email }} para {{ .NewEmail }}.</p>
+<p>Por segurança, é preciso confirmar nos dois endereços (o atual e o novo). Clique no link abaixo para confirmar este e-mail:</p>
+<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email_change">Confirmar alteração de e-mail</a></p>
+<p>Se você não pediu essa alteração, ignore esta mensagem.</p>

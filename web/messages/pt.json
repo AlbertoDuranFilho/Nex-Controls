@@ -2,12 +2,10 @@
   "navbar": {
     "company": "Nex Controls",
     "home": "Home",
-    "about": "Empresa",
     "catalog": "Catálogo",
     "contact": "Contato",
     "email": "comercial@nexcontrols.com",
     "phone": "(11) 9999-9999",
-    "clientArea": "Área do Cliente",
     "abrirMenu": "Abrir menu",
     "fecharMenu": "Fechar menu",
     "atendimento": "Atendimento",
@@ -29,7 +27,6 @@
   },
   "catalog": {
     "title": "Catálogo de Produtos",
-    "learnMore": "Saiba mais",
     "verCatalogoCompleto": "Ver catálogo completo",
     "buscar": "Buscar produto",
     "buscaPlaceholder": "Buscar por nome ou código",
@@ -46,8 +43,6 @@
     "erroLogin": "Sua sessão expirou. Entre novamente.",
     "erroIndisponivel": "Não foi possível adicionar este produto agora.",
     "carrinho": "Carrinho",
-    "loading": "Carregando produtos...",
-    "backToCatalog": "Voltar ao catálogo",
     "unavailable": "Produtos indisponíveis no momento. Tente novamente em alguns segundos.",
     "entrarParaVerPrecos": "Entre para ver preços",
     "sobConsultaCurto": "Sob consulta",
@@ -69,7 +64,10 @@
     "vazioDica": "Tente buscar por outro nome ou código.",
     "porUnidade": "por unidade",
     "diminuirDe": "Diminuir quantidade de {nome}",
-    "aumentarDe": "Aumentar quantidade de {nome}"
+    "aumentarDe": "Aumentar quantidade de {nome}",
+    "adicionadoProduto": "{nome} adicionado ao carrinho",
+    "avisoInativo": "Seu cadastro está inativo.",
+    "avisoInativoLink": "Fale com a Nex para liberar os preços."
   },
   "contact": {
     "title": "Cadastre-se e receba em primeira mão as melhores ofertas, promoções e lançamentos dos nossos produtos",
@@ -99,7 +97,6 @@
     "noSpecs": "Este produto não possui especificações técnicas",
     "noApplications": "Este produto não possui lista de aplicações",
     "notFound": "Produto não encontrado",
-    "backToCatalog": "Voltar ao catálogo",
     "tabs": {
       "description": "Descrição do produto",
       "specifications": "Especificações Técnicas",
@@ -332,7 +329,6 @@
     "produto": "Produto",
     "quantidade": "Quantidade",
     "quantidadeDe": "Quantidade de {nome}",
-    "precoUnitario": "Preço unitário",
     "totalLinha": "Total",
     "remover": "Remover",
     "removerDe": "Remover {nome}",
@@ -376,7 +372,7 @@
     "diminuirDe": "Diminuir quantidade de {nome}",
     "aumentarDe": "Aumentar quantidade de {nome}",
     "vazioDica": "Explore o catálogo e adicione produtos para montar o seu pedido.",
-    "contagemItens": "{count, plural, one {# item} other {# itens}}",
+    "contagemItens": "{count, plural, one {# produto} other {# produtos}}",
     "porUnidade": "{valor} / un.",
     "continuarComprando": "Continuar comprando",
     "cupomDica": "Tem um cupom? Aplique antes de gerar o pedido.",
@@ -404,7 +400,6 @@
     "itens": "Itens",
     "produto": "Produto",
     "quantidade": "Quantidade",
-    "precoUnitario": "Preço unitário",
     "totalLinha": "Total",
     "subtotal": "Subtotal",
     "desconto": "Desconto",
@@ -417,13 +412,10 @@
     "notaFiscal": "Ver nota fiscal",
     "notaCancelada": "Nota fiscal cancelada",
     "historico": "Histórico",
-    "historicoVazio": "Nenhuma mudança de status ainda.",
     "deAte": "{de} para {para}",
-    "colunaStatus": "Status",
     "subtitulo": "Acompanhe o status e as notas fiscais dos seus pedidos.",
     "vazioDica": "Quando você gerar um pedido, ele aparece aqui.",
     "criado": "Pedido realizado",
-    "resumo": "Resumo",
-    "verPedido": "Ver pedido"
+    "resumo": "Resumo"
   }
 }

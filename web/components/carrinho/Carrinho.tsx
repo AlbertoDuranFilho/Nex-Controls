@@ -200,7 +200,6 @@ export default function Carrinho({
   const obsLonga = observacao.length > LIMITE_OBSERVACAO;
   const bloqueado = bloqueios.length > 0 || c.situacao === "invalido" || obsLonga;
   const ocupado = pendente || enviando;
-  const totalUnidades = sim.itens.reduce((s, i) => s + i.quantidade, 0);
   const temAlerta = incerto || !!erro;
 
   return (
@@ -210,7 +209,7 @@ export default function Carrinho({
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4 text-sm">
-          <p className="font-medium text-marca-cinza-600">{t("contagemItens", { count: totalUnidades })}</p>
+          <p className="font-medium text-marca-cinza-600">{t("contagemItens", { count: sim.itens.length })}</p>
           <Link
             href={`/${locale}/catalogo`}
             className="group inline-flex items-center gap-1.5 rounded-lg font-medium text-marca-cinza-700 underline-offset-4 hover:text-marca-preto hover:underline focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"

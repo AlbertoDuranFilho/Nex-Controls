@@ -2,12 +2,10 @@
   "navbar": {
     "company": "Mi Empresa",
     "home": "Inicio",
-    "about": "Empresa",
     "catalog": "Catálogo",
     "contact": "Contacto",
     "email": "comercial@nexcontrols.com",
     "phone": "+55 (11) 9999-9999",
-    "clientArea": "Área del Cliente",
     "abrirMenu": "Abrir menú",
     "fecharMenu": "Cerrar menú",
     "atendimento": "Atención al cliente",
@@ -29,7 +27,6 @@
   },
   "catalog": {
     "title": "Catálogo de Productos",
-    "learnMore": "Saber más",
     "verCatalogoCompleto": "Ver catálogo completo",
     "buscar": "Buscar producto",
     "buscaPlaceholder": "Buscar por nombre o código",
@@ -46,8 +43,6 @@
     "erroLogin": "Su sesión expiró. Inicie sesión de nuevo.",
     "erroIndisponivel": "No fue posible agregar este producto ahora.",
     "carrinho": "Carrito",
-    "loading": "Cargando productos...",
-    "backToCatalog": "Volver al catálogo",
     "unavailable": "Productos no disponibles en este momento. Inténtalo nuevamente en unos segundos.",
     "entrarParaVerPrecos": "Inicia sesión para ver precios",
     "sobConsultaCurto": "A consultar",
@@ -69,7 +64,10 @@
     "vazioDica": "Intente buscar por otro nombre o código.",
     "porUnidade": "por unidad",
     "diminuirDe": "Disminuir cantidad de {nome}",
-    "aumentarDe": "Aumentar cantidad de {nome}"
+    "aumentarDe": "Aumentar cantidad de {nome}",
+    "adicionadoProduto": "{nome} agregado al carrito",
+    "avisoInativo": "Su registro está inactivo.",
+    "avisoInativoLink": "Contacte a Nex para habilitar los precios."
   },
   "contact": {
     "title": "Regístrate y mantente al día con las últimas novedades",
@@ -97,7 +95,6 @@
     "downloadManual": "Descargar Manual",
     "notFound": "Producto no encontrado",
     "noImage": "Sin imagen disponible",
-    "backToCatalog": "Volver al catálogo",
     "noSpecs": "Este producto no tiene especificaciones técnicas",
     "noApplications": "Este producto no tiene lista de aplicaciones",
     "tabs": {
@@ -332,7 +329,6 @@
     "produto": "Producto",
     "quantidade": "Cantidad",
     "quantidadeDe": "Cantidad de {nome}",
-    "precoUnitario": "Precio unitario",
     "totalLinha": "Total",
     "remover": "Quitar",
     "removerDe": "Quitar {nome}",
@@ -376,7 +372,7 @@
     "diminuirDe": "Disminuir cantidad de {nome}",
     "aumentarDe": "Aumentar cantidad de {nome}",
     "vazioDica": "Explore el catálogo y agregue productos para armar su pedido.",
-    "contagemItens": "{count, plural, one {# artículo} other {# artículos}}",
+    "contagemItens": "{count, plural, one {# producto} other {# productos}}",
     "porUnidade": "{valor} / ud.",
     "continuarComprando": "Seguir comprando",
     "cupomDica": "¿Tiene un cupón? Aplíquelo antes de generar el pedido.",
@@ -404,7 +400,6 @@
     "itens": "Artículos",
     "produto": "Producto",
     "quantidade": "Cantidad",
-    "precoUnitario": "Precio unitario",
     "totalLinha": "Total",
     "subtotal": "Subtotal",
     "desconto": "Descuento",
@@ -417,13 +412,10 @@
     "notaFiscal": "Ver factura",
     "notaCancelada": "Factura cancelada",
     "historico": "Historial",
-    "historicoVazio": "Aún no hay cambios de estado.",
     "deAte": "{de} a {para}",
-    "colunaStatus": "Estado",
     "subtitulo": "Siga el estado y las facturas de sus pedidos.",
     "vazioDica": "Cuando genere un pedido, aparecerá aquí.",
     "criado": "Pedido realizado",
-    "resumo": "Resumen",
-    "verPedido": "Ver pedido"
+    "resumo": "Resumen"
   }
 }

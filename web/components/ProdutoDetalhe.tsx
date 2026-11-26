@@ -133,7 +133,7 @@ export default function ProdutoDetalhe({ produto }: { produto: ProdutoPublico })
                 className={`h-10 rounded-lg px-4 text-sm font-semibold whitespace-nowrap transition duration-200 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none motion-reduce:transition-none ${
                   aba === tab
                     ? "bg-marca-branco text-marca-preto shadow-suave"
-                    : "text-marca-cinza-500 hover:text-marca-preto"
+                    : "text-marca-cinza-600 hover:text-marca-preto"
                 }`}
                 onClick={() => setAba(tab)}
               >

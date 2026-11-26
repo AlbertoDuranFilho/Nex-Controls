@@ -87,7 +87,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
 
         <Link
           href={`/${locale}`}
-          className="group mt-6 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-marca-cinza-500 transition-colors hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+          className="group mt-6 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-marca-cinza-600 transition-colors hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
         >
           <ArrowLeft
             aria-hidden

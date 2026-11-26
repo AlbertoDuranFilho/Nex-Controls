@@ -2,12 +2,10 @@
   "navbar": {
     "company": "Nex Controls",
     "home": "Home",
-    "about": "About",
     "catalog": "Catalog",
     "contact": "Contact",
     "email": "commercial@nexcontrols.com",
     "phone": "",
-    "clientArea": "Client Area",
     "abrirMenu": "Open menu",
     "fecharMenu": "Close menu",
     "atendimento": "Customer service",
@@ -29,7 +27,6 @@
   },
   "catalog": {
     "title": "Product Catalog",
-    "learnMore": "Learn more",
     "verCatalogoCompleto": "View full catalog",
     "buscar": "Search products",
     "buscaPlaceholder": "Search by name or code",
@@ -46,8 +43,6 @@
     "erroLogin": "Your session expired. Please sign in again.",
     "erroIndisponivel": "This product could not be added right now.",
     "carrinho": "Cart",
-    "loading": "Loading products...",
-    "backToCatalog": "Back to catalog",
     "unavailable": "Products unavailable at the moment. Please try again shortly.",
     "entrarParaVerPrecos": "Sign in to see prices",
     "sobConsultaCurto": "Price on request",
@@ -69,7 +64,10 @@
     "vazioDica": "Try searching for another name or code.",
     "porUnidade": "per unit",
     "diminuirDe": "Decrease quantity of {nome}",
-    "aumentarDe": "Increase quantity of {nome}"
+    "aumentarDe": "Increase quantity of {nome}",
+    "adicionadoProduto": "{nome} added to cart",
+    "avisoInativo": "Your account is inactive.",
+    "avisoInativoLink": "Contact Nex to unlock prices."
   },
   "contact": {
     "title": "Sign up and receive first-hand the best offers, promotions, and launches of our products",
@@ -99,7 +97,6 @@
     "noImage": "No image available",
     "noSpecs": "This product has no specifications",
     "noApplications": "This product has no applications listed",
-    "backToCatalog": "Back to catalog",
     "tabs": {
       "description": "Product description",
       "specifications": "Technical Specifications",
@@ -332,7 +329,6 @@
     "produto": "Product",
     "quantidade": "Quantity",
     "quantidadeDe": "Quantity of {nome}",
-    "precoUnitario": "Unit price",
     "totalLinha": "Total",
     "remover": "Remove",
     "removerDe": "Remove {nome}",
@@ -376,7 +372,7 @@
     "diminuirDe": "Decrease quantity of {nome}",
     "aumentarDe": "Increase quantity of {nome}",
     "vazioDica": "Browse the catalog and add products to build your order.",
-    "contagemItens": "{count, plural, one {# item} other {# items}}",
+    "contagemItens": "{count, plural, one {# product} other {# products}}",
     "porUnidade": "{valor} each",
     "continuarComprando": "Continue shopping",
     "cupomDica": "Have a coupon? Apply it before placing the order.",
@@ -404,7 +400,6 @@
     "itens": "Items",
     "produto": "Product",
     "quantidade": "Quantity",
-    "precoUnitario": "Unit price",
     "totalLinha": "Total",
     "subtotal": "Subtotal",
     "desconto": "Discount",
@@ -417,13 +412,10 @@
     "notaFiscal": "View invoice",
     "notaCancelada": "Invoice cancelled",
     "historico": "History",
-    "historicoVazio": "No status changes yet.",
     "deAte": "{de} to {para}",
-    "colunaStatus": "Status",
     "subtitulo": "Track the status and invoices of your orders.",
     "vazioDica": "Orders you place will show up here.",
     "criado": "Order placed",
-    "resumo": "Summary",
-    "verPedido": "View order"
+    "resumo": "Summary"
   }
 }

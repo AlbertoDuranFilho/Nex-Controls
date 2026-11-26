@@ -20,6 +20,7 @@ export default function NavConta({
     { href: base, rotulo: t("meusDados") },
     { href: `${base}/endereco`, rotulo: t("endereco") },
     { href: `${base}/carrinho`, rotulo: t("carrinho") },
+    { href: `${base}/pedidos`, rotulo: t("pedidos") },
     ...(trocaSenha ? [{ href: `${base}/seguranca`, rotulo: t("seguranca") }] : []),
   ];
 

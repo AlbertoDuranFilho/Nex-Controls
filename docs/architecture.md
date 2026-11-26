@@ -22,7 +22,7 @@ supabase/                  compartilhado por web e mobile
   functions/               Edge Functions (fases 4–5)
 web/                       site Next.js (ver web/README.md)
   lib/supabase/            client.ts (browser, anon), server.ts (cookies), admin.ts (service role, server-only)
-  services/                auth.ts, lojistas-admin.ts, minha-conta.ts
+  services/                auth.ts, lojistas-admin.ts, minha-conta.ts, carrinho.ts, pedidos.ts, pedidos-cliente.ts, pedidos-admin.ts
 mobile/                    app (consome o mesmo projeto Supabase)
 ```
 
@@ -35,7 +35,10 @@ mobile/                    app (consome o mesmo projeto Supabase)
 | Registro de acessos (`acessos_log`) | Escrita só por service role; leitura só admin |
 | Retenção de `acessos_log` (6 meses, Marco Civil art. 15) | `pg_cron` (migration) |
 | Confirmação de troca de e-mail | Supabase Auth (`double_confirm_changes`, `enable_confirmations`) |
-| Pagamento (Stone), NF/ERP (Mainô), e-mails de pedido | Edge Functions (fases 4–5) |
+| Preço do cliente, simulação do carrinho, cupom e criação do pedido | Funções SQL `precos_cliente`, `simular_pedido`, `criar_pedido` (security definer; o preço nunca vem do navegador) |
+| Mudança de status e link da nota | Função `admin_atualizar_pedido` (só `is_admin()`; valida a transição e grava `pedido_eventos`) |
+| E-mails do pedido (cliente e Nex) | `notificarPedido` (`web/services/pedidos.ts`, só servidor) + `marcar_pedido_notificado` (só `service_role`) |
+| Pagamento (Stone) e NF/ERP (Mainô) | Edge Functions futuras em `supabase/functions/` (`stone-*`, `maino-*`), atrás de `FEATURE_PAGAMENTO_ONLINE` e `FEATURE_NFE_AUTOMATICA`. Hoje o fluxo é manual (`gateway_provider = 'manual'`) |
 
 Chaves: `anon` no browser e no app; `SUPABASE_SERVICE_ROLE_KEY` apenas no servidor
 (nunca `NEXT_PUBLIC_`), nunca no app mobile.
@@ -57,6 +60,8 @@ duplicada no cliente.
   uma policy com `is_admin()`.
 - O checkout deve **revalidar** `produtos.ativo` e o endereço do lojista no momento da compra.
 - A validação de cupom passa por uma **função**, nunca por leitura direta da tabela `cupons`.
+- Admin lê `pedidos`, `pedido_eventos` e `profiles` com a service role depois de `exigirAdmin()`:
+  `pedido_eventos` não concede `admin_id` a `authenticated`. O cliente lê com o client do usuário (RLS), sempre com colunas explícitas.
 - Pedidos guardam snapshots fiscais do cliente; a anonimização não os altera
   (guarda de 5 anos, LGPD art. 16, I).
 

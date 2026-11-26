@@ -120,7 +120,8 @@
       "meusDados": "My details",
       "endereco": "Address",
       "seguranca": "Security",
-      "carrinho": "Cart"
+      "carrinho": "Cart",
+      "pedidos": "Orders"
     },
     "dados": {
       "titulo": "My details",
@@ -324,5 +325,43 @@
     "bloqueioErro": "Could not place the order right now. Please try again.",
     "erroObservacaoLonga": "Notes can have at most 500 characters.",
     "cadastrarEndereco": "Add address"
+  },
+  "pedidos": {
+    "titulo": "My orders",
+    "vazio": "You have not placed any orders yet.",
+    "irCatalogo": "View catalog",
+    "numero": "Order",
+    "data": "Date",
+    "status": {
+      "aguardando_pagamento": "Awaiting payment",
+      "pago": "Paid",
+      "faturado": "Invoiced",
+      "enviado": "Shipped",
+      "entregue": "Delivered",
+      "cancelado": "Cancelled",
+      "erro_pagamento": "Payment error",
+      "devolvido": "Returned"
+    },
+    "total": "Total",
+    "voltar": "Back to orders",
+    "confirmacao": "We received your order. Nex will contact you to arrange shipping and payment.",
+    "itens": "Items",
+    "produto": "Product",
+    "quantidade": "Quantity",
+    "precoUnitario": "Unit price",
+    "totalLinha": "Total",
+    "subtotal": "Subtotal",
+    "desconto": "Discount",
+    "cupom": "Coupon",
+    "descontoCliente": "Your discount",
+    "frete": "Shipping",
+    "freteACombinar": "to be arranged",
+    "observacao": "Note",
+    "entrega": "Delivery",
+    "notaFiscal": "View invoice",
+    "historico": "History",
+    "historicoVazio": "No status changes yet.",
+    "deAte": "{de} to {para}",
+    "colunaStatus": "Status"
   }
 }

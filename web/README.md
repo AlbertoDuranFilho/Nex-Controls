@@ -52,6 +52,52 @@ Veja `web/.env.example`.
 Sem ela, a troca de e-mail é recusada em produção (o link de confirmação não
 pode depender do host da requisição).
 
+## Fases 2–4: catálogo, carrinho e pedido manual
+
+O site vende em fluxo **manual** (sem pagamento online): o cliente logado monta o
+carrinho e gera o pedido; a Nex combina frete e pagamento fora do site.
+
+### Variáveis novas
+
+| Variável | Observação |
+| --- | --- |
+| `RESEND_API_KEY` | e-mails de pedido. Sem a chave e fora de produção, o envio é só simulado no console (`[email simulado] ...`) |
+| `EMAIL_REMETENTE` | padrão `Nex Controls <contato@nexcontrols.com>` |
+| `EMAIL_PEDIDOS_DESTINO` | caixa da Nex que recebe o pedido; padrão `contato@nexcontrols.com` |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | upload de imagens (até 5 MB, pasta `nex/produtos`) e manuais em PDF (até 20 MB, pasta `nex/manuais`); **somente servidor** |
+| `FEATURE_PAGAMENTO_ONLINE` | `false`: pagamento online (Stone) desligado |
+| `FEATURE_NFE_AUTOMATICA` | `false`: emissão automática de NF (Mainô) desligada |
+| `REVALIDATE_SECRET` | gancho de teste de `POST /api/revalidar`. **Deixe vazio em produção** |
+
+### Importar produtos por planilha
+
+1. Baixe o modelo em `web/public/modelos/modelo-produtos.xlsx` (também servido em `/modelos/modelo-produtos.xlsx`).
+2. Preencha e envie em `/pt/admin/produtos/importar`.
+3. A tela mostra uma prévia com os valores normalizados (NCM, EAN e código vindos do Excel
+   como número, preço `189,90`) e as pendências (por exemplo, imagem ou manual sem arquivo).
+   Só depois de confirmar a importação os produtos são gravados.
+
+### Fluxo manual de pedido
+
+1. O cliente gera o pedido em `/pt/cliente/carrinho` (cupom opcional; vale o maior entre o
+   desconto do cliente e o do cupom). O pedido nasce `aguardando_pagamento`.
+2. O cliente e a Nex recebem e-mails (só em português). Se o envio falhar, o pedido existe
+   mesmo assim; o admin vê "E-mails pendentes" e usa **Reenviar e-mails**.
+3. A Nex cobra o cliente e emite a nota fiscal manualmente.
+4. No admin (`/pt/admin/pedidos`), a Nex muda o status e cola o link da nota (`https://`).
+   O cliente vê o status e o link em `/pt/cliente/pedidos`.
+
+Transições permitidas (impostas pelo banco, em `admin_atualizar_pedido`; a lista da tela fica
+em `web/lib/pedidos/transicoes.ts`): `aguardando_pagamento` para `pago` ou `cancelado`;
+`pago` para `faturado` ou `cancelado`; `faturado` para `enviado`; `enviado` para `entregue`;
+`entregue` para `devolvido`. Cada mudança grava um evento no histórico.
+
+### Pendência legal (antes de `FEATURE_PAGAMENTO_ONLINE=true`)
+
+Publicar o **endereço físico** da empresa (Decreto 7.962/2013) no rodapé e na política. Isso
+é obrigatório antes de ligar o pagamento online. Vendas a pessoa física também têm o direito
+de arrependimento de 7 dias (CDC, art. 49): o pedido guarda o tipo de pessoa para isso.
+
 ## Configuração do Supabase
 
 A configuração local é `supabase/config.jsonc` (formato da CLI v3, não `config.toml`).

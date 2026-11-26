@@ -120,7 +120,8 @@
       "meusDados": "Meus dados",
       "endereco": "Endereço",
       "seguranca": "Segurança",
-      "carrinho": "Carrinho"
+      "carrinho": "Carrinho",
+      "pedidos": "Pedidos"
     },
     "dados": {
       "titulo": "Meus dados",
@@ -324,5 +325,43 @@
     "bloqueioErro": "Não foi possível gerar o pedido agora. Tente novamente.",
     "erroObservacaoLonga": "A observação pode ter no máximo 500 caracteres.",
     "cadastrarEndereco": "Cadastrar endereço"
+  },
+  "pedidos": {
+    "titulo": "Meus pedidos",
+    "vazio": "Você ainda não fez pedidos.",
+    "irCatalogo": "Ver catálogo",
+    "numero": "Pedido",
+    "data": "Data",
+    "status": {
+      "aguardando_pagamento": "Aguardando pagamento",
+      "pago": "Pago",
+      "faturado": "Faturado",
+      "enviado": "Enviado",
+      "entregue": "Entregue",
+      "cancelado": "Cancelado",
+      "erro_pagamento": "Erro no pagamento",
+      "devolvido": "Devolvido"
+    },
+    "total": "Total",
+    "voltar": "Voltar aos pedidos",
+    "confirmacao": "Recebemos seu pedido. A Nex entrará em contato para combinar frete e pagamento.",
+    "itens": "Itens",
+    "produto": "Produto",
+    "quantidade": "Quantidade",
+    "precoUnitario": "Preço unitário",
+    "totalLinha": "Total",
+    "subtotal": "Subtotal",
+    "desconto": "Desconto",
+    "cupom": "Cupom",
+    "descontoCliente": "Seu desconto",
+    "frete": "Frete",
+    "freteACombinar": "a combinar",
+    "observacao": "Observação",
+    "entrega": "Entrega",
+    "notaFiscal": "Ver nota fiscal",
+    "historico": "Histórico",
+    "historicoVazio": "Nenhuma mudança de status ainda.",
+    "deAte": "{de} para {para}",
+    "colunaStatus": "Status"
   }
 }

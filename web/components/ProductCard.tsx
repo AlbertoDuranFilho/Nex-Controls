@@ -74,7 +74,9 @@ function AreaPreco({ produto }: { produto: ProdutoPublico }) {
           href={`/${locale}/cliente/login?next=${encodeURIComponent(`/${locale}/catalogo`)}`}
           variante="secundario"
           icone={Lock}
-          className="relative z-10 w-full px-3"
+          multilinha
+          // Cartão estreito (2 colunas no celular): sem o cadeado o rótulo quebra em 2 linhas, não 4.
+          className="relative z-10 w-full px-3 [&>svg]:hidden @[13rem]:[&>svg]:block"
         >
           {t("entrarParaVerPrecos")}
         </Botao>

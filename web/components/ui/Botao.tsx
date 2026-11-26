@@ -14,10 +14,12 @@ export type BotaoProps = {
   /** Só com `href` (ex.: manual em nova aba). */
   target?: string;
   rel?: string;
+  /** Rótulo pode quebrar em mais de uma linha (espaço estreito, ex.: cartão no celular). */
+  multilinha?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold whitespace-nowrap select-none " +
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold select-none " +
   "transition duration-200 active:scale-[.98] motion-reduce:transition-none motion-reduce:active:scale-100 " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:ring-offset-2 " +
   "disabled:pointer-events-none disabled:opacity-60";
@@ -35,10 +37,23 @@ const tamanhos: Record<Tamanho, string> = {
   lg: "h-13 px-6 text-base",
 };
 
+// Multilinha: altura mínima no lugar da fixa e texto centralizado que quebra.
+const tamanhosMultilinha: Record<Tamanho, string> = {
+  sm: "min-h-9 px-3 py-1.5 text-sm leading-tight",
+  md: "min-h-11 px-5 py-2 text-sm leading-tight",
+  lg: "min-h-13 px-6 py-2.5 text-base leading-tight",
+};
+
 const icones: Record<Tamanho, string> = { sm: "size-4", md: "size-4", lg: "size-5" };
 
-export function classesBotao(variante: Variante = "primario", tamanho: Tamanho = "md", extra = "") {
-  return `${base} ${variantes[variante]} ${tamanhos[tamanho]} ${extra}`.trim();
+export function classesBotao(
+  variante: Variante = "primario",
+  tamanho: Tamanho = "md",
+  extra = "",
+  multilinha = false,
+) {
+  const medida = multilinha ? `${tamanhosMultilinha[tamanho]} text-center` : `${tamanhos[tamanho]} whitespace-nowrap`;
+  return `${base} ${variantes[variante]} ${medida} ${extra}`.trim();
 }
 
 export default function Botao({
@@ -53,15 +68,16 @@ export default function Botao({
   type = "button",
   target,
   rel,
+  multilinha = false,
   ...resto
 }: BotaoProps) {
-  const classes = classesBotao(variante, tamanho, className);
+  const classes = classesBotao(variante, tamanho, className, multilinha);
   const conteudo = (
     <>
       {carregando ? (
-        <LoaderCircle aria-hidden className={`${icones[tamanho]} animate-spin motion-reduce:animate-none`} />
+        <LoaderCircle aria-hidden className={`${icones[tamanho]} shrink-0 animate-spin motion-reduce:animate-none`} />
       ) : (
-        Icone && <Icone aria-hidden className={icones[tamanho]} />
+        Icone && <Icone aria-hidden className={`${icones[tamanho]} shrink-0`} />
       )}
       {children}
     </>

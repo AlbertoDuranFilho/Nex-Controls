@@ -145,6 +145,8 @@ export default function AdicionarAoCarrinho({
       <div className={`text-sm ${compacto ? "min-h-0" : "mt-3 min-h-6"}`} aria-live="polite">
         {qtd === null && <p className="mt-2 text-marca-cinza-700">{t("erroQuantidade")}</p>}
         {erro && <p className="mt-2 text-marca-cinza-700">{erro}</p>}
+        {/* No cartão a confirmação visível é só o "Adicionado" do botão: o leitor de tela ouve esta. */}
+        {adicionado && compacto && <p className="sr-only">{t("adicionadoProduto", { nome: nomeProduto })}</p>}
         {adicionado && !compacto && (
           <p className="flex flex-wrap items-center gap-x-2 text-marca-preto">
             <Check aria-hidden className="size-4" />

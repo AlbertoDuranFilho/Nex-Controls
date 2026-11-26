@@ -44,6 +44,29 @@ test("visitante vê o produto na lista e nenhum preço", async ({ page }) => {
   await expect(page.locator("main")).not.toContainText("R$");
 });
 
+test("no celular (360 px, es) o botão de entrar do visitante cabe no cartão", async ({ page }) => {
+  const nome = `Placa Estreita ${sufixo}`;
+  await novoProduto({ codigo: `E${sufixo}`, nome, preco: 100 });
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/es/catalogo");
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  const botao = cartao.getByRole("link", { name: "Inicia sesión para ver precios" });
+  await expect(botao).toBeVisible();
+  const medidas = await botao.evaluate((el) => {
+    const b = el.getBoundingClientRect();
+    const c = el.closest("article")!.getBoundingClientRect();
+    return {
+      scroll: el.scrollWidth,
+      client: el.clientWidth,
+      dentro: b.left >= c.left - 0.5 && b.right <= c.right + 0.5,
+      pagina: document.documentElement.scrollWidth,
+    };
+  });
+  expect(medidas.scroll).toBeLessThanOrEqual(medidas.client);
+  expect(medidas.dentro).toBe(true);
+  expect(medidas.pagina).toBeLessThanOrEqual(360);
+});
+
 test("lojista adiciona pelo cartão e o contador do carrinho muda", async ({ page }) => {
   const u = await criarLojista();
   const nome = `Placa Cartao ${sufixo}`;
@@ -61,6 +84,8 @@ test("lojista adiciona pelo cartão e o contador do carrinho muda", async ({ pag
   await expect(cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` })).toContainText(
     "Adicionado",
   );
+  // Confirmação para leitor de tela na região viva do cartão.
+  await expect(cartao.locator("[aria-live=polite]")).toContainText(`${nome} adicionado ao carrinho`);
   await expect(page.getByTestId("icone-carrinho")).toHaveAttribute("aria-label", "Carrinho: 2");
 });
 
@@ -132,6 +157,11 @@ test("lojista desativado vê aviso de conta inativa", async ({ page }) => {
     preco: 100,
   });
   await logar(page, u);
+  await expect(page.getByRole("status").filter({ hasText: "Seu cadastro está inativo." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Fale com a Nex para liberar os preços." })).toHaveAttribute(
+    "href",
+    "/pt#contato",
+  );
   await page.goto(`/pt/catalogo/${slug}`);
   await expect(page.getByText(/conta.*inativa/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Adicionar ao carrinho" })).toHaveCount(0);

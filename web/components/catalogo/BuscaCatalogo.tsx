@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowDownUp, ChevronDown, Search, X } from "lucide-react";
+import { ArrowDownUp, ChevronDown, CircleAlert, Search, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import EstadoVazio from "@/components/catalogo/EstadoVazio";
-import PrecosCatalogo from "@/components/catalogo/PrecosCatalogo";
+import PrecosCatalogo, { useEstadoPrecos } from "@/components/catalogo/PrecosCatalogo";
 import Botao from "@/components/ui/Botao";
 import { classeCampo } from "@/components/ui/Campo";
 import type { ProdutoPublico } from "@/services/catalogo";
@@ -87,6 +88,8 @@ export default function BuscaCatalogo({ produtos }: { produtos: ProdutoPublico[]
         </div>
       </div>
 
+      <AvisoInativo />
+
       {filtrados.length === 0 ? (
         <EstadoVazio titulo={t("nenhumResultado")} dica={t("vazioDica")}>
           <Botao variante="secundario" tamanho="sm" icone={X} onClick={() => setBusca("")} className="mt-6">
@@ -103,5 +106,29 @@ export default function BuscaCatalogo({ produtos }: { produtos: ProdutoPublico[]
         </ul>
       )}
     </PrecosCatalogo>
+  );
+}
+
+// Lojista inativo vê "sob consulta" em todos os cartões: explica o porquê uma vez, acima da grade.
+function AvisoInativo() {
+  const t = useTranslations("catalog");
+  const locale = useLocale();
+  if (useEstadoPrecos() !== "inativo") return null;
+  return (
+    <p
+      role="status"
+      className="mt-6 flex items-start gap-2.5 rounded-xl border border-marca-cinza-200 bg-marca-cinza-50 px-4 py-3 text-sm text-marca-cinza-700"
+    >
+      <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-marca-preto" />
+      <span>
+        {t("avisoInativo")}{" "}
+        <Link
+          href={`/${locale}#contato`}
+          className="rounded font-semibold text-marca-preto underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+        >
+          {t("avisoInativoLink")}
+        </Link>
+      </span>
+    </p>
   );
 }

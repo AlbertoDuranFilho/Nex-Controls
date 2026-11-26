@@ -15,7 +15,7 @@ export type EstadoPreco =
   | { tipo: "preco"; tabela: number; final: number; desconto: number };
 
 type Precos = {
-  geral: Exclude<EstadoPreco["tipo"], "preco" | "consulta"> | "lojista";
+  geral: Exclude<EstadoPreco["tipo"], "preco"> | "lojista";
   porId: Map<string, Extract<EstadoPreco, { tipo: "preco" }>>;
 };
 
@@ -58,9 +58,14 @@ export default function PrecosCatalogo({ ids, children }: { ids: string[]; child
   useEffect(() => {
     let ativo = true;
     const lista = chave ? chave.split(",") : [];
-    carregarPrecos(lista).then((p) => {
-      if (ativo) setPrecos(p);
-    });
+    carregarPrecos(lista)
+      .then((p) => {
+        if (ativo) setPrecos(p);
+      })
+      // Falha de sessão/rede: sai do esqueleto e mostra "sob consulta" em vez de carregar para sempre.
+      .catch(() => {
+        if (ativo) setPrecos({ geral: "consulta", porId: new Map() });
+      });
     return () => {
       ativo = false;
     };
@@ -107,6 +112,13 @@ export function ValorPreco({
       </p>
     </div>
   );
+}
+
+/** Estado geral da lista (ex.: "inativo" para o aviso acima da grade). */
+export function useEstadoPrecos(): Precos["geral"] {
+  const precos = useContext(Contexto);
+  if (!precos) throw new Error("useEstadoPrecos fora de <PrecosCatalogo>");
+  return precos.geral;
 }
 
 /** Estado de preço de um produto; precisa de um <PrecosCatalogo> que inclua o id. */

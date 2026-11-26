@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { montarEmailCliente, montarEmailNex, type PedidoEmail } from "./pedido";
+import { montarEmailCliente, montarEmailNex, montarEmailNotaEmitida, type PedidoEmail } from "./pedido";
 
 const pedido: PedidoEmail = {
   numero: 1042,
@@ -91,5 +91,30 @@ describe("montarEmailNex", () => {
     expect(html).toContain(`href="${link}"`);
     expect(html).toContain("&lt;b&gt;X&lt;/b&gt;");
     expect(html).not.toContain("<script>");
+  });
+});
+
+describe("montarEmailNotaEmitida", () => {
+  const dados = {
+    numero: 1042,
+    cliente_nome: "<b>Loja</b>",
+    email: "compras@loja.com",
+    danfe_url: "https://maino.test/danfe?a=1&b=2",
+    linkPedido: "https://nex.test/pt/cliente/pedidos/1042",
+  };
+
+  it("assunto com o número e links do DANFE e do pedido", () => {
+    const m = montarEmailNotaEmitida(dados);
+    expect(m.assunto).toBe("Nota fiscal do pedido #1042");
+    expect(m.texto).toContain(dados.danfe_url);
+    expect(m.texto).toContain(dados.linkPedido);
+    expect(m.html).toContain("https://maino.test/danfe?a=1&amp;b=2");
+    expect(m.html).toContain(dados.linkPedido);
+  });
+
+  it("escapa o nome do cliente no HTML", () => {
+    const m = montarEmailNotaEmitida(dados);
+    expect(m.html).not.toContain("<b>Loja</b>");
+    expect(m.html).toContain("&lt;b&gt;Loja&lt;/b&gt;");
   });
 });

@@ -53,7 +53,9 @@ export default async function ListaCuponsPage({ params }: { params: Promise<{ lo
               </CelulaAdmin>
               <CelulaAdmin rotulo="Usos" className="whitespace-nowrap">{`${c.usos} / ${c.max_usos ?? "ilimitado"}`}</CelulaAdmin>
               <CelulaAdmin rotulo="Cliente" className="text-marca-cinza-800">
-                {c.lojista_id ? (nomes.get(c.lojista_id) ?? "Cliente específico") : "Todos"}
+                <span className="break-words">
+                  {c.lojista_id ? (nomes.get(c.lojista_id) ?? "Cliente específico") : "Todos"}
+                </span>
               </CelulaAdmin>
               <CelulaAdmin rotulo="Status">
                 <Selo tom={c.ativo ? "verde" : "neutro"}>{c.ativo ? "Ativo" : "Inativo"}</Selo>

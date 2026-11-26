@@ -152,7 +152,10 @@ export default function MenuAdmin({ locale, aguardando }: { locale: string; agua
   // Qualquer fechamento (link, rota, fundo, Esc, X) devolve o foco ao botão "Abrir menu".
   const estavaAberto = useRef(false);
   useEffect(() => {
-    if (estavaAberto.current && !aberto) botaoAbrir.current?.focus();
+    // Não foca se o botão está escondido (janela já em lg ou mais).
+    if (estavaAberto.current && !aberto && !window.matchMedia("(min-width: 1024px)").matches) {
+      botaoAbrir.current?.focus();
+    }
     estavaAberto.current = aberto;
   }, [aberto]);
 

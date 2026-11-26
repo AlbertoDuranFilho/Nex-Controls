@@ -17,7 +17,7 @@ export default function BotaoCupomAtivo({ id, ativo }: { id: string; ativo: bool
         {ativo ? "Desativar" : "Ativar"}
       </Botao>
       {estado && !estado.ok ? (
-        <span role="alert" className="ml-2 text-xs text-marca-cinza-800">
+        <span role="alert" className="ml-2 max-w-48 text-xs break-words whitespace-normal text-marca-cinza-800">
           {estado.erro}
         </span>
       ) : null}

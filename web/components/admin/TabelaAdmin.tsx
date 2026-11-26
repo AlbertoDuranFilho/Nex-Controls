@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 // semântica de tabela mesmo com `display: block`.
 export function TabelaAdmin({ colunas, children }: { colunas: ReactNode[]; children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-marca-cinza-200 bg-marca-branco shadow-suave">
+    <div className="overflow-x-auto rounded-2xl border border-marca-cinza-200 bg-marca-branco shadow-suave">
       <table role="table" className="block w-full text-left text-sm md:table">
         <thead role="rowgroup" className="hidden bg-marca-cinza-50 text-xs text-marca-cinza-600 md:table-header-group">
           <tr role="row">

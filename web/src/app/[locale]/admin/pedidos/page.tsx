@@ -72,7 +72,7 @@ export default async function ListaPedidosPage({ params, searchParams }: Props) 
                 <CelulaAdmin className="whitespace-nowrap">
                   <Link
                     href={`/${locale}/admin/pedidos/${p.numero}`}
-                    className="rounded font-semibold text-marca-preto underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+                    className="rounded font-semibold text-marca-preto underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
                     #{p.numero}
                   </Link>

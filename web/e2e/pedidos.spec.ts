@@ -124,3 +124,22 @@ test("link da nota sem https é recusado", async ({ browser }) => {
   await expect(a.getByText("O link da nota precisa começar com https://.")).toBeVisible();
   await ctx.close();
 });
+
+test("lista de pedidos em 1024 px e 360 px: colunas alcançáveis e sem rolagem da página", async ({ page }) => {
+  const lojista = await criarLojista({ endereco: true });
+  const numero = await criarPedido(lojista);
+  await logar(page, await criarAdmin(), "/pt/admin");
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/pt/admin/pedidos");
+  const linha = page.getByRole("row", { name: new RegExp(`#${numero}$|#${numero} `) });
+  const ultima = linha.getByRole("cell").last();
+  await ultima.scrollIntoViewIfNeeded();
+  await expect(ultima).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1024);
+
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("/pt/admin/pedidos");
+  await expect(page.getByRole("row", { name: new RegExp(`#${numero}$|#${numero} `) })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+});

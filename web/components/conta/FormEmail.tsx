@@ -7,6 +7,7 @@ import { Clock, Mail, Send } from "lucide-react";
 import { alterarEmail, type EstadoForm } from "@/services/minha-conta";
 import { Campo, Retorno } from "@/components/conta/Campo";
 import CartaoConta from "@/components/conta/CartaoConta";
+import { PLACEHOLDER } from "@/lib/mascaras";
 import Botao from "@/components/ui/Botao";
 
 const inicial: EstadoForm = { status: "idle" };
@@ -56,6 +57,7 @@ export default function FormEmail({
           type="email"
           inputMode="email"
           autoComplete="email"
+          placeholder={PLACEHOLDER.email}
           value={novo}
           onChange={setNovo}
           required

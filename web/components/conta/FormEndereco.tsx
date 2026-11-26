@@ -5,7 +5,8 @@ import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { salvarEndereco, type EstadoForm } from "@/services/minha-conta";
 import { buscarCep, normalizarCep } from "@/lib/validacao/cep";
-import { mascaraCep, UFS, ufValida } from "@/lib/conta/campos";
+import { UFS, ufValida } from "@/lib/conta/campos";
+import { PLACEHOLDER, mascaraCep } from "@/lib/mascaras";
 import { Save } from "lucide-react";
 import { Campo, Retorno, Seletor } from "@/components/conta/Campo";
 import Botao from "@/components/ui/Botao";
@@ -81,6 +82,7 @@ export default function FormEndereco({ locale, dados }: { locale: string; dados:
             label={t("cep")}
             inputMode="numeric"
             autoComplete="postal-code"
+            placeholder={PLACEHOLDER.cep}
             value={v.cep}
             onChange={aoMudarCep}
             required

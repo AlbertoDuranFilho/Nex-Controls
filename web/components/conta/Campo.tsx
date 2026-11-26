@@ -43,6 +43,7 @@ export function Campo({
   required,
   disabled,
   maxLength,
+  placeholder,
   inputRef,
 }: BaseProps & {
   value: string;
@@ -53,6 +54,7 @@ export function Campo({
   required?: boolean;
   disabled?: boolean;
   maxLength?: number;
+  placeholder?: string;
   inputRef?: Ref<HTMLInputElement>;
 }) {
   return (
@@ -73,6 +75,7 @@ export function Campo({
         inputMode={inputMode}
         required={required}
         maxLength={maxLength}
+        placeholder={placeholder}
         aria-invalid={erro ? true : undefined}
         aria-describedby={erro ? `${id}-erro` : undefined}
         className={estiloCampo}

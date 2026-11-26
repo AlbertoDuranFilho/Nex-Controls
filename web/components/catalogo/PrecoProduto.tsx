@@ -65,7 +65,7 @@ export default function PrecoProduto({ produtoId }: { produtoId: string }) {
     };
   }, [produtoId]);
 
-  const caixa = "min-h-28";
+  const caixa = "h-44"; // altura fixa (maior estado + feedback): sem CLS
 
   if (estado.tipo === "carregando") {
     return <div className={`${caixa} animate-pulse bg-marca-cinza-100`} aria-hidden="true" />;
@@ -149,7 +149,7 @@ export default function PrecoProduto({ produtoId }: { produtoId: string }) {
         </button>
       </div>
 
-      <div className="mt-3 text-sm" aria-live="polite">
+      <div className="mt-3 h-10 overflow-hidden text-sm" aria-live="polite">
         {qtd === null && <p className="text-marca-cinza-700">{t("erroQuantidade")}</p>}
         {erro && <p className="text-marca-cinza-700">{erro}</p>}
         {adicionado && (

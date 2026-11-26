@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useTransicao } from "@/lib/react/destravar-transicao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { confirmarImportacao, previaImportacao, type PreviaImportacao } from "@/services/importacao-admin";
 
@@ -16,7 +17,7 @@ export default function ImportarPlanilha() {
   const [previa, setPrevia] = useState<PreviaImportacao | null>(null);
   const [concluido, setConcluido] = useState<Concluido | null>(null);
   const [mensagem, setMensagem] = useState<string | null>(null);
-  const [pendente, iniciar] = useTransition();
+  const [pendente, iniciar] = useTransicao();
 
   function formDe(f: File): FormData {
     const fd = new FormData();

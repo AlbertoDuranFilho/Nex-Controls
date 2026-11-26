@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
-import { criarLojista, criarProduto, darDesconto, removerProdutos } from "./fixtures";
+import { admin, criarLojista, criarProduto, darDesconto, removerProdutos } from "./fixtures";
 
 const SEGREDO = "e2e-revalidar";
 const sufixo = randomUUID().slice(0, 8).toUpperCase();
@@ -23,7 +23,7 @@ async function logar(page: Page, u: { email: string; senha: string }) {
   await page.getByLabel("Senha", { exact: true }).fill(u.senha);
   await page.getByLabel("Email", { exact: true }).fill(u.email);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 }
 
 test.afterAll(async () => {
@@ -35,7 +35,71 @@ test("visitante vê o produto na lista e nenhum preço", async ({ page }) => {
   await novoProduto({ codigo: `V${sufixo}`, nome, preco: 100 });
   await page.goto("/pt/catalogo");
   await expect(page.getByText(nome)).toBeVisible();
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  await expect(cartao.getByRole("link", { name: "Entre para ver preços" })).toHaveAttribute(
+    "href",
+    `/pt/cliente/login?next=${encodeURIComponent("/pt/catalogo")}`,
+  );
+  await expect(cartao.getByRole("button", { name: /carrinho/ })).toHaveCount(0);
   await expect(page.locator("main")).not.toContainText("R$");
+});
+
+test("no celular (360 px, es) o botão de entrar do visitante cabe no cartão", async ({ page }) => {
+  const nome = `Placa Estreita ${sufixo}`;
+  await novoProduto({ codigo: `E${sufixo}`, nome, preco: 100 });
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/es/catalogo");
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  const botao = cartao.getByRole("link", { name: "Inicia sesión para ver precios" });
+  await expect(botao).toBeVisible();
+  const medidas = await botao.evaluate((el) => {
+    const b = el.getBoundingClientRect();
+    const c = el.closest("article")!.getBoundingClientRect();
+    return {
+      scroll: el.scrollWidth,
+      client: el.clientWidth,
+      dentro: b.left >= c.left - 0.5 && b.right <= c.right + 0.5,
+      pagina: document.documentElement.scrollWidth,
+    };
+  });
+  expect(medidas.scroll).toBeLessThanOrEqual(medidas.client);
+  expect(medidas.dentro).toBe(true);
+  expect(medidas.pagina).toBeLessThanOrEqual(360);
+});
+
+test("lojista adiciona pelo cartão e o contador do carrinho muda", async ({ page }) => {
+  const u = await criarLojista();
+  const nome = `Placa Cartao ${sufixo}`;
+  await novoProduto({ codigo: `C${sufixo}`, nome, preco: 80 });
+  await logar(page, u);
+  await page.getByLabel("Buscar produto").fill(`C${sufixo}`);
+
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  await expect(cartao.getByText(/R\$\s80,00/)).toBeVisible();
+  await expect(page.getByTestId("icone-carrinho")).toHaveAttribute("aria-label", "Carrinho: 0");
+
+  await cartao.getByRole("button", { name: `Aumentar quantidade de ${nome}` }).click();
+  await expect(cartao.getByLabel(`Quantidade de ${nome}`, { exact: true })).toHaveValue("2");
+  await cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` }).click();
+  await expect(cartao.getByRole("button", { name: `Adicionar ${nome} ao carrinho` })).toContainText(
+    "Adicionado",
+  );
+  // Confirmação para leitor de tela na região viva do cartão.
+  await expect(cartao.locator("[aria-live=polite]")).toContainText(`${nome} adicionado ao carrinho`);
+  await expect(page.getByTestId("icone-carrinho")).toHaveAttribute("aria-label", "Carrinho: 2");
+});
+
+test("produto sem preço aparece como sob consulta no cartão, sem botão de adicionar", async ({ page }) => {
+  const u = await criarLojista();
+  const nome = `Placa Consulta ${sufixo}`;
+  const { id } = await novoProduto({ codigo: `S${sufixo}`, nome, preco: 10 });
+  const { error } = await admin().from("produto_precos").delete().eq("produto_id", id);
+  expect(error).toBeNull();
+  await logar(page, u);
+
+  const cartao = page.getByRole("article").filter({ hasText: nome });
+  await expect(cartao.getByText("Sob consulta")).toBeVisible();
+  await expect(cartao.getByRole("button", { name: /ao carrinho/ })).toHaveCount(0);
 });
 
 test("detalhe mostra especificação e link do manual; sem preço para visitante", async ({ page }) => {
@@ -93,6 +157,11 @@ test("lojista desativado vê aviso de conta inativa", async ({ page }) => {
     preco: 100,
   });
   await logar(page, u);
+  await expect(page.getByRole("status").filter({ hasText: "Seu cadastro está inativo." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Fale com a Nex para liberar os preços." })).toHaveAttribute(
+    "href",
+    "/pt#contato",
+  );
   await page.goto(`/pt/catalogo/${slug}`);
   await expect(page.getByText(/conta.*inativa/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Adicionar ao carrinho" })).toHaveCount(0);

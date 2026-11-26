@@ -2,13 +2,15 @@
   "navbar": {
     "company": "Nex Controls",
     "home": "Home",
-    "about": "About",
     "catalog": "Catalog",
     "contact": "Contact",
     "email": "commercial@nexcontrols.com",
     "phone": "",
-    "clientArea": "Client Area",
-    "abrirMenu": "Open menu"
+    "abrirMenu": "Open menu",
+    "fecharMenu": "Close menu",
+    "atendimento": "Customer service",
+    "idioma": "Language",
+    "menuPrincipal": "Main menu"
   },
   "home": {
     "headline": "Technology in Every Detail",
@@ -25,7 +27,6 @@
   },
   "catalog": {
     "title": "Product Catalog",
-    "learnMore": "Learn more",
     "verCatalogoCompleto": "View full catalog",
     "buscar": "Search products",
     "buscaPlaceholder": "Search by name or code",
@@ -42,9 +43,31 @@
     "erroLogin": "Your session expired. Please sign in again.",
     "erroIndisponivel": "This product could not be added right now.",
     "carrinho": "Cart",
-    "loading": "Loading products...",
-    "backToCatalog": "Back to catalog",
-    "unavailable": "Products unavailable at the moment. Please try again shortly."
+    "unavailable": "Products unavailable at the moment. Please try again shortly.",
+    "entrarParaVerPrecos": "Sign in to see prices",
+    "sobConsultaCurto": "Price on request",
+    "adicionarCurto": "Add",
+    "adicionarProduto": "Add {nome} to cart",
+    "adicionadoCurto": "Added",
+    "quantidadeDe": "Quantity of {nome}",
+    "diminuir": "Decrease",
+    "aumentar": "Increase",
+    "verDetalhes": "View details",
+    "contagem": "{count, plural, =0 {No products} one {# product} other {# products}}",
+    "ordenar": "Sort by",
+    "ordemNome": "Name (A–Z)",
+    "ordemCodigo": "Code",
+    "limparBusca": "Clear search",
+    "inicio": "Home",
+    "breadcrumb": "You are here",
+    "subtitulo": "Nex Controls electronic boards and components. Registered customers see prices and order directly online.",
+    "vazioDica": "Try searching for another name or code.",
+    "porUnidade": "per unit",
+    "diminuirDe": "Decrease quantity of {nome}",
+    "aumentarDe": "Increase quantity of {nome}",
+    "adicionadoProduto": "{nome} added to cart",
+    "avisoInativo": "Your account is inactive.",
+    "avisoInativoLink": "Contact Nex to unlock prices."
   },
   "contact": {
     "title": "Sign up and receive first-hand the best offers, promotions, and launches of our products",
@@ -74,7 +97,6 @@
     "noImage": "No image available",
     "noSpecs": "This product has no specifications",
     "noApplications": "This product has no applications listed",
-    "backToCatalog": "Back to catalog",
     "tabs": {
       "description": "Product description",
       "specifications": "Technical Specifications",
@@ -106,13 +128,24 @@
   },
   "login": {
     "title": "Client Area",
+    "boasVindas": "Welcome",
+    "subtitulo": "Sign in to access your orders and products.",
     "email": "Email",
+    "emailPlaceholder": "you@company.com",
     "password": "Password",
     "submit": "Sign in",
-    "back": "Back",
+    "back": "Back to site",
     "erroCredenciais": "Invalid email or password.",
-    "mostrarSenha": "Show",
-    "ocultarSenha": "Hide"
+    "mostrarSenha": "Show password",
+    "ocultarSenha": "Hide password",
+    "naoECliente": "Not a client yet?",
+    "faleConosco": "Contact us",
+    "slogan": "Boards and equipment with the quality your business demands.",
+    "beneficios": {
+      "precos": "Exclusive prices for your company",
+      "catalogo": "The full catalog at hand",
+      "pedidos": "Track orders and invoices"
+    }
   },
   "conta": {
     "nav": {
@@ -121,7 +154,9 @@
       "endereco": "Address",
       "seguranca": "Security",
       "carrinho": "Cart",
-      "pedidos": "Orders"
+      "pedidos": "Orders",
+      "catalogo": "Catalog",
+      "area": "Customer area"
     },
     "dados": {
       "titulo": "My details",
@@ -136,7 +171,9 @@
       "isento": "Exempt",
       "naoContribuinte": "Non-taxpayer",
       "inscricaoEstadual": "State registration number",
-      "salvar": "Save"
+      "salvar": "Save",
+      "secao": "Company details",
+      "secaoDescricao": "Name and document are set by Nex. Keep your contacts up to date."
     },
     "endereco": {
       "titulo": "Address",
@@ -149,7 +186,8 @@
       "uf": "State",
       "salvar": "Save",
       "buscando": "Looking up postal code…",
-      "naoEncontrado": "We could not find this postal code, please fill in manually."
+      "naoEncontrado": "We could not find this postal code, please fill in manually.",
+      "descricao": "Address used to deliver your orders."
     },
     "email": {
       "titulo": "Login email",
@@ -171,7 +209,8 @@
       "mostrar": "Show passwords",
       "ocultar": "Hide passwords",
       "salvar": "Change password",
-      "alterada": "Password changed"
+      "alterada": "Password changed",
+      "descricao": "Change the password you use to sign in to the customer area."
     },
     "estado": {
       "salvando": "Saving…",
@@ -278,7 +317,10 @@
     "ola": "Hello, {nome}",
     "minhaConta": "My account",
     "admin": "Admin",
-    "sair": "Sign out"
+    "sair": "Sign out",
+    "catalogo": "Catalog",
+    "pedidos": "My orders",
+    "areaCliente": "Customer area"
   },
   "carrinho": {
     "titulo": "Cart",
@@ -287,7 +329,6 @@
     "produto": "Product",
     "quantidade": "Quantity",
     "quantidadeDe": "Quantity of {nome}",
-    "precoUnitario": "Unit price",
     "totalLinha": "Total",
     "remover": "Remove",
     "removerDe": "Remove {nome}",
@@ -327,7 +368,15 @@
     "cadastrarEndereco": "Add address",
     "erroGerarIncerto": "We could not confirm the order. Check My orders before trying again.",
     "irMeusPedidos": "Go to My orders",
-    "erroCarregar": "Could not load the cart. Please try again in a moment."
+    "erroCarregar": "Could not load the cart. Please try again in a moment.",
+    "diminuirDe": "Decrease quantity of {nome}",
+    "aumentarDe": "Increase quantity of {nome}",
+    "vazioDica": "Browse the catalog and add products to build your order.",
+    "contagemItens": "{count, plural, one {# product} other {# products}}",
+    "porUnidade": "{valor} each",
+    "continuarComprando": "Continue shopping",
+    "cupomDica": "Have a coupon? Apply it before placing the order.",
+    "observacaoTitulo": "Note to Nex"
   },
   "pedidos": {
     "titulo": "My orders",
@@ -351,7 +400,6 @@
     "itens": "Items",
     "produto": "Product",
     "quantidade": "Quantity",
-    "precoUnitario": "Unit price",
     "totalLinha": "Total",
     "subtotal": "Subtotal",
     "desconto": "Discount",
@@ -364,8 +412,13 @@
     "notaFiscal": "View invoice",
     "notaCancelada": "Invoice cancelled",
     "historico": "History",
-    "historicoVazio": "No status changes yet.",
     "deAte": "{de} to {para}",
-    "colunaStatus": "Status"
+    "subtitulo": "Track the status and invoices of your orders.",
+    "vazioDica": "Orders you place will show up here.",
+    "criado": "Order placed",
+    "resumo": "Summary"
+  },
+  "comum": {
+    "carregando": "Loading…"
   }
 }

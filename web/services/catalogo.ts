@@ -65,3 +65,27 @@ export async function listarSlugsAtivos(): Promise<string[]> {
   if (error) throw new Error(`Falha ao listar slugs: ${error.message}`);
   return data.map((p) => p.slug);
 }
+
+export type Miniatura = { slug: string; imagem: { url: string; alt: string | null } | null };
+
+// Só apresentação (carrinho): slug e primeira imagem de cada produto ativo. Falha vira mapa vazio.
+export async function miniaturasProdutos(ids: string[]): Promise<Record<string, Miniatura>> {
+  if (ids.length === 0) return {};
+  const { data, error } = await createPublicClient()
+    .from("produtos")
+    .select("id, slug, produto_imagens(url, alt, ordem)")
+    .eq("ativo", true)
+    .in("id", ids);
+  if (error || !data) return {};
+  const linhas = data as unknown as {
+    id: string;
+    slug: string;
+    produto_imagens: { url: string; alt: string | null; ordem: number }[];
+  }[];
+  return Object.fromEntries(
+    linhas.map((l) => {
+      const [primeira] = [...l.produto_imagens].sort(porOrdem);
+      return [l.id, { slug: l.slug, imagem: primeira ? { url: primeira.url, alt: primeira.alt } : null }];
+    }),
+  );
+}

@@ -1,5 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import BuscaCatalogo from "@/components/catalogo/BuscaCatalogo";
+import EstadoVazio from "@/components/catalogo/EstadoVazio";
+import Trilha from "@/components/catalogo/Trilha";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import { listarProdutosPublicos, type ProdutoPublico } from "@/services/catalogo";
 
@@ -24,13 +26,28 @@ export default async function CatalogoPage({ params }: { params: Promise<{ local
   const [produtos, t] = await Promise.all([produtosParaPagina(), getTranslations("catalog")]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 pb-16 pt-32">
-      <h1 className="mb-8 text-3xl font-bold text-marca-preto">{t("title")}</h1>
-      {produtos.length === 0 ? (
-        <p className="py-10 text-marca-cinza-500">{t("unavailable")}</p>
-      ) : (
-        <BuscaCatalogo produtos={produtos} />
-      )}
+    // pt-24 = altura da navbar fixa.
+    <div className="pt-24">
+      <header className="border-b border-marca-cinza-200 bg-marca-cinza-50">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10">
+          <Trilha
+            rotulo={t("breadcrumb")}
+            passos={[{ rotulo: t("inicio"), href: `/${locale}` }, { rotulo: t("title") }]}
+          />
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-marca-preto md:text-4xl">
+            {t("title")}
+          </h1>
+          <p className="mt-2 max-w-2xl text-[15px] text-marca-cinza-500">{t("subtitulo")}</p>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-7xl px-4 pt-6 pb-16 sm:px-6 md:pt-8">
+        {produtos.length === 0 ? (
+          <EstadoVazio titulo={t("unavailable")} />
+        ) : (
+          <BuscaCatalogo produtos={produtos} />
+        )}
+      </div>
     </div>
   );
 }

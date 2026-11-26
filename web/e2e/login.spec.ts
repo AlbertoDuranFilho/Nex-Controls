@@ -18,11 +18,24 @@ async function preencherELogar(
   await page.getByRole("button", { name: r.entrar, exact: true }).click();
 }
 
-test("lojista entra e vê saudação", async ({ page }) => {
+test("olho mostra e oculta a senha; link de contato vai ao formulário da home", async ({ page }) => {
+  await page.goto("/pt/cliente/login");
+  const senha = page.getByLabel("Senha", { exact: true });
+  await expect(senha).toHaveAttribute("type", "password");
+  await page.getByRole("button", { name: "Mostrar senha" }).click();
+  await expect(senha).toHaveAttribute("type", "text");
+  const ocultar = page.getByRole("button", { name: "Ocultar senha" });
+  await expect(ocultar).toHaveAttribute("aria-pressed", "true");
+  await ocultar.click();
+  await expect(senha).toHaveAttribute("type", "password");
+  await expect(page.getByRole("link", { name: "Fale conosco" })).toHaveAttribute("href", "/pt#contato");
+});
+
+test("lojista entra no catálogo e vê saudação", async ({ page }) => {
   const u = await criarLojista();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
   await expect(page.locator("nav").first()).toContainText("Olá, Loja Teste");
 });
 
@@ -38,7 +51,7 @@ test("lojista desativado consegue entrar", async ({ page }) => {
   const u = await criarLojista({ ativo: false });
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 });
 
 test("rota protegida preserva idioma e destino", async ({ page }) => {
@@ -53,35 +66,35 @@ test("next externo é ignorado", async ({ page }) => {
   const u = await criarLojista();
   await page.goto("/pt/cliente/login?next=//evil.com");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 });
 
 test("lojista não acessa admin", async ({ page }) => {
   const u = await criarLojista();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
   await page.goto("/pt/admin/lojistas");
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 });
 
-test("admin vai para o painel; admin em /es/cliente vai para /es/admin/lojistas", async ({
+test("admin vai para o painel; admin em /es/cliente vai para /es/admin", async ({
   page,
 }) => {
   const a = await criarAdmin();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, a);
-  // A página /admin/lojistas chega na Task 6: aqui só a URL importa.
-  await expect(page).toHaveURL("/pt/admin/lojistas");
+  await expect(page).toHaveURL("/pt/admin");
   await page.goto("/es/cliente");
-  await expect(page).toHaveURL("/es/admin/lojistas");
+  await expect(page).toHaveURL("/es/admin");
 });
 
 test("sair encerra a sessão", async ({ page }) => {
   const u = await criarLojista();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
+  await page.getByRole("button", { name: /^Olá,/ }).click(); // abre o menu da conta
   await page.getByRole("button", { name: "Sair" }).click();
   await expect(page).toHaveURL("/pt");
   await expect(page.locator("nav").first().getByRole("link", { name: "Entrar" })).toBeVisible();
@@ -93,8 +106,31 @@ test("login grava acessos_log", async ({ page }) => {
   const u = await criarLojista();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
   expect(await contarAcessos(u.id)).toBe(1);
+});
+
+test("links do topo levam o idioma; menus da conta e SAC fecham quando o foco sai com Tab", async ({ page }) => {
+  const u = await criarLojista();
+  await page.goto("/pt/cliente/login");
+  await preencherELogar(page, u);
+  await expect(page).toHaveURL("/pt/catalogo");
+  const nav = page.locator("nav").first();
+  await expect(nav.getByRole("link", { name: "Home", exact: true })).toHaveAttribute("href", "/pt");
+  await expect(nav.getByRole("link", { name: "Catálogo", exact: true })).toHaveAttribute("href", "/pt/catalogo");
+  await expect(nav.getByRole("link", { name: "Contato", exact: true })).toHaveAttribute("href", "/pt#contato");
+
+  await page.getByRole("button", { name: /^Olá,/ }).click();
+  const sair = page.getByRole("button", { name: "Sair" });
+  await sair.focus();
+  await page.keyboard.press("Tab");
+  await expect(sair).toHaveCount(0);
+
+  await nav.getByRole("button", { name: "SAC" }).click();
+  const email = nav.getByRole("link", { name: "comercial@nexcontrols.com" });
+  await email.focus();
+  await page.keyboard.press("Tab");
+  await expect(email).toHaveCount(0);
 });
 
 test.describe("menu mobile", () => {
@@ -104,7 +140,7 @@ test.describe("menu mobile", () => {
     const u = await criarLojista();
     await page.goto("/pt/cliente/login");
     await preencherELogar(page, u);
-    await expect(page).toHaveURL("/pt/cliente");
+    await expect(page).toHaveURL("/pt/catalogo");
     await page.getByRole("button", { name: "Abrir menu" }).click();
     await page.getByRole("button", { name: "Sair" }).click();
     await expect(page).toHaveURL("/pt");
@@ -120,7 +156,7 @@ test("token expirado com refresh válido renova a sessão no middleware", async 
   const u = await criarLojista();
   await page.goto("/pt/cliente/login");
   await preencherELogar(page, u);
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 
   // Reescreve o cookie de sessão: access_token expirado, refresh_token intacto.
   const antes = await context.cookies();

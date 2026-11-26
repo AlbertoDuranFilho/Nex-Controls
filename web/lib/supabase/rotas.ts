@@ -20,7 +20,8 @@ export function decidirRedirect(
   const [locale, area, sub] = pathname.split("/").filter(Boolean);
   if (!locale || !LOCALES.includes(locale)) return null;
 
-  const home = papel === "admin" ? `/${locale}/admin/lojistas` : `/${locale}/cliente`;
+  // Home do lojista é o catálogo (mesmo padrão de destinoSeguro).
+  const home = papel === "admin" ? `/${locale}/admin` : `/${locale}/catalogo`;
 
   if (area === "cliente") {
     const ehLogin = sub === "login";
@@ -36,7 +37,7 @@ export function decidirRedirect(
 
   if (area === "admin") {
     if (!logado) return `/${locale}/cliente/login`;
-    return papel === "admin" ? null : `/${locale}/cliente`;
+    return papel === "admin" ? null : home;
   }
 
   return null;

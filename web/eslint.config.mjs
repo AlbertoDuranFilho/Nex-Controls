@@ -12,6 +12,25 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    // Transições de Server Action podem travar no React do Next 15.5; os wrappers destravam.
+    files: ["**/*.{ts,tsx}"],
+    ignores: ["lib/react/destravar-transicao.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "react",
+              importNames: ["useActionState", "useTransition"],
+              message: "Use useAcao / useTransicao de @/lib/react/destravar-transicao.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".next/**",

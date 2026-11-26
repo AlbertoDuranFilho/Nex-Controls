@@ -1,11 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAcao } from "@/lib/react/destravar-transicao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { definirCupomAtivo } from "@/services/cupons-admin";
 
 export default function BotaoCupomAtivo({ id, ativo }: { id: string; ativo: boolean }) {
-  const [estado, acao, pendente] = useActionState<ResultadoAdmin | null, FormData>(
+  const [estado, acao, pendente] = useAcao<ResultadoAdmin | null, FormData>(
     async () => definirCupomAtivo(id, !ativo),
     null,
   );

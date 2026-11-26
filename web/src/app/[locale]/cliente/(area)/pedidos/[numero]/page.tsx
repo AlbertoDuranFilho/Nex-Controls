@@ -1,7 +1,21 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import StatusPedido from "@/components/pedidos/StatusPedido";
+import {
+  ArrowLeft,
+  CircleCheck,
+  ClipboardList,
+  FileDown,
+  FileX,
+  History,
+  MapPin,
+  Package,
+  Receipt,
+  ShoppingBag,
+  StickyNote,
+} from "lucide-react";
+import CartaoConta from "@/components/conta/CartaoConta";
+import StatusPedido, { VISUAL_STATUS } from "@/components/pedidos/StatusPedido";
 import { formatarMoeda } from "@/lib/formatar";
 import { obterMeuPedido } from "@/services/pedidos-cliente";
 
@@ -21,115 +35,175 @@ export default async function PedidoPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: "pedidos" });
   const tStatus = await getTranslations({ locale, namespace: "pedidos.status" });
   const moeda = (v: number) => formatarMoeda(v, locale);
-  const dataHora = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short", timeZone: "America/Recife" });
+  const dataHora = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "America/Recife" });
   const rotuloDesconto = pedido.desconto_origem === "cupom" ? t("cupom") : t("descontoCliente");
 
+  // Linha do tempo: criação do pedido + cada mudança de status (mais antiga primeiro).
+  const linhaDoTempo = [
+    { id: "criado", titulo: t("criado"), quando: pedido.created_at, icone: ShoppingBag, de: null as string | null },
+    ...pedido.eventos.map((e) => ({
+      id: e.id,
+      titulo: tStatus(e.status_para),
+      quando: e.criado_em,
+      icone: VISUAL_STATUS[e.status_para].icone,
+      de: e.status_de ? tStatus(e.status_de) : null,
+    })),
+  ];
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <Link href={`/${locale}/cliente/pedidos`} className="text-sm text-marca-cinza-600 hover:text-marca-preto">
-          ← {t("voltar")}
+        <Link
+          href={`/${locale}/cliente/pedidos`}
+          className="group inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-marca-cinza-600 hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+        >
+          <ArrowLeft
+            aria-hidden
+            className="size-4 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+          />
+          {t("voltar")}
         </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-marca-preto">
-            {t("numero")} #{pedido.numero}
-          </h1>
-          <StatusPedido status={pedido.status} testId="status-pedido" />
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-marca-preto text-marca-branco shadow-suave">
+            <Package aria-hidden className="size-5.5" strokeWidth={1.75} />
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight text-marca-preto sm:text-[28px]">
+                {t("numero")} #{pedido.numero}
+              </h1>
+              <StatusPedido status={pedido.status} testId="status-pedido" />
+            </div>
+            <p className="mt-0.5 text-sm text-marca-cinza-600">{dataHora.format(new Date(pedido.created_at))}</p>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-marca-cinza-600">{dataHora.format(new Date(pedido.created_at))}</p>
       </div>
 
       {novo === "1" ? (
-        <p role="status" className="border border-marca-preto bg-marca-cinza-50 px-4 py-3 text-sm text-marca-preto">
+        <p
+          role="status"
+          className="flex items-start gap-3 rounded-2xl bg-marca-preto px-5 py-4 text-sm text-marca-branco shadow-suave"
+        >
+          <CircleCheck aria-hidden className="mt-0.5 size-5 shrink-0" />
           {t("confirmacao")}
         </p>
       ) : null}
 
-      <section aria-labelledby="itens">
-        <h2 id="itens" className="mb-3 text-lg font-semibold text-marca-preto">{t("itens")}</h2>
-        <div className="overflow-x-auto border border-marca-cinza-200">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-marca-cinza-50 text-marca-cinza-600">
-              <tr>
-                <th scope="col" className="px-4 py-3 font-medium">{t("produto")}</th>
-                <th scope="col" className="px-4 py-3 font-medium">{t("quantidade")}</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">{t("precoUnitario")}</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">{t("totalLinha")}</th>
-              </tr>
-            </thead>
-            <tbody>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+        <div className="space-y-6">
+          <CartaoConta titulo={t("itens")} idTitulo="itens" icone={ClipboardList}>
+            <ul className="divide-y divide-marca-cinza-100">
               {pedido.itens.map((i) => (
-                <tr key={i.codigo} className="border-t border-marca-cinza-200">
-                  <td className="px-4 py-3">
-                    <span className="block text-marca-preto">{i.nome}</span>
-                    <span className="text-xs text-marca-cinza-600">{i.codigo}</span>
-                  </td>
-                  <td className="px-4 py-3">{i.quantidade}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">{moeda(i.preco_unitario)}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">{moeda(i.total_linha)}</td>
-                </tr>
+                <li key={i.codigo} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-block rounded-full bg-marca-cinza-100 px-2 py-0.5 font-mono text-[11px] font-semibold tracking-wide text-marca-cinza-700">
+                      {i.codigo}
+                    </span>
+                    <p className="mt-1.5 text-[15px] leading-snug font-medium text-marca-preto">{i.nome}</p>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4 text-sm sm:justify-end">
+                    <p className="text-marca-cinza-600 tabular-nums">
+                      <span className="sr-only">{t("quantidade")}: </span>
+                      {i.quantidade} × {moeda(i.preco_unitario)}
+                    </p>
+                    <p className="font-semibold whitespace-nowrap text-marca-preto tabular-nums sm:w-28 sm:text-right">
+                      <span className="sr-only">{t("totalLinha")}: </span>
+                      {moeda(i.total_linha)}
+                    </p>
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </CartaoConta>
+
+          <CartaoConta titulo={t("historico")} idTitulo="historico" icone={History}>
+            <ol className="relative">
+              {linhaDoTempo.map((e, idx) => {
+                const ultimo = idx === linhaDoTempo.length - 1;
+                const Icone = e.icone;
+                return (
+                  <li key={e.id} className="relative flex gap-4 pb-6 last:pb-0">
+                    {!ultimo && (
+                      <span aria-hidden="true" className="absolute top-10 bottom-0 left-[19px] w-px bg-marca-cinza-200" />
+                    )}
+                    <span
+                      className={`relative grid size-10 shrink-0 place-items-center rounded-full ring-4 ring-marca-branco ${
+                        ultimo ? "bg-marca-preto text-marca-branco" : "bg-marca-cinza-100 text-marca-cinza-700"
+                      }`}
+                    >
+                      <Icone aria-hidden className="size-[18px]" strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0 pt-1">
+                      <p className={`text-sm font-semibold ${ultimo ? "text-marca-preto" : "text-marca-cinza-800"}`}>{e.titulo}</p>
+                      <p className="mt-0.5 text-xs text-marca-cinza-500">
+                        <time dateTime={e.quando}>{dataHora.format(new Date(e.quando))}</time>
+                        {e.de ? <> · {t("deAte", { de: e.de, para: e.titulo })}</> : null}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </CartaoConta>
         </div>
 
-        <dl className="mt-4 ml-auto max-w-xs space-y-1 text-sm">
-          <div className="flex justify-between"><dt>{t("subtotal")}</dt><dd>{moeda(pedido.subtotal)}</dd></div>
-          {pedido.desconto_valor > 0 ? (
-            <div className="flex justify-between"><dt>{rotuloDesconto}</dt><dd>-{moeda(pedido.desconto_valor)}</dd></div>
-          ) : null}
-          <div className="flex justify-between">
-            <dt>{t("frete")}</dt>
-            <dd>{pedido.frete_valor > 0 ? moeda(pedido.frete_valor) : t("freteACombinar")}</dd>
-          </div>
-          <div className="flex justify-between border-t border-marca-cinza-200 pt-2 text-base font-semibold text-marca-preto">
-            <dt>{t("total")}</dt><dd>{moeda(pedido.total)}</dd>
-          </div>
-        </dl>
-      </section>
+        <div className="space-y-6 xl:sticky xl:top-28">
+          <CartaoConta titulo={t("resumo")} idTitulo="resumo" icone={Receipt}>
+            <dl className="space-y-3 text-sm text-marca-cinza-700">
+              <div className="flex justify-between gap-4">
+                <dt>{t("subtotal")}</dt>
+                <dd className="text-marca-preto tabular-nums">{moeda(pedido.subtotal)}</dd>
+              </div>
+              {pedido.desconto_valor > 0 ? (
+                <div className="flex justify-between gap-4">
+                  <dt>{rotuloDesconto}</dt>
+                  <dd className="font-medium text-marca-preto tabular-nums">−{moeda(pedido.desconto_valor)}</dd>
+                </div>
+              ) : null}
+              <div className="flex justify-between gap-4">
+                <dt>{t("frete")}</dt>
+                <dd className="text-marca-preto">{pedido.frete_valor > 0 ? moeda(pedido.frete_valor) : t("freteACombinar")}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 border-t border-marca-cinza-200 pt-4 text-marca-preto">
+                <dt className="text-base font-semibold">{t("total")}</dt>
+                <dd className="text-2xl font-bold tracking-tight tabular-nums">{moeda(pedido.total)}</dd>
+              </div>
+            </dl>
 
-      <section aria-labelledby="entrega">
-        <h2 id="entrega" className="mb-2 text-lg font-semibold text-marca-preto">{t("entrega")}</h2>
-        <p className="text-sm text-marca-cinza-800">{pedido.entrega}</p>
-        {pedido.observacao ? (
-          <p className="mt-3 text-sm text-marca-cinza-800">
-            <span className="font-medium">{t("observacao")}:</span> {pedido.observacao}
-          </p>
-        ) : null}
-      </section>
+            {pedido.nfe_status === "CANCELADA" ? (
+              <p
+                data-testid="nota-cancelada"
+                className="mt-5 flex items-center gap-2 rounded-xl bg-marca-cinza-50 px-3.5 py-3 text-sm font-medium text-marca-cinza-800"
+              >
+                <FileX aria-hidden className="size-4 shrink-0" />
+                {t("notaCancelada")}
+              </p>
+            ) : pedido.maino_nota_url ? (
+              <a
+                href={pedido.maino_nota_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-marca-cinza-300 bg-marca-branco px-4 text-sm font-semibold text-marca-preto transition duration-200 hover:border-marca-preto hover:bg-marca-cinza-50 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+              >
+                <FileDown aria-hidden className="size-4" />
+                {t("notaFiscal")}
+              </a>
+            ) : null}
+          </CartaoConta>
 
-      {pedido.nfe_status === "CANCELADA" ? (
-        <p data-testid="nota-cancelada" className="text-sm text-marca-cinza-800">
-          {t("notaCancelada")}
-        </p>
-      ) : pedido.maino_nota_url ? (
-        <p>
-          <a
-            href={pedido.maino_nota_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-marca-preto underline underline-offset-2"
-          >
-            {t("notaFiscal")}
-          </a>
-        </p>
-      ) : null}
-
-      <section aria-labelledby="historico">
-        <h2 id="historico" className="mb-2 text-lg font-semibold text-marca-preto">{t("historico")}</h2>
-        {pedido.eventos.length === 0 ? (
-          <p className="text-sm text-marca-cinza-600">{t("historicoVazio")}</p>
-        ) : (
-          <ul className="space-y-1 text-sm text-marca-cinza-800">
-            {pedido.eventos.map((e) => (
-              <li key={e.id}>
-                {dataHora.format(new Date(e.criado_em))} —{" "}
-                {t("deAte", { de: e.status_de ? tStatus(e.status_de) : "—", para: tStatus(e.status_para) })}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          <CartaoConta titulo={t("entrega")} idTitulo="entrega" icone={MapPin}>
+            <p className="text-sm leading-relaxed text-marca-cinza-800">{pedido.entrega}</p>
+            {pedido.observacao ? (
+              <div className="mt-4 flex gap-2.5 rounded-xl bg-marca-cinza-50 p-3.5 text-sm text-marca-cinza-800">
+                <StickyNote aria-hidden className="mt-0.5 size-4 shrink-0 text-marca-cinza-500" />
+                <p className="min-w-0 break-words">
+                  <span className="font-medium text-marca-preto">{t("observacao")}:</span> {pedido.observacao}
+                </p>
+              </div>
+            ) : null}
+          </CartaoConta>
+        </div>
+      </div>
     </div>
   );
 }

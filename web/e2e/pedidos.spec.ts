@@ -56,9 +56,12 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   // Lojista: lista e detalhe
   const ctxCliente = await browser.newContext();
   const cliente = await ctxCliente.newPage();
-  await logar(cliente, lojista, "/pt/cliente");
+  await logar(cliente, lojista, "/pt/catalogo");
   await cliente.goto("/pt/cliente/pedidos");
-  const linha = cliente.getByRole("row", { name: new RegExp(`#${numero}\\b`) });
+  // Cartão da lista: o link "Pedido #N" identifica o pedido.
+  const linha = cliente
+    .getByRole("listitem")
+    .filter({ has: cliente.getByRole("link", { name: new RegExp(`#${numero}$`) }) });
   await expect(linha).toContainText("Aguardando pagamento");
   await linha.getByRole("link", { name: new RegExp(`#${numero}\\b`) }).click();
   await expect(cliente).toHaveURL(new RegExp(`/pt/cliente/pedidos/${numero}$`));
@@ -71,7 +74,7 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   // Outro lojista: não encontrado
   const ctxOutro = await browser.newContext();
   const intruso = await ctxOutro.newPage();
-  await logar(intruso, outro, "/pt/cliente");
+  await logar(intruso, outro, "/pt/catalogo");
   await intruso.goto(`/pt/cliente/pedidos/${numero}`);
   await expect(intruso.getByText(nomeProduto)).toHaveCount(0);
   await expect(intruso.getByText(/não encontrad|not found|404/i).first()).toBeVisible();
@@ -81,7 +84,7 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   const adm = await criarAdmin();
   const ctxAdmin = await browser.newContext();
   const a = await ctxAdmin.newPage();
-  await logar(a, adm, "/pt/admin/lojistas");
+  await logar(a, adm, "/pt/admin");
   await a.goto("/pt/admin/pedidos");
   await a.getByLabel("Status", { exact: true }).selectOption("aguardando_pagamento");
   await a.getByRole("button", { name: "Filtrar" }).click();
@@ -114,7 +117,7 @@ test("link da nota sem https é recusado", async ({ browser }) => {
   const adm = await criarAdmin();
   const ctx = await browser.newContext();
   const a = await ctx.newPage();
-  await logar(a, adm, "/pt/admin/lojistas");
+  await logar(a, adm, "/pt/admin");
   await a.goto(`/pt/admin/pedidos/${numero}`);
   await a.getByLabel("Link da nota").fill("http://exemplo.com/nf.pdf");
   await a.getByRole("button", { name: "Salvar" }).click();

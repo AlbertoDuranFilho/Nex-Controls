@@ -133,15 +133,12 @@ export default function MenuAdmin({ locale, aguardando }: { locale: string; agua
   // Fecha a gaveta ao trocar de rota (inclui o redirect do Sair).
   useEffect(() => setAberto(false), [pathname]);
 
-  // Gaveta aberta: foco no fechar, Esc fecha (devolve o foco ao botão) e a página de trás não rola.
+  // Gaveta aberta: foco no fechar, Esc fecha e a página de trás não rola.
   useEffect(() => {
     if (!aberto) return;
     botaoFechar.current?.focus();
     const tecla = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setAberto(false);
-        botaoAbrir.current?.focus();
-      }
+      if (e.key === "Escape") setAberto(false);
     };
     document.addEventListener("keydown", tecla);
     const overflow = document.body.style.overflow;
@@ -151,6 +148,23 @@ export default function MenuAdmin({ locale, aguardando }: { locale: string; agua
       document.body.style.overflow = overflow;
     };
   }, [aberto]);
+
+  // Qualquer fechamento (link, rota, fundo, Esc, X) devolve o foco ao botão "Abrir menu".
+  const estavaAberto = useRef(false);
+  useEffect(() => {
+    if (estavaAberto.current && !aberto) botaoAbrir.current?.focus();
+    estavaAberto.current = aberto;
+  }, [aberto]);
+
+  // Ao crescer a janela até lg, a lateral fixa assume: fecha a gaveta.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const aoMudar = (e: MediaQueryListEvent) => {
+      if (e.matches) setAberto(false);
+    };
+    mq.addEventListener("change", aoMudar);
+    return () => mq.removeEventListener("change", aoMudar);
+  }, []);
 
   return (
     <>

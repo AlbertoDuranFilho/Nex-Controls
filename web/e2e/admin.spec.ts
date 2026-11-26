@@ -328,10 +328,21 @@ test.describe("painel no celular", () => {
     }
     await page.keyboard.press("Escape");
     await expect(gaveta).toHaveCount(0);
+    await expect(abrir).toBeFocused();
 
     await abrir.click();
     await gaveta.getByRole("link", { name: "Produtos", exact: true }).click();
     await expect(page).toHaveURL("/pt/admin/produtos");
+    await expect(gaveta).toHaveCount(0);
+    await expect(abrir).toBeFocused();
+
+    // Lista sem rolagem horizontal e linha como cartão empilhado no celular.
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+
+    // Crescer a janela até lg fecha a gaveta.
+    await abrir.click();
+    await expect(gaveta).toBeVisible();
+    await page.setViewportSize({ width: 1100, height: 740 });
     await expect(gaveta).toHaveCount(0);
   });
 });

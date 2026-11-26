@@ -36,7 +36,10 @@ export type ProdutoAdmin = {
   especificacoes: { nome: string; valor: string }[];
 };
 
-export type ProdutoResumo = Pick<ProdutoAdmin, "id" | "codigo" | "nome" | "ativo" | "preco">;
+export type ProdutoResumo = Pick<ProdutoAdmin, "id" | "codigo" | "nome" | "ativo" | "preco"> & {
+  /** URL da primeira imagem (miniatura na lista), se houver. */
+  imagem: string | null;
+};
 
 const erro = (mensagem: string) => ({ ok: false as const, erro: mensagem });
 const ok = <T>(dados: T) => ({ ok: true as const, dados });
@@ -115,16 +118,24 @@ export async function listarProdutosAdmin(busca?: string): Promise<ProdutoResumo
   await exigirAdmin();
   let consulta = createAdminClient()
     .from("produtos")
-    .select("id, codigo, nome, ativo, produto_precos(preco)")
+    .select("id, codigo, nome, ativo, produto_precos(preco), produto_imagens(url, ordem)")
     .order("codigo", { ascending: true })
     .limit(300);
   const termo = sanitizarBusca(busca ?? "");
   if (termo) consulta = consulta.or(`codigo.ilike.%${termo}%,nome.ilike.%${termo}%`);
   const { data, error } = await consulta;
   if (error) throw new Error("Falha ao listar produtos.");
-  return (data as unknown as Pick<LinhaProduto, "id" | "codigo" | "nome" | "ativo" | "produto_precos">[]).map(
-    (l) => ({ id: l.id, codigo: l.codigo, nome: l.nome, ativo: l.ativo, preco: precoDe(l.produto_precos) }),
-  );
+  type Linha = Pick<LinhaProduto, "id" | "codigo" | "nome" | "ativo" | "produto_precos"> & {
+    produto_imagens: { url: string; ordem: number }[];
+  };
+  return (data as unknown as Linha[]).map((l) => ({
+    id: l.id,
+    codigo: l.codigo,
+    nome: l.nome,
+    ativo: l.ativo,
+    preco: precoDe(l.produto_precos),
+    imagem: [...l.produto_imagens].sort((a, b) => a.ordem - b.ordem)[0]?.url ?? null,
+  }));
 }
 
 export async function obterProdutoAdmin(id: string): Promise<ProdutoAdmin | null> {

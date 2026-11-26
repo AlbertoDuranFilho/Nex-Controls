@@ -21,12 +21,20 @@ export default async function ListaProdutosPage({ params, searchParams }: Props)
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <h1 className="text-2xl font-bold text-marca-preto">Produtos</h1>
-        <Link
-          href={`/${locale}/admin/produtos/novo`}
-          className="bg-marca-preto px-4 py-2 text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800"
-        >
-          Novo produto
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/${locale}/admin/produtos/importar`}
+            className="border border-marca-preto px-4 py-2 text-sm font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco"
+          >
+            Importar planilha
+          </Link>
+          <Link
+            href={`/${locale}/admin/produtos/novo`}
+            className="bg-marca-preto px-4 py-2 text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800"
+          >
+            Novo produto
+          </Link>
+        </div>
       </div>
 
       <form method="get" className="mb-6 flex gap-2">

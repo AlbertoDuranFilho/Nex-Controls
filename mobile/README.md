@@ -1,50 +1,44 @@
-# Welcome to your Expo app 👋
+# App Nex Controls (Android)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App do cliente B2B da Nex, em Expo (SDK 58) + expo-router. Usa o **mesmo Supabase do site**
+(mesmo login, mesmas tabelas/RPCs, sob RLS). Nunca usa a service role.
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Rodar
 
 ```bash
-npm run reset-project
+cd mobile
+cp .env.example .env   # preencha URL e chave publishable do Supabase
+npm install
+npx expo start         # abra no Expo Go ou num dev build (tecla "a" para Android)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Variáveis (só públicas): `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+(ou `EXPO_PUBLIC_SUPABASE_ANON_KEY`) e `EXPO_PUBLIC_SITE_URL`.
 
-## Learn more
+## Verificar
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx tsc --noEmit && npx expo lint && npx jest
+npx expo export --platform android   # confere que o bundle compila, sem aparelho
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Estrutura
 
-## Join the community
+- `app/_layout.tsx` — provedores (sessão, contador do carrinho) e pilha raiz.
+- `app/(abas)/` — abas Catálogo (público), Carrinho, Pedidos e Conta (pedem login).
+- `app/login.tsx` — login com o e-mail e senha do site. Conta de admin é desconectada
+  ("Use o painel no site").
+- `lib/supabase.ts` — cliente Supabase; sessão guardada no `expo-secure-store` em pedaços
+  (`lib/armazenamento.ts`), refresh automático ligado ao estado do app.
+- `lib/sessao.tsx` — `useSessao()`: sessão, papel (`visitante` | `lojista` | `admin`),
+  `lojistaAtivo`, `entrar`, `sair`.
+- `lib/contagem-carrinho.tsx` — `useContagemCarrinho()`: contador da aba Carrinho.
+- `constants/tema.ts` e `constants/textos.ts` — paleta preta/branca e todos os textos (pt-BR).
+- `components/ui/` — `Botao`, `Campo`, `CampoSenha`, `Selo`.
+- `types/database.ts` — cópia dos tipos gerados do banco (`web/types/database.ts`);
+  atualize junto quando rodar `npm run db:types` na raiz.
 
-Join our community of developers creating universal apps.
+## Identidade do app
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+`app.json`: nome "Nex Controls", pacote Android `br.com.nexcontrols.app`, scheme `nexcontrols`,
+ícone e splash a partir de `assets/images/logo.png` sobre fundo branco.

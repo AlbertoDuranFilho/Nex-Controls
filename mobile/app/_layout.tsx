@@ -1,29 +1,45 @@
-import { Slot } from "expo-router";
-import { StatusBar, View } from "react-native";
-import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { cores } from "@/constants/tema";
+import { ContagemCarrinhoProvider } from "@/lib/contagem-carrinho";
+import { SessaoProvider, useSessao } from "@/lib/sessao";
 
-function LayoutWrapper() {
-  const insets = useSafeAreaInsets(); // pega altura do notch/status bar dinamicamente
+void SplashScreen.preventAutoHideAsync().catch(() => {});
+
+function Navegacao() {
+  const { carregando } = useSessao();
+
+  // Mantém a splash até ler a sessão salva (evita piscar "Entre para continuar").
+  useEffect(() => {
+    if (!carregando) void SplashScreen.hideAsync().catch(() => {});
+  }, [carregando]);
 
   return (
-    <View style={{flex: 1}}>
-      {/* 🔵 Topo azul com altura exata do notch */}
-      <View style={{ height: insets.top, backgroundColor: "#1B1C59" }}>
-        <StatusBar barStyle="light-content" backgroundColor="#1B1C59" />
-      </View>
-
-      {/* ⬜ Corpo branco */}
-      <View style={{flex: 1, backgroundColor: "#fff", paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right, }}>
-        <Slot />
-      </View>
-    </View>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: cores.fundo },
+      }}
+    >
+      <Stack.Screen name="(abas)" />
+      <Stack.Screen name="login" options={{ animation: "slide_from_bottom", contentStyle: { backgroundColor: cores.preto } }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <LayoutWrapper />
+      <SessaoProvider>
+        <ContagemCarrinhoProvider>
+          <StatusBar style="dark" />
+          <Navegacao />
+        </ContagemCarrinhoProvider>
+      </SessaoProvider>
     </SafeAreaProvider>
   );
 }

@@ -38,9 +38,19 @@ test("login sem o topo e o rodapé do site; Voltar ao site leva à home", async 
   await expect(page.getByRole("button", { name: "SAC" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Catálogo", exact: true })).toHaveCount(0);
   await expect(page.locator("footer")).toHaveCount(0);
+  // Sem a navbar, o idioma troca ao lado do "Voltar ao site".
+  await expect(page.getByRole("button", { name: "Português" })).toBeVisible();
   await page.getByRole("link", { name: "Voltar ao site" }).click();
   await expect(page).toHaveURL("/pt");
   await expect(page.getByRole("link", { name: "Catálogo", exact: true }).first()).toBeVisible();
+});
+
+test("login troca de idioma sem perder o destino", async ({ page }) => {
+  await page.goto(`/pt/cliente/login?next=${encodeURIComponent("/pt/catalogo")}`);
+  await page.getByRole("button", { name: "Português" }).click();
+  await page.getByRole("button", { name: "English" }).click();
+  await expect(page).toHaveURL(`/en/cliente/login?next=${encodeURIComponent("/en/catalogo")}`);
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
 });
 
 test("lojista entra no catálogo e vê saudação", async ({ page }) => {

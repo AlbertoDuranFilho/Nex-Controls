@@ -46,9 +46,10 @@
     cursor: pointer;
   }
 
-  /* :is(...) iguala a especificidade de input[type=…]; vem depois, então ganha. */
+  /* Especificidade ≥ input[type=…] (0,1,1) e vem depois, então ganha: :is(...) soma o
+     elemento; o atributo repetido em aria-disabled vale (0,2,0). */
   :is(button, input, select, textarea, fieldset):disabled,
-  [aria-disabled="true"] {
+  [aria-disabled="true"][aria-disabled="true"] {
     cursor: not-allowed;
   }
 }

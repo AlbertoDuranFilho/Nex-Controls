@@ -97,6 +97,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"integracao_tokens": {
+                  Row: {
+                    "access_token": string,"atualizado_em": string,"provedor": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "access_token": string,"atualizado_em"?: string,"provedor": string
+                  }
+                  Update: {
+                    "access_token"?: string,"atualizado_em"?: string,"provedor"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"lojista_descontos_produto": {
                   Row: {
                     "desconto_percentual": number,"lojista_id": string,"produto_id": string
@@ -185,14 +199,14 @@ isOneToOne: false
                   ]
                 },"pedidos": {
                   Row: {
-                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual": string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at": string,"cupom_id": string | null,"desconto_origem": Database["public"]['Enums']["desconto_origem"],"desconto_valor": number,"difal_valor": number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento": string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor": number,"gateway_provider": string | null,"gateway_transaction_id": string | null,"icms_valor": number,"id": string,"lojista_id": string,"maino_nota_id": string | null,"maino_nota_url": string | null,"metodo_pagamento": string | null,"notificado_em": string | null,"numero": number,"observacao": string | null,"status": Database["public"]['Enums']["pedido_status"],"status_pagamento": string | null,"subtotal": number,"total": number,"updated_at": string
+                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual": string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at": string,"cupom_id": string | null,"desconto_origem": Database["public"]['Enums']["desconto_origem"],"desconto_valor": number,"difal_valor": number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento": string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor": number,"gateway_provider": string | null,"gateway_transaction_id": string | null,"icms_valor": number,"id": string,"lojista_id": string,"maino_nota_id": string | null,"maino_nota_url": string | null,"maino_pedido_id": string | null,"metodo_pagamento": string | null,"nfe_atualizado_em": string | null,"nfe_erro": string | null,"nfe_status": string | null,"notificado_em": string | null,"numero": number,"observacao": string | null,"status": Database["public"]['Enums']["pedido_status"],"status_pagamento": string | null,"subtotal": number,"total": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento"?: string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id": string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"metodo_pagamento"?: string | null,"notificado_em"?: string | null,"numero"?: never,"observacao"?: string | null,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal": number,"total": number,"updated_at"?: string
+                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento"?: string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id": string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"maino_pedido_id"?: string | null,"metodo_pagamento"?: string | null,"nfe_atualizado_em"?: string | null,"nfe_erro"?: string | null,"nfe_status"?: string | null,"notificado_em"?: string | null,"numero"?: never,"observacao"?: string | null,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal": number,"total": number,"updated_at"?: string
                   }
                   Update: {
-                    "cliente_documento"?: string,"cliente_indicador_ie"?: Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome"?: string,"cliente_tipo_pessoa"?: Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro"?: string,"entrega_cep"?: string,"entrega_cidade"?: string,"entrega_complemento"?: string | null,"entrega_logradouro"?: string,"entrega_numero"?: string,"entrega_uf"?: string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id"?: string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"metodo_pagamento"?: string | null,"notificado_em"?: string | null,"numero"?: never,"observacao"?: string | null,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal"?: number,"total"?: number,"updated_at"?: string
+                    "cliente_documento"?: string,"cliente_indicador_ie"?: Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome"?: string,"cliente_tipo_pessoa"?: Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro"?: string,"entrega_cep"?: string,"entrega_cidade"?: string,"entrega_complemento"?: string | null,"entrega_logradouro"?: string,"entrega_numero"?: string,"entrega_uf"?: string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id"?: string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"maino_pedido_id"?: string | null,"metodo_pagamento"?: string | null,"nfe_atualizado_em"?: string | null,"nfe_erro"?: string | null,"nfe_status"?: string | null,"notificado_em"?: string | null,"numero"?: never,"observacao"?: string | null,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal"?: number,"total"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -355,6 +369,9 @@ isOneToOne: true
                            },
 "simular_pedido":
 { Args: { "p_cupom"?: string }; Returns: Json
+                           },
+"sistema_registrar_nfe":
+{ Args: { "p_chave"?: string,"p_danfe_url"?: string,"p_erro"?: string,"p_maino_pedido_id"?: string,"p_nfe_status"?: string,"p_pedido_id": string }; Returns: boolean
                            }
           }
           Enums: {

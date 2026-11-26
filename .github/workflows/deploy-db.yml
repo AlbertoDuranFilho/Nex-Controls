@@ -1,6 +1,7 @@
 name: deploy-db
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -28,7 +29,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx supabase link --project-ref "$PROJECT_REF"
-      - run: npx supabase db push
+      # CLI 3.x aponta para o banco local por padrão: --remote mira o projeto linkado.
+      - run: npx supabase db push --remote --password "$SUPABASE_DB_PASSWORD" --yes
 
   production:
     needs: staging
@@ -47,4 +49,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx supabase link --project-ref "$PROJECT_REF"
-      - run: npx supabase db push
+      # CLI 3.x aponta para o banco local por padrão: --remote mira o projeto linkado.
+      - run: npx supabase db push --remote --password "$SUPABASE_DB_PASSWORD" --yes

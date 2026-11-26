@@ -56,7 +56,7 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   // Lojista: lista e detalhe
   const ctxCliente = await browser.newContext();
   const cliente = await ctxCliente.newPage();
-  await logar(cliente, lojista, "/pt/cliente");
+  await logar(cliente, lojista, "/pt/catalogo");
   await cliente.goto("/pt/cliente/pedidos");
   const linha = cliente.getByRole("row", { name: new RegExp(`#${numero}\\b`) });
   await expect(linha).toContainText("Aguardando pagamento");
@@ -71,7 +71,7 @@ test("cliente e admin acompanham o pedido até 'Pago' com nota", async ({ browse
   // Outro lojista: não encontrado
   const ctxOutro = await browser.newContext();
   const intruso = await ctxOutro.newPage();
-  await logar(intruso, outro, "/pt/cliente");
+  await logar(intruso, outro, "/pt/catalogo");
   await intruso.goto(`/pt/cliente/pedidos/${numero}`);
   await expect(intruso.getByText(nomeProduto)).toHaveCount(0);
   await expect(intruso.getByText(/não encontrad|not found|404/i).first()).toBeVisible();

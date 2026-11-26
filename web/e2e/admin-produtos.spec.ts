@@ -55,7 +55,7 @@ test("admin cria produto com preço, especificação e manual; aparece na lista 
   const ctx = await browser.newContext();
   const p = await ctx.newPage();
   await entrar(p, lojista);
-  await expect(p).toHaveURL("/pt/cliente");
+  await expect(p).toHaveURL("/pt/catalogo");
   await p.goto(`/pt/catalogo/${slug}`);
   await expect(p.locator("main")).toContainText(/R\$\s250,00/);
   // Lista e detalhe agora estão no cache (ISR); a edição do admin tem de invalidar a tag.

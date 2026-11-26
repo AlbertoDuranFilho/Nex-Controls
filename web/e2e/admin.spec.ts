@@ -88,7 +88,7 @@ test("cliente criado consegue logar com a senha provisória", async ({ page, bro
   await cadastrar(page, { documento: CNPJ, nome: "Loja Login", email });
   const senha = await senhaGerada(page);
   const { p, ctx } = await tentarLogin(browser, { email, senha });
-  await expect(p).toHaveURL("/pt/cliente");
+  await expect(p).toHaveURL("/pt/catalogo");
   await ctx.close();
 });
 
@@ -136,7 +136,7 @@ test("desativar: cliente entra mas admin vê inativo", async ({ page, browser })
   await expect(page.getByRole("row").filter({ hasText: email })).toContainText("Inativo");
 
   const { p, ctx } = await tentarLogin(browser, { email, senha });
-  await expect(p).toHaveURL("/pt/cliente");
+  await expect(p).toHaveURL("/pt/catalogo");
   await ctx.close();
 });
 
@@ -155,7 +155,7 @@ test("gerar nova senha: senha antiga falha, nova funciona", async ({ page, brows
   await falha.ctx.close();
 
   const ok = await tentarLogin(browser, { email, senha: nova });
-  await expect(ok.p).toHaveURL("/pt/cliente");
+  await expect(ok.p).toHaveURL("/pt/catalogo");
   await ok.ctx.close();
 });
 
@@ -170,7 +170,7 @@ test("anonimizar: login falha, CPF fica livre para novo cadastro", async ({ page
 
   // O lojista entra antes: precisa existir uma sessão viva para provar a revogação.
   const viva = await tentarLogin(browser, { email, senha });
-  await expect(viva.p).toHaveURL("/pt/cliente");
+  await expect(viva.p).toHaveURL("/pt/catalogo");
   const sessoesAntes = await sql("select 1 from auth.sessions where user_id = $1", [id]);
   expect(sessoesAntes.length).toBeGreaterThan(0);
 

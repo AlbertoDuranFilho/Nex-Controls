@@ -106,13 +106,24 @@
   },
   "login": {
     "title": "Área do Cliente",
+    "boasVindas": "Boas-vindas",
+    "subtitulo": "Entre para acessar seus pedidos e produtos.",
     "email": "Email",
+    "emailPlaceholder": "voce@empresa.com.br",
     "password": "Senha",
     "submit": "Entrar",
-    "back": "Voltar",
+    "back": "Voltar ao site",
     "erroCredenciais": "E-mail ou senha inválidos.",
-    "mostrarSenha": "Mostrar",
-    "ocultarSenha": "Ocultar"
+    "mostrarSenha": "Mostrar senha",
+    "ocultarSenha": "Ocultar senha",
+    "naoECliente": "Ainda não é cliente?",
+    "faleConosco": "Fale conosco",
+    "slogan": "Placas e equipamentos com a qualidade que o seu negócio exige.",
+    "beneficios": {
+      "precos": "Preços exclusivos para a sua empresa",
+      "catalogo": "Catálogo completo sempre à mão",
+      "pedidos": "Acompanhe pedidos e notas fiscais"
+    }
   },
   "conta": {
     "nav": {

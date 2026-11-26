@@ -106,13 +106,24 @@
   },
   "login": {
     "title": "Client Area",
+    "boasVindas": "Welcome",
+    "subtitulo": "Sign in to access your orders and products.",
     "email": "Email",
+    "emailPlaceholder": "you@company.com",
     "password": "Password",
     "submit": "Sign in",
-    "back": "Back",
+    "back": "Back to site",
     "erroCredenciais": "Invalid email or password.",
-    "mostrarSenha": "Show",
-    "ocultarSenha": "Hide"
+    "mostrarSenha": "Show password",
+    "ocultarSenha": "Hide password",
+    "naoECliente": "Not a client yet?",
+    "faleConosco": "Contact us",
+    "slogan": "Boards and equipment with the quality your business demands.",
+    "beneficios": {
+      "precos": "Exclusive prices for your company",
+      "catalogo": "The full catalog at hand",
+      "pedidos": "Track orders and invoices"
+    }
   },
   "conta": {
     "nav": {

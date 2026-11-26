@@ -23,7 +23,7 @@ async function logar(page: Page, u: { email: string; senha: string }) {
   await page.getByLabel("Email", { exact: true }).fill(u.email);
   await page.getByLabel("Senha", { exact: true }).fill(u.senha);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 }
 
 // Lojista com 10% de desconto geral e 2× um produto de R$ 100 no carrinho.

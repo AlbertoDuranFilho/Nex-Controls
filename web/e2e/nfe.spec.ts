@@ -103,7 +103,7 @@ test("admin envia, emite e autoriza a NF-e pela Mainô falsa", async ({ browser,
   // Área do cliente: link da nota e status Faturado.
   const ctxCliente = await browser.newContext();
   const c = await ctxCliente.newPage();
-  await logar(c, lojista, "/pt/cliente");
+  await logar(c, lojista, "/pt/catalogo");
   await c.goto(`/pt/cliente/pedidos/${numero}`);
   await expect(c.getByTestId("status-pedido")).toHaveText("Faturado");
   await expect(c.getByRole("link", { name: /nota fiscal/i })).toHaveAttribute(

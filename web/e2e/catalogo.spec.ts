@@ -23,7 +23,7 @@ async function logar(page: Page, u: { email: string; senha: string }) {
   await page.getByLabel("Senha", { exact: true }).fill(u.senha);
   await page.getByLabel("Email", { exact: true }).fill(u.email);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page).toHaveURL("/pt/cliente");
+  await expect(page).toHaveURL("/pt/catalogo");
 }
 
 test.afterAll(async () => {

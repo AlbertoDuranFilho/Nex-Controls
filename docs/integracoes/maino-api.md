@@ -13,7 +13,7 @@ Lido em 2026-11-26. Trechos marcados (?) foram lidos só por resumo e precisam s
 - `POST /authentication` `{application_uid, email, password}` → `access_token`, `refresh_token`, `cnpj`, `company_name`.
 - Header: `Authorization: Bearer <access_token>`. Token não expira por tempo; deixa de valer quando renovado/revogado.
 - Renovação: `POST https://api.maino.com.br/oauth/token` (?) — formato não confirmado.
-- Chave: Configurações → Integrações → API Mainô (link de aprovação vale 7 dias).
+- Chave: o `application_uid` é emitido pela Mainô para cada aplicação. Solicitar em Configurações → Integrações → API Mainô (link de aprovação vale 7 dias) ou pelo suporte.
 
 ## Clientes (03) — `POST /stakeholders` (find-or-create por CPF/CNPJ)
 - `tipos: ["cliente"]`, `razao_social`, `cnpj`|`cpf`, `inscricao_estadual`, `indicador_ie` (1 contribuinte, 2 isento, 9 não contribuinte), `cep`, `endereco`, `numero`, `complemento`, `bairro`, `municipio` (IBGE ou nome), `uf`, `email`, `ddd`, `telefone`.
@@ -25,11 +25,11 @@ Lido em 2026-11-26. Trechos marcados (?) foram lidos só por resumo e precisam s
 
 ## Pedidos de venda (06)
 - `POST /pedidos?transmite=0|1&async=0|1&url=<callback>` — `url` obrigatório se `async=1` ou `transmite=1`.
-- Body: `numero` (único), `cliente` {…, `somente_busca`}, `itens[]` {`codigo`, `descricao`, `pu`, `quantidade`, `valor_desconto` | `percentual_desconto`}, `cobranca` {`forma_pagamento`, `plano_de_conta`, `condicao_pagamento_id`, `parcelas[]`}, `modalidade_frete`, `valor_frete`, `observacao`, `informacoes_complementares`.
+- Body: `numero` (único), `cliente` {…, `somente_busca`}, `itens[]` {`codigo`, `descricao`, `pu`, `quantidade`, `valor_desconto` | `percentual_desconto`} (`valor_desconto` é em R$ **por unidade**, menor que `pu`; exclusivo com `percentual_desconto`), `cobranca` {`forma_pagamento`, `plano_de_conta`, `condicao_pagamento_id`, `parcelas[]`}, `modalidade_frete`, `valor_frete`, `observacao`, `informacoes_complementares`.
 - Resposta de sucesso do POST: não documentada (?).
 - `GET/PUT/DELETE /pedidos/{id}`; `PUT /pedidos/{id}/update_status?status=`.
 - Emitir NF-e: `POST /pedidos/{pedido_id}/nota_fiscal` (valida estoque, impostos, certificado; pedido vira "finalizado").
-- Consultar: `GET /pedidos/{pedido_id}/nota_fiscal` → `{id, chave_acesso, status, danfe_url}`; status `NAO_TRANSMITIDA|EM_TRANSMISSAO|ACEITA|REJEITADA|CANCELADA|DENEGADA`.
+- Consultar: `GET /pedidos/{pedido_id}/nota_fiscal` → `{ nota_fiscal: { id, chave_acesso, status, danfe_url } }` (formato da documentação de pedidos); o site aceita também a nota achatada `{ id, chave_acesso, status, danfe_url }`. Status `NAO_TRANSMITIDA|EM_TRANSMISSAO|ACEITA|REJEITADA|CANCELADA|DENEGADA`. `danfe_url` que não começa com `https://` é ignorada (o status é gravado mesmo assim).
 - Cancelar: `DELETE /pedidos/{pedido_id}/nota_fiscal` → 204.
 
 ## Notas fiscais (18)
@@ -48,6 +48,7 @@ Spec: `docs/superpowers/specs/2026-11-26-fase5-maino-nfe-design.md`. Escolhas fe
 4. Modalidade de frete padrão 9, via `MAINO_MODALIDADE_FRETE`.
 5. Sem webhook: consulta ao abrir o pedido e pelo botão "Atualizar situação" (se o callback for documentado, adiciona-se uma rota).
 6. Cancelar NF-e não cancela o pedido.
+7. Cupom: no site o desconto do cupom fica no pedido (itens a preço de tabela); na Mainô ele vai repartido nos itens como `valor_desconto` por unidade, proporcional ao total de cada linha, arredondado a centavos. O resíduo do arredondamento vai para um item de quantidade 1 (ou cuja quantidade divida o resíduo); sem esse item pode sobrar até meio centavo × quantidade por linha. O desconto do cliente já está no `preco_unitario` e não é enviado de novo.
 Além disso: a cobrança só vai no pedido se `MAINO_CONDICAO_PAGAMENTO_ID` estiver definido; o município vem do CEP (ViaCEP), com fallback para a resolução da Mainô.
 
 Ainda pendente com a Mainô: as perguntas abaixo (formato de sucesso dos POSTs, callback, importação de produtos em lote, renovação do token).

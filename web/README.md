@@ -127,7 +127,9 @@ sem copiar e colar o link. Com ele desligado, o fluxo manual acima continua igua
 Somente na Vercel (Settings → Environment Variables), em **Production e Preview**. Nunca no
 repositório, em e-mail ou em chat.
 
-- `MAINO_APPLICATION_UID`: peça ao suporte da Mainô.
+- `MAINO_APPLICATION_UID`: é emitido pela Mainô para cada aplicação. Solicite em
+  Configurações → Integrações → API Mainô (o link de aprovação vale 7 dias) ou pelo suporte
+  da Mainô.
 - `MAINO_EMAIL` e `MAINO_SENHA`: crie na Mainô um **usuário só para a integração** (não use
   o login de uma pessoa), para poder trocar a senha sem afetar ninguém.
 
@@ -143,18 +145,43 @@ o build falha se faltar alguma das três credenciais.
 3. Confira o pedido na Mainô (frete, itens, impostos) e ajuste o que precisar.
 4. Volte ao painel e clique em **Emitir NF-e**.
 5. Clique em **Atualizar situação** (também atualiza sozinho ao abrir o pedido enquanto a
-   nota está em transmissão).
+   nota está em transmissão, no máximo a cada 30 segundos). O botão continua aparecendo se a
+   nota foi autorizada mas o link do DANFE ainda não chegou; quando ele chegar, o cliente
+   recebe o e-mail.
 6. Quando a nota for **Autorizada**, o pedido passa para **Faturado** e o cliente recebe um
    e-mail com o link do DANFE.
 
 **Cancelar NF-e** (nota autorizada) cancela só a nota; o pedido não é cancelado
-automaticamente. Decida separadamente se cancela o pedido.
+automaticamente. Decida separadamente se cancela o pedido. Na área do cliente, o pedido passa
+a mostrar "Nota fiscal cancelada" em vez do link.
+
+**Cupom de desconto.** O desconto do cupom vai para a Mainô repartido entre os itens
+(desconto por unidade), para que a nota feche com o que o cliente pagou. Em pedidos sem
+nenhum item de quantidade 1 pode haver diferença de alguns centavos; confira o total.
 
 ### Se der erro
 
 A mensagem da Mainô aparece no próprio painel do pedido (por exemplo, produto sem cadastro
 na Mainô, ou dado fiscal faltando). Corrija na Mainô ou nos dados do pedido e tente de novo.
 Se a mensagem não for clara, envie-a ao suporte; ela não contém senhas.
+
+- **"O pedido foi criado na Mainô como SITE-… (id …), mas não foi possível registrar isso no
+  site".** O pedido existe na Mainô, mas o site não guardou o vínculo (falha no banco, mesmo
+  após uma nova tentativa). **Não clique em Enviar de novo**: isso tentaria criar outro
+  pedido. Peça ao desenvolvedor/suporte para gravar o id mostrado no pedido
+  (`pedidos.maino_pedido_id`); o id também fica no log do servidor
+  (`[nfe] pedido criado na Mainô sem gravar o id`).
+- **Emissão sem resposta da Mainô (tempo esgotado).** A Mainô pode ter recebido o pedido de
+  emissão; o painel mostra **Atualizar situação** em vez de **Emitir NF-e**. Se a Mainô
+  disser que não há nota, emita pela própria Mainô e depois atualize a situação.
+
+### Ainda pendente com a Mainô
+
+> **Atenção:** os formatos das respostas da API (criação do pedido, emissão e consulta da
+> nota) ainda não foram confirmados pela Mainô. O site aceita as variações conhecidas, mas
+> faça o **primeiro pedido real em Homologação** e compare, linha a linha, os itens, o
+> desconto (inclusive o do cupom), o frete e o total da nota com o total do pedido no site
+> antes de voltar para Produção.
 
 ## Configuração do Supabase
 

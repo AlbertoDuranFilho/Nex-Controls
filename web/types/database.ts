@@ -137,6 +137,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"pedido_eventos": {
+                  Row: {
+                    "admin_id": string | null,"criado_em": string,"id": string,"pedido_id": string,"status_de": Database["public"]['Enums']["pedido_status"] | null,"status_para": Database["public"]['Enums']["pedido_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_id"?: string | null,"criado_em"?: string,"id"?: string,"pedido_id": string,"status_de"?: Database["public"]['Enums']["pedido_status"] | null,"status_para": Database["public"]['Enums']["pedido_status"]
+                  }
+                  Update: {
+                    "admin_id"?: string | null,"criado_em"?: string,"id"?: string,"pedido_id"?: string,"status_de"?: Database["public"]['Enums']["pedido_status"] | null,"status_para"?: Database["public"]['Enums']["pedido_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pedido_eventos_pedido_id_fkey"
+      columns: ["pedido_id"]
+isOneToOne: false
+      referencedRelation: "pedidos"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"pedido_itens": {
                   Row: {
                     "desconto_percentual": number,"id": string,"pedido_id": string,"preco_tabela": number,"preco_unitario": number,"produto_codigo": string,"produto_id": string,"produto_nome": string,"quantidade": number
@@ -165,14 +185,14 @@ isOneToOne: false
                   ]
                 },"pedidos": {
                   Row: {
-                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual": string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at": string,"cupom_id": string | null,"desconto_origem": Database["public"]['Enums']["desconto_origem"],"desconto_valor": number,"difal_valor": number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento": string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor": number,"gateway_provider": string | null,"gateway_transaction_id": string | null,"icms_valor": number,"id": string,"lojista_id": string,"maino_nota_id": string | null,"maino_nota_url": string | null,"metodo_pagamento": string | null,"numero": number,"status": Database["public"]['Enums']["pedido_status"],"status_pagamento": string | null,"subtotal": number,"total": number,"updated_at": string
+                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual": string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at": string,"cupom_id": string | null,"desconto_origem": Database["public"]['Enums']["desconto_origem"],"desconto_valor": number,"difal_valor": number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento": string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor": number,"gateway_provider": string | null,"gateway_transaction_id": string | null,"icms_valor": number,"id": string,"lojista_id": string,"maino_nota_id": string | null,"maino_nota_url": string | null,"metodo_pagamento": string | null,"notificado_em": string | null,"numero": number,"observacao": string | null,"status": Database["public"]['Enums']["pedido_status"],"status_pagamento": string | null,"subtotal": number,"total": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento"?: string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id": string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"metodo_pagamento"?: string | null,"numero"?: never,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal": number,"total": number,"updated_at"?: string
+                    "cliente_documento": string,"cliente_indicador_ie": Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome": string,"cliente_tipo_pessoa": Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro": string,"entrega_cep": string,"entrega_cidade": string,"entrega_complemento"?: string | null,"entrega_logradouro": string,"entrega_numero": string,"entrega_uf": string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id": string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"metodo_pagamento"?: string | null,"notificado_em"?: string | null,"numero"?: never,"observacao"?: string | null,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal": number,"total": number,"updated_at"?: string
                   }
                   Update: {
-                    "cliente_documento"?: string,"cliente_indicador_ie"?: Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome"?: string,"cliente_tipo_pessoa"?: Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro"?: string,"entrega_cep"?: string,"entrega_cidade"?: string,"entrega_complemento"?: string | null,"entrega_logradouro"?: string,"entrega_numero"?: string,"entrega_uf"?: string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id"?: string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"metodo_pagamento"?: string | null,"numero"?: never,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal"?: number,"total"?: number,"updated_at"?: string
+                    "cliente_documento"?: string,"cliente_indicador_ie"?: Database["public"]['Enums']["indicador_ie"],"cliente_inscricao_estadual"?: string | null,"cliente_nome"?: string,"cliente_tipo_pessoa"?: Database["public"]['Enums']["tipo_pessoa"],"created_at"?: string,"cupom_id"?: string | null,"desconto_origem"?: Database["public"]['Enums']["desconto_origem"],"desconto_valor"?: number,"difal_valor"?: number,"entrega_bairro"?: string,"entrega_cep"?: string,"entrega_cidade"?: string,"entrega_complemento"?: string | null,"entrega_logradouro"?: string,"entrega_numero"?: string,"entrega_uf"?: string,"frete_valor"?: number,"gateway_provider"?: string | null,"gateway_transaction_id"?: string | null,"icms_valor"?: number,"id"?: string,"lojista_id"?: string,"maino_nota_id"?: string | null,"maino_nota_url"?: string | null,"metodo_pagamento"?: string | null,"notificado_em"?: string | null,"numero"?: never,"observacao"?: string | null,"status"?: Database["public"]['Enums']["pedido_status"],"status_pagamento"?: string | null,"subtotal"?: number,"total"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -283,14 +303,33 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "admin_importar_produtos":
+            "_calcular_pedido":
+{ Args: { "p_cupom": string,"p_lojista": string }; Returns: Json
+                           },
+"_itens_carrinho":
+{ Args: { "p_lojista": string }; Returns: {
+              "codigo": string,"desconto_percentual": number,"motivo": string,"nome": string,"preco_cliente": number,"preco_tabela": number,"produto_id": string,"quantidade": number
+            }[]
+                           },
+"admin_atualizar_pedido":
+{ Args: { "p_nota_id"?: string,"p_nota_url"?: string,"p_pedido_id": string,"p_status"?: Database["public"]['Enums']["pedido_status"] }; Returns: undefined
+                           },
+"admin_importar_produtos":
 { Args: { "p": Json }; Returns: Json
                            },
 "anonimizar_auth":
 { Args: { "email_anonimo": string,"uid": string }; Returns: undefined
                            },
+"calcular_impostos":
+{ Args: { "p_base": number,"p_indicador_ie": Database["public"]['Enums']["indicador_ie"],"p_uf_destino": string }; Returns: {
+              "difal": number,"icms": number
+            }[]
+                           },
 "carrinho_adicionar":
 { Args: { "p_produto_id": string,"p_quantidade": number }; Returns: number
+                           },
+"criar_pedido":
+{ Args: { "p_cupom"?: string,"p_observacao"?: string }; Returns: Json
                            },
 "gerar_slug":
 { Args: { "p_codigo": string,"p_nome": string }; Returns: string
@@ -301,10 +340,16 @@ isOneToOne: true
 "is_lojista_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"marcar_pedido_notificado":
+{ Args: { "p_pedido_id": string }; Returns: undefined
+                           },
 "precos_cliente":
 { Args: { "p_produto_ids": (string)[] }; Returns: {
               "desconto_percentual": number,"preco_final": number,"preco_tabela": number,"produto_id": string
             }[]
+                           },
+"simular_pedido":
+{ Args: { "p_cupom"?: string }; Returns: Json
                            }
           }
           Enums: {

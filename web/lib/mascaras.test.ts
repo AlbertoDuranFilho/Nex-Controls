@@ -177,8 +177,15 @@ describe("colar x digitar", () => {
   it("colado com parte inteira 0 é decimal", () => {
     expect(colar("0.500", mascaraDecimal).valor).toBe("0,50");
     expect(colar("0.5", mascaraDecimal).valor).toBe("0,5");
-    expect(colar(".500", mascaraDecimal).valor).toBe(",50");
+    expect(colar(".500", mascaraDecimal).valor).toBe("0,50");
+    expect(colar(",5", mascaraDecimal).valor).toBe("0,5");
     expect(colar("0.500", mascaraPercentual).valor).toBe("0,50");
+  });
+
+  it("sem parte inteira ganha o 0 na frente", () => {
+    expect(digitar(".5", mascaraDecimal)).toEqual({ valor: "0,5", cursor: 3 });
+    expect(digitar(",50", mascaraDecimal)).toEqual({ valor: "0,50", cursor: 4 });
+    expect(mascaraDecimal(".")).toBe("0,");
   });
 
   it("DDD 55 digitado não perde o 55", () => {

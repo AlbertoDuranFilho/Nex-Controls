@@ -74,7 +74,8 @@ export function mascaraDecimal(valor: string | null | undefined, colado = false,
   // Parte inteira 0 ou vazia ("0.500") é sempre decimal: 0.500 nunca é quinhentos.
   const zero = /^0*$/.test(inteiro);
   if (colado && !zero && /^\d{3}$/.test(depois) && (v[i] === "." || outros)) return inteiro + depois;
-  return `${inteiro},${depois.slice(0, casas)}`;
+  // Sem parte inteira (".5"): ganha o 0 na frente.
+  return `${inteiro || "0"},${depois.slice(0, casas)}`;
 }
 
 // Tira a vírgula pendurada ("5," → "5") antes de enviar: o servidor não aceita.

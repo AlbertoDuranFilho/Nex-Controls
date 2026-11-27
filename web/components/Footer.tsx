@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Mail, ShieldCheck } from "lucide-react";
+import { Mail, ShieldCheck, UserX } from "lucide-react";
 
 export default function Footer({ locale }: { locale?: string }) {
   const t = useTranslations("footer");
@@ -35,6 +35,14 @@ export default function Footer({ locale }: { locale?: string }) {
           >
             <ShieldCheck aria-hidden className="size-3.5" />
             {t("privacyLink")}
+          </Link>
+          <span aria-hidden="true" className="mx-1 text-marca-cinza-500">·</span>
+          <Link
+            href={`/${locale}/excluir-conta`}
+            className="inline-flex items-center gap-1 rounded text-marca-cinza-300 underline-offset-4 transition-colors hover:text-marca-branco hover:underline focus-visible:ring-2 focus-visible:ring-marca-branco focus-visible:outline-none"
+          >
+            <UserX aria-hidden className="size-3.5" />
+            {t("deleteAccountLink")}
           </Link>
         </p>
       </div>

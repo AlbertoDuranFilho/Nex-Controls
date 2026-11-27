@@ -183,6 +183,22 @@ Se a mensagem não for clara, envie-a ao suporte; ela não contém senhas.
 > desconto (inclusive o do cupom), o frete e o total da nota com o total do pedido no site
 > antes de voltar para Produção.
 
+## App Android (Fase 8)
+
+O app (`mobile/`) fala direto com o Supabase (login e RPCs) e usa uma única rota do site:
+
+- `POST /api/app/pedidos/[id]/notificar` com `Authorization: Bearer <access_token>`: envia os e-mails
+  do pedido recém-criado. `401` sem token ou token inválido, `404` se o pedido não existe ou não é do
+  lojista do token, `200 {"jaNotificado":true}` se já foi enviado (idempotente) e `200 {"enviado":boolean}`
+  caso contrário (`false` quando o envio falhou: a reserva é desfeita e o admin pode reenviar). `500` se a
+  leitura/reserva do pedido no banco falhar e `502 {"erro":"falha_ao_notificar"}` se o envio dos e-mails
+  lançar erro (a reserva também é desfeita). Sem CORS (app nativo).
+- O app chama a rota em `EXPO_PUBLIC_SITE_URL`, que deve ser o host que responde direto, sem redirect
+  (`https://www.nexcontrols.com`; `https://nexcontrols.com` redireciona para o `www` e o redirect descarta
+  o `Authorization`).
+- Exclusão de conta (Google Play): página pública `/[locale]/excluir-conta` (link no rodapé e na política de
+  privacidade). URL para o formulário da Play: `https://www.nexcontrols.com/pt/excluir-conta`.
+
 ## Configuração do Supabase
 
 A configuração local é `supabase/config.jsonc` (formato da CLI v3, não `config.toml`).

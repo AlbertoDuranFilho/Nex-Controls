@@ -28,3 +28,27 @@ for (const p of politicas) {
     await expect(corpo).toContainText("sa-east-1");
   });
 }
+
+const exclusoes = [
+  { locale: "pt", rodape: "Excluir conta", titulo: "Excluir sua conta Nex Controls", fiscal: "5 anos", politica: "Veja como pedir a exclusão da sua conta." },
+  { locale: "en", rodape: "Delete account", titulo: "Delete your Nex Controls account", fiscal: "5 years", politica: "See how to request the deletion of your account." },
+  { locale: "es", rodape: "Eliminar cuenta", titulo: "Eliminar su cuenta Nex Controls", fiscal: "5 años", politica: "Vea cómo solicitar la eliminación de su cuenta." },
+];
+
+for (const e of exclusoes) {
+  test(`pagina de exclusao de conta (${e.locale}) pelo rodape e pela politica`, async ({ page }) => {
+    // O aviso de cookies fica fixo embaixo e cobre os links do rodapé até ser aceito.
+    await page.addInitScript(() => localStorage.setItem("cookie-consent", "accepted"));
+    await page.goto(`/${e.locale}`);
+    await page.locator("footer").getByRole("link", { name: e.rodape }).click();
+    await expect(page).toHaveURL(new RegExp(`/${e.locale}/excluir-conta$`));
+    await expect(page.getByRole("heading", { level: 1, name: e.titulo })).toBeVisible();
+    const corpo = page.locator("body");
+    await expect(corpo).toContainText(EMAIL);
+    await expect(corpo).toContainText("Nex Controls do Brasil LTDA");
+    await expect(corpo).toContainText(e.fiscal);
+
+    await page.goto(`/${e.locale}/privacy-policy`);
+    await expect(page.getByRole("link", { name: e.politica })).toHaveAttribute("href", `/${e.locale}/excluir-conta`);
+  });
+}

@@ -8,7 +8,7 @@ describe("ehAreaProtegida", () => {
     "%s e protegida",
     (p) => expect(ehAreaProtegida(p)).toBe(true),
   );
-  it.each(["/pt", "/pt/catalogo/1", "/pt/clientela", "/fr/cliente", "/pt/privacy-policy"])(
+  it.each(["/pt", "/pt/catalogo/1", "/pt/clientela", "/fr/cliente", "/pt/privacy-policy", "/pt/excluir-conta"])(
     "%s e publica",
     (p) => expect(ehAreaProtegida(p)).toBe(false),
   );

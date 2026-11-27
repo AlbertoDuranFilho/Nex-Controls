@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { FileUp, ImageUp } from "lucide-react";
+import { AvisoAdmin } from "@/components/admin/CamposAdmin";
+import { classesBotao } from "@/components/ui/Botao";
 import { assinarUpload } from "@/services/produtos-admin";
 
 type Props = { tipo: "image" | "raw"; aoEnviar: (url: string) => void };
@@ -53,9 +56,13 @@ export default function UploadCloudinary({ tipo, aoEnviar }: Props) {
     }
   }
 
+  const Icone = tipo === "image" ? ImageUp : FileUp;
   return (
     <div className="text-sm">
-      <label className="inline-block cursor-pointer border border-marca-preto px-3 py-2 font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco">
+      <label
+        className={`${classesBotao("secundario", "md")} cursor-pointer focus-within:ring-2 focus-within:ring-marca-preto focus-within:ring-offset-2 has-disabled:cursor-not-allowed has-disabled:opacity-60`}
+      >
+        <Icone aria-hidden className="size-4 shrink-0" />
         {enviando ? "Enviando…" : ROTULO[tipo]}
         <input
           type="file"
@@ -65,9 +72,9 @@ export default function UploadCloudinary({ tipo, aoEnviar }: Props) {
           className="sr-only"
         />
       </label>
-      <p role="alert" className="mt-1 min-h-5 text-marca-preto">
+      <AvisoAdmin tipo="erro" className="mt-2 empty:mt-0">
         {mensagem}
-      </p>
+      </AvisoAdmin>
     </div>
   );
 }

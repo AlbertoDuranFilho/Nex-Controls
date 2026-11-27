@@ -1,6 +1,10 @@
 "use client";
 
 import { useAcao } from "@/lib/react/destravar-transicao";
+import { Mail, Save } from "lucide-react";
+import { AvisoAdmin } from "@/components/admin/CamposAdmin";
+import { estiloCampo, estiloRotulo } from "@/components/conta/Campo";
+import Botao from "@/components/ui/Botao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { STATUS_PEDIDO, opcoesDeStatus, type PedidoStatus } from "@/lib/pedidos/transicoes";
 import { atualizarPedido, reenviarEmails } from "@/services/pedidos-admin";
@@ -14,9 +18,6 @@ type Props = {
   notificado: boolean;
 };
 
-const campo =
-  "mt-1 block w-full border border-marca-cinza-200 bg-marca-branco px-3 py-2 text-sm text-marca-preto focus:border-marca-preto focus:outline-none";
-
 export default function AcoesPedido({ pedidoId, numero, status, notaId, notaUrl, notificado }: Props) {
   const [estado, salvar, salvando] = useAcao<ResultadoAdmin | null, FormData>(atualizarPedido, null);
   const [envio, reenviar, enviando] = useAcao<ResultadoAdmin | null, FormData>(
@@ -28,9 +29,11 @@ export default function AcoesPedido({ pedidoId, numero, status, notaId, notaUrl,
     <div className="space-y-6">
       <form action={salvar} className="space-y-4">
         <input type="hidden" name="pedido_id" value={pedidoId} />
-        <div className="text-sm font-medium text-marca-preto">
-          <label htmlFor="pedido-status" className="block">Status</label>
-          <select key={status} id="pedido-status" name="status" defaultValue={status} className={campo}>
+        <div>
+          <label htmlFor="pedido-status" className={estiloRotulo}>
+            Status
+          </label>
+          <select key={status} id="pedido-status" name="status" defaultValue={status} className={estiloCampo}>
             {opcoesDeStatus(status).map((s) => (
               <option key={s} value={s}>
                 {STATUS_PEDIDO[s]}
@@ -38,51 +41,55 @@ export default function AcoesPedido({ pedidoId, numero, status, notaId, notaUrl,
             ))}
           </select>
         </div>
-        <label className="block text-sm font-medium text-marca-preto">
-          Número da nota
-          <input name="nota_id" defaultValue={notaId ?? ""} maxLength={100} className={campo} />
-        </label>
-        <label className="block text-sm font-medium text-marca-preto">
-          Link da nota
+        <div>
+          <label htmlFor="pedido-nota-id" className={estiloRotulo}>
+            Número da nota
+          </label>
           <input
+            id="pedido-nota-id"
+            name="nota_id"
+            defaultValue={notaId ?? ""}
+            maxLength={100}
+            placeholder="Ex.: 000123"
+            className={estiloCampo}
+          />
+        </div>
+        <div>
+          <label htmlFor="pedido-nota-url" className={estiloRotulo}>
+            Link da nota
+          </label>
+          <input
+            id="pedido-nota-url"
             name="nota_url"
             type="text"
             inputMode="url"
             defaultValue={notaUrl ?? ""}
             maxLength={500}
             placeholder="https://"
-            className={campo}
+            className={estiloCampo}
           />
-        </label>
-        <button
-          type="submit"
-          disabled={salvando}
-          className="bg-marca-preto px-4 py-2 text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800 disabled:bg-marca-cinza-400"
-        >
+        </div>
+        <Botao type="submit" carregando={salvando} icone={Save} className="w-full">
           {salvando ? "Salvando…" : "Salvar"}
-        </button>
+        </Botao>
         {estado ? (
-          <p role={estado.ok ? "status" : "alert"} className="text-sm text-marca-preto">
+          <AvisoAdmin tipo={estado.ok ? "ok" : "erro"} papel={estado.ok ? "status" : "alert"}>
             {estado.ok ? "Pedido atualizado." : estado.erro}
-          </p>
+          </AvisoAdmin>
         ) : null}
       </form>
 
-      <form action={reenviar} className="space-y-2 border-t border-marca-cinza-200 pt-4">
+      <form action={reenviar} className="space-y-3 border-t border-marca-cinza-100 pt-5">
         <p className="text-sm text-marca-cinza-600">
           E-mails do pedido: {notificado ? "enviados" : "pendentes (falha no envio)"}.
         </p>
-        <button
-          type="submit"
-          disabled={enviando}
-          className="border border-marca-preto px-4 py-2 text-sm font-semibold text-marca-preto transition-colors hover:bg-marca-cinza-50 disabled:text-marca-cinza-400"
-        >
+        <Botao type="submit" variante="secundario" carregando={enviando} icone={Mail} className="w-full">
           {enviando ? "Enviando…" : "Reenviar e-mails"}
-        </button>
+        </Botao>
         {envio ? (
-          <p role={envio.ok ? "status" : "alert"} className="text-sm text-marca-preto">
+          <AvisoAdmin tipo={envio.ok ? "ok" : "erro"} papel={envio.ok ? "status" : "alert"}>
             {envio.ok ? "E-mails enviados." : envio.erro}
-          </p>
+          </AvisoAdmin>
         ) : null}
       </form>
     </div>

@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
 import FormProduto from "@/components/admin/FormProduto";
+import VoltarAdmin from "@/components/admin/VoltarAdmin";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 
 export default async function NovoProdutoPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -7,7 +9,8 @@ export default async function NovoProdutoPage({ params }: { params: Promise<{ lo
   if (!(await ehAdmin())) redirect(`/${locale}`);
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-marca-preto">Novo produto</h1>
+      <VoltarAdmin href={`/${locale}/admin/produtos`}>Voltar para produtos</VoltarAdmin>
+      <CabecalhoAdmin titulo="Novo produto" descricao="Depois de salvar, você continua na edição do produto." />
       <FormProduto locale={locale} />
     </div>
   );

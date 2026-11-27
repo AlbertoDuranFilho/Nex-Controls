@@ -17,6 +17,16 @@ import { useActionState, useEffect, useReducer, useTransition } from "react";
 // suspensas e retomar o trabalho. Então, enquanto há uma ação pendente, damos uma
 // "cutucada" (estado local trivial) de tempos em tempos, com intervalo crescente para
 // não atrapalhar uma renderização legítima e demorada.
+// Custo: cada cutucada faz o React refazer a transição a partir da raiz; numa ação
+// lenta legítima isso é um render extra a cada 2 s (limitado pela expiração da faixa).
+//
+// Bug do upstream: facebook/react#35821, corrigido em facebook/react#36134. A mesma
+// correção está aplicada no React embutido no Next por patch-package
+// (patches/next+15.5.29.patch, roda no postinstall), o que cobre também router.push,
+// Link etc. Este contorno fica como segunda camada.
+// Remover com Next ≥ 16.3 (React com facebook/react#36134); React 19.2.x estável e
+// Next 16.0–16.2 ainda têm o bug. A cada upgrade do Next, conferir o patch: o
+// patch-package falha alto no install se o arquivo mudou.
 
 const PRIMEIRA_MS = 300;
 const TETO_MS = 2000;

@@ -20,15 +20,18 @@ export type BotaoProps = {
 
 const base =
   "inline-flex items-center justify-center gap-2 rounded-xl font-semibold select-none " +
-  "transition duration-200 active:scale-[.98] motion-reduce:transition-none motion-reduce:active:scale-100 " +
+  "transition duration-200 not-disabled:active:scale-[.98] motion-reduce:transition-none motion-reduce:active:scale-100 " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:ring-offset-2 " +
-  "disabled:pointer-events-none disabled:opacity-60";
+  // Sem pointer-events-none: o cursor not-allowed precisa aparecer. O hover só vale habilitado
+  // (not-disabled também casa com <a>, que não tem :enabled).
+  "disabled:cursor-not-allowed disabled:opacity-60";
 
 const variantes: Record<Variante, string> = {
-  primario: "bg-marca-preto text-marca-branco shadow-suave hover:bg-marca-cinza-800 hover:shadow-elevada",
+  primario:
+    "bg-marca-preto text-marca-branco shadow-suave not-disabled:hover:bg-marca-cinza-800 not-disabled:hover:shadow-elevada",
   secundario:
-    "border border-marca-cinza-300 bg-marca-branco text-marca-preto hover:border-marca-preto hover:bg-marca-cinza-50",
-  fantasma: "text-marca-cinza-700 hover:bg-marca-cinza-100 hover:text-marca-preto",
+    "border border-marca-cinza-300 bg-marca-branco text-marca-preto not-disabled:hover:border-marca-preto not-disabled:hover:bg-marca-cinza-50",
+  fantasma: "text-marca-cinza-700 not-disabled:hover:bg-marca-cinza-100 not-disabled:hover:text-marca-preto",
 };
 
 const tamanhos: Record<Tamanho, string> = {

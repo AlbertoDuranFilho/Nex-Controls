@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useAcao } from "@/lib/react/destravar-transicao";
 import { useTranslations } from "next-intl";
 import { salvarMeusDados, type EstadoForm } from "@/services/minha-conta";
-import { formatarDocumento } from "@/lib/validacao/documento";
-import { mascaraTelefone } from "@/lib/conta/campos";
+import { PLACEHOLDER, mascaraDocumento, mascaraTelefone } from "@/lib/mascaras";
 import { Save } from "lucide-react";
 import { Campo, Retorno, Seletor } from "@/components/conta/Campo";
 import Botao from "@/components/ui/Botao";
@@ -46,7 +45,7 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
         <Campo
           id="documento"
           label={t("documento")}
-          value={dados.documento ? formatarDocumento(dados.documento) : ""}
+          value={mascaraDocumento(dados.documento)}
           disabled
         />
         <Campo id="nome" label={t("nome")} value={dados.nome} disabled />
@@ -74,8 +73,10 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
           type="tel"
           inputMode="tel"
           autoComplete="tel"
+          placeholder={PLACEHOLDER.telefone}
           value={v.telefone}
-          onChange={(x) => set("telefone")(mascaraTelefone(x))}
+          mascara={mascaraTelefone}
+          onChange={set("telefone")}
           erro={erros.telefone}
         />
         <Campo
@@ -84,8 +85,10 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
           type="tel"
           inputMode="tel"
           autoComplete="tel"
+          placeholder={PLACEHOLDER.telefone}
           value={v.whatsapp}
-          onChange={(x) => set("whatsapp")(mascaraTelefone(x))}
+          mascara={mascaraTelefone}
+          onChange={set("whatsapp")}
           erro={erros.whatsapp}
         />
         <Seletor
@@ -104,6 +107,7 @@ export default function FormMeusDados({ locale, dados }: { locale: string; dados
           label={t("inscricaoEstadual")}
           value={v.inscricao_estadual}
           onChange={set("inscricao_estadual")}
+          placeholder={contribuinte ? PLACEHOLDER.inscricaoEstadual : undefined}
           required={contribuinte}
           disabled={!contribuinte}
           maxLength={30}

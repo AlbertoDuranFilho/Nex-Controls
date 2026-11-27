@@ -1,6 +1,10 @@
-import Link from "next/link";
+import { Pencil, Plus, TicketPercent } from "lucide-react";
 import { redirect } from "next/navigation";
 import BotaoCupomAtivo from "@/components/admin/BotaoCupomAtivo";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
+import { CelulaAdmin, LinhaAdmin, TabelaAdmin, VazioAdmin } from "@/components/admin/TabelaAdmin";
+import Botao from "@/components/ui/Botao";
+import Selo from "@/components/ui/Selo";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { listarCupons } from "@/services/cupons-admin";
 import { listarLojistas } from "@/services/lojistas-admin";
@@ -16,63 +20,55 @@ export default async function ListaCuponsPage({ params }: { params: Promise<{ lo
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-bold text-marca-preto">Cupons</h1>
-        <Link
-          href={`/${locale}/admin/cupons/novo`}
-          className="bg-marca-preto px-4 py-2 text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800"
-        >
+      <CabecalhoAdmin titulo="Cupons" descricao="Descontos por código, para todos ou para um cliente.">
+        <Botao href={`/${locale}/admin/cupons/novo`} icone={Plus}>
           Novo cupom
-        </Link>
-      </div>
+        </Botao>
+      </CabecalhoAdmin>
 
       {cupons.length === 0 ? (
-        <p className="text-marca-cinza-600">Nenhum cupom cadastrado.</p>
+        <VazioAdmin icone={TicketPercent}>Nenhum cupom cadastrado.</VazioAdmin>
       ) : (
-        <div className="overflow-x-auto border border-marca-cinza-200">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-marca-cinza-50 text-marca-cinza-600">
-              <tr>
-                <th scope="col" className="px-4 py-3 font-medium">Código</th>
-                <th scope="col" className="px-4 py-3 font-medium">Desconto</th>
-                <th scope="col" className="px-4 py-3 font-medium">Validade</th>
-                <th scope="col" className="px-4 py-3 font-medium">Usos</th>
-                <th scope="col" className="px-4 py-3 font-medium">Cliente</th>
-                <th scope="col" className="px-4 py-3 font-medium">Status</th>
-                <th scope="col" className="px-4 py-3 font-medium"><span className="sr-only">Ações</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {cupons.map((c) => (
-                <tr key={c.id} className="border-t border-marca-cinza-200">
-                  <td className="px-4 py-3 whitespace-nowrap font-medium text-marca-preto">{c.codigo}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {c.tipo === "percentual" ? `${String(c.valor).replace(".", ",")}%` : brl.format(c.valor)}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-marca-cinza-800">
-                    {c.valido_de || c.valido_ate
-                      ? `${c.valido_de ? data.format(new Date(c.valido_de)) : "…"} a ${c.valido_ate ? data.format(new Date(c.valido_ate)) : "…"}`
-                      : "Sem limite"}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">{`${c.usos} / ${c.max_usos ?? "ilimitado"}`}</td>
-                  <td className="px-4 py-3 text-marca-cinza-800">
-                    {c.lojista_id ? (nomes.get(c.lojista_id) ?? "Cliente específico") : "Todos"}
-                  </td>
-                  <td className="px-4 py-3 text-marca-preto">{c.ativo ? "Ativo" : "Inativo"}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <Link
-                      href={`/${locale}/admin/cupons/${c.id}`}
-                      className="mr-4 text-marca-preto underline underline-offset-2"
-                    >
-                      Editar
-                    </Link>
-                    <BotaoCupomAtivo id={c.id} ativo={c.ativo} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TabelaAdmin
+          colunas={[
+            "Código",
+            "Desconto",
+            "Validade",
+            "Usos",
+            "Cliente",
+            "Status",
+            <span key="a" className="sr-only">Ações</span>,
+          ]}
+        >
+          {cupons.map((c) => (
+            <LinhaAdmin key={c.id}>
+              <CelulaAdmin className="font-medium whitespace-nowrap text-marca-preto">{c.codigo}</CelulaAdmin>
+              <CelulaAdmin rotulo="Desconto" className="whitespace-nowrap">
+                {c.tipo === "percentual" ? `${String(c.valor).replace(".", ",")}%` : brl.format(c.valor)}
+              </CelulaAdmin>
+              <CelulaAdmin rotulo="Validade" className="text-marca-cinza-800 md:whitespace-nowrap">
+                {c.valido_de || c.valido_ate
+                  ? `${c.valido_de ? data.format(new Date(c.valido_de)) : "…"} a ${c.valido_ate ? data.format(new Date(c.valido_ate)) : "…"}`
+                  : "Sem limite"}
+              </CelulaAdmin>
+              <CelulaAdmin rotulo="Usos" className="whitespace-nowrap">{`${c.usos} / ${c.max_usos ?? "ilimitado"}`}</CelulaAdmin>
+              <CelulaAdmin rotulo="Cliente" className="text-marca-cinza-800">
+                <span className="break-words">
+                  {c.lojista_id ? (nomes.get(c.lojista_id) ?? "Cliente específico") : "Todos"}
+                </span>
+              </CelulaAdmin>
+              <CelulaAdmin rotulo="Status">
+                <Selo tom={c.ativo ? "verde" : "neutro"}>{c.ativo ? "Ativo" : "Inativo"}</Selo>
+              </CelulaAdmin>
+              <CelulaAdmin alinhar="direita" className="justify-end gap-1 whitespace-nowrap">
+                <Botao href={`/${locale}/admin/cupons/${c.id}`} variante="fantasma" tamanho="sm" icone={Pencil}>
+                  Editar
+                </Botao>
+                <BotaoCupomAtivo id={c.id} ativo={c.ativo} />
+              </CelulaAdmin>
+            </LinhaAdmin>
+          ))}
+        </TabelaAdmin>
       )}
     </div>
   );

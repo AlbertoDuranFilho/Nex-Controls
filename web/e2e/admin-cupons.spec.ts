@@ -53,3 +53,34 @@ test("admin define 15% para um produto na página do lojista", async ({ page }) 
   await linha.getByRole("button", { name: "Remover" }).click();
   await expect(page.getByRole("row", { name: new RegExp(codigoProduto) })).toHaveCount(0);
 });
+
+test("lista de cupons em 1024 px e 360 px: ações alcançáveis e sem rolagem da página", async ({ page }) => {
+  const lojista = await criarLojista();
+  const { error } = await admin()
+    .from("cupons")
+    .insert({
+      codigo: codigoCupom,
+      tipo: "percentual",
+      valor: 10,
+      valido_de: "2026-01-01T10:00:00Z",
+      valido_ate: "2026-12-31T10:00:00Z",
+      max_usos: 100,
+      lojista_id: lojista.id,
+    });
+  if (error) throw error;
+  await entrar(page, await criarAdmin());
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/pt/admin/cupons");
+  const linha = page.getByRole("row", { name: new RegExp(codigoCupom) });
+  const editar = linha.getByRole("link", { name: "Editar" });
+  await editar.scrollIntoViewIfNeeded();
+  await expect(editar).toBeInViewport();
+  await expect(linha.getByRole("button", { name: "Desativar" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1024);
+
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("/pt/admin/cupons");
+  await expect(page.getByRole("row", { name: new RegExp(codigoCupom) })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+});

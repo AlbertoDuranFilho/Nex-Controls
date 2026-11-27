@@ -1,8 +1,13 @@
-import Link from "next/link";
+import { Pencil, Plus, Users } from "lucide-react";
 import { redirect } from "next/navigation";
+import BuscaAdmin from "@/components/admin/BuscaAdmin";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
+import { CelulaAdmin, LinhaAdmin, TabelaAdmin, VazioAdmin } from "@/components/admin/TabelaAdmin";
+import Botao from "@/components/ui/Botao";
+import Selo from "@/components/ui/Selo";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { listarLojistas } from "@/services/lojistas-admin";
-import { formatarDocumento } from "@/lib/validacao/documento";
+import { mascaraDocumento } from "@/lib/mascaras";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,76 +24,44 @@ export default async function ListaLojistasPage({ params, searchParams }: Props)
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-bold text-marca-preto">Clientes</h1>
-        <Link
-          href={`/${locale}/admin/lojistas/novo`}
-          className="bg-marca-preto px-4 py-2 text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800"
-        >
+      <CabecalhoAdmin titulo="Clientes" descricao="Lojistas com acesso à loja.">
+        <Botao href={`/${locale}/admin/lojistas/novo`} icone={Plus}>
           Novo cliente
-        </Link>
-      </div>
+        </Botao>
+      </CabecalhoAdmin>
 
-      <form method="get" className="mb-6 flex gap-2">
-        <label htmlFor="busca" className="sr-only">
-          Buscar
-        </label>
-        <input
-          id="busca"
-          name="busca"
-          type="search"
-          defaultValue={termo}
-          placeholder="Nome, nome fantasia ou CPF/CNPJ"
-          className="w-full max-w-md border border-marca-cinza-300 bg-marca-branco px-3 py-2 text-marca-preto outline-none focus:border-marca-preto"
-        />
-        <button
-          type="submit"
-          className="border border-marca-preto px-4 py-2 text-sm font-medium text-marca-preto transition-colors hover:bg-marca-preto hover:text-marca-branco"
-        >
-          Buscar
-        </button>
-      </form>
+      <BuscaAdmin termo={termo} placeholder="Nome, nome fantasia ou CPF/CNPJ" />
 
       {lojistas.length === 0 ? (
-        <p className="text-marca-cinza-600">Nenhum cliente encontrado.</p>
+        <VazioAdmin icone={Users}>Nenhum cliente encontrado.</VazioAdmin>
       ) : (
-        <div className="overflow-x-auto border border-marca-cinza-200">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-marca-cinza-50 text-marca-cinza-600">
-              <tr>
-                <th scope="col" className="px-4 py-3 font-medium">Nome</th>
-                <th scope="col" className="px-4 py-3 font-medium">CPF/CNPJ</th>
-                <th scope="col" className="px-4 py-3 font-medium">E-mail</th>
-                <th scope="col" className="px-4 py-3 font-medium">Status</th>
-                <th scope="col" className="px-4 py-3 font-medium">
-                  <span className="sr-only">Ações</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {lojistas.map((l) => (
-                <tr key={l.id} className="border-t border-marca-cinza-200">
-                  <td className="px-4 py-3 text-marca-preto">{l.nome}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-marca-cinza-800">
-                    {l.documento ? formatarDocumento(l.documento) : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-marca-cinza-800">{l.email}</td>
-                  <td className="px-4 py-3 text-marca-preto">
-                    {l.anonimizado ? "Anonimizado" : l.ativo ? "Ativo" : "Inativo"}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/${locale}/admin/lojistas/${l.id}`}
-                      className="text-marca-preto underline underline-offset-2"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TabelaAdmin
+          colunas={["Nome", "CPF/CNPJ", "E-mail", "Status", <span key="a" className="sr-only">Ações</span>]}
+        >
+          {lojistas.map((l) => (
+            <LinhaAdmin key={l.id}>
+              <CelulaAdmin className="font-medium text-marca-preto">
+                <span className="min-w-0 break-words">{l.nome}</span>
+              </CelulaAdmin>
+              <CelulaAdmin rotulo="CPF/CNPJ" className="whitespace-nowrap text-marca-cinza-800">
+                {l.documento ? mascaraDocumento(l.documento) : "—"}
+              </CelulaAdmin>
+              <CelulaAdmin rotulo="E-mail" className="text-marca-cinza-800">
+                <span className="break-all">{l.email}</span>
+              </CelulaAdmin>
+              <CelulaAdmin rotulo="Status">
+                <Selo tom={!l.anonimizado && l.ativo ? "verde" : "neutro"}>
+                  {l.anonimizado ? "Anonimizado" : l.ativo ? "Ativo" : "Inativo"}
+                </Selo>
+              </CelulaAdmin>
+              <CelulaAdmin alinhar="direita" className="justify-end">
+                <Botao href={`/${locale}/admin/lojistas/${l.id}`} variante="fantasma" tamanho="sm" icone={Pencil}>
+                  Editar
+                </Botao>
+              </CelulaAdmin>
+            </LinhaAdmin>
+          ))}
+        </TabelaAdmin>
       )}
     </div>
   );

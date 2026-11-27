@@ -1,5 +1,7 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
+import VoltarAdmin from "@/components/admin/VoltarAdmin";
+import Selo from "@/components/ui/Selo";
 import FormCupom from "@/components/admin/FormCupom";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { obterCupom } from "@/services/cupons-admin";
@@ -15,16 +17,11 @@ export default async function EditarCupomPage({ params }: Props) {
   const lojistas = (await listarLojistas()).filter((l) => !l.anonimizado || l.id === cupom.lojista_id);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link href={`/${locale}/admin/cupons`} className="text-sm text-marca-cinza-600 hover:text-marca-preto">
-          ← Cupons
-        </Link>
-        <h1 className="mt-3 text-2xl font-bold text-marca-preto">{cupom.codigo}</h1>
-        <p className="mt-1 text-sm text-marca-cinza-600">
-          Usos: {cupom.usos} / {cupom.max_usos ?? "ilimitado"}
-        </p>
-      </div>
+    <div>
+      <VoltarAdmin href={`/${locale}/admin/cupons`}>Voltar para cupons</VoltarAdmin>
+      <CabecalhoAdmin titulo={cupom.codigo} descricao={`Usos: ${cupom.usos} / ${cupom.max_usos ?? "ilimitado"}`}>
+        <Selo tom={cupom.ativo ? "verde" : "neutro"}>{cupom.ativo ? "Ativo" : "Inativo"}</Selo>
+      </CabecalhoAdmin>
       <FormCupom key={cupom.id} cupom={cupom} locale={locale} lojistas={lojistas.map((l) => ({ id: l.id, nome: l.nome }))} />
     </div>
   );

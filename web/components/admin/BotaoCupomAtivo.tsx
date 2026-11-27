@@ -1,5 +1,7 @@
 "use client";
 
+import { Power, PowerOff } from "lucide-react";
+import Botao from "@/components/ui/Botao";
 import { useAcao } from "@/lib/react/destravar-transicao";
 import type { ResultadoAdmin } from "@/lib/admin/resultado";
 import { definirCupomAtivo } from "@/services/cupons-admin";
@@ -10,16 +12,12 @@ export default function BotaoCupomAtivo({ id, ativo }: { id: string; ativo: bool
     null,
   );
   return (
-    <form action={acao} className="inline">
-      <button
-        type="submit"
-        disabled={pendente}
-        className="text-marca-preto underline underline-offset-2 disabled:text-marca-cinza-400"
-      >
+    <form action={acao} className="inline-flex items-center">
+      <Botao type="submit" variante="fantasma" tamanho="sm" icone={ativo ? PowerOff : Power} carregando={pendente}>
         {ativo ? "Desativar" : "Ativar"}
-      </button>
+      </Botao>
       {estado && !estado.ok ? (
-        <span role="alert" className="ml-2 text-xs text-marca-cinza-800">
+        <span role="alert" className="ml-2 max-w-48 rounded-xl border border-marca-cinza-300 bg-marca-cinza-50 px-2 py-1 text-xs break-words whitespace-normal text-marca-preto">
           {estado.erro}
         </span>
       ) : null}

@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Check, ChevronDown } from "lucide-react";
+import { consultaNoIdioma } from "@/lib/consulta-idioma";
 
 const langs = [
   { code: "pt", name: "Português", flag: "/flags/br.png" },
@@ -11,7 +12,7 @@ const langs = [
   { code: "es", name: "Español", flag: "/flags/es.png" },
 ];
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ acima = false }: { acima?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = pathname.split("/")[1] || "pt";
@@ -39,7 +40,7 @@ export default function LanguageSwitcher() {
     const segments = pathname.split("/");
     segments[1] = lang;
     setOpen(false);
-    router.push(segments.join("/") || "/");
+    router.push((segments.join("/") || "/") + consultaNoIdioma(window.location.search, currentLocale, lang));
   };
 
   return (
@@ -64,7 +65,7 @@ export default function LanguageSwitcher() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute top-full right-0 z-50 mt-2 w-48 rounded-2xl border border-marca-cinza-200 bg-marca-branco p-1.5 shadow-elevada">
+        <div className={`absolute right-0 z-50 w-48 ${acima ? "bottom-full mb-2" : "top-full mt-2"} rounded-2xl border border-marca-cinza-200 bg-marca-branco p-1.5 shadow-elevada`}>
           {langs.map((lang) => {
             const atual = lang.code === currentLocale;
             return (

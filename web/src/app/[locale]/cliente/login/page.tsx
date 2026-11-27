@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft, ArrowRight, BadgePercent, Package, Truck } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import LoginForm from "@/components/LoginForm";
 import LogoNex from "@/components/ui/LogoNex";
 
@@ -21,8 +22,8 @@ export default async function LoginPage({ params, searchParams }: Props) {
   ];
 
   return (
-    // pt-24 = altura da navbar fixa; a seção ocupa o resto da tela.
-    <section className="flex min-h-svh flex-col bg-marca-cinza-100 pt-24 md:grid md:grid-cols-2">
+    // Sem navbar nem rodapé aqui (semTopoDoSite): a seção ocupa a tela inteira.
+    <section className="flex min-h-svh flex-col bg-marca-cinza-100 md:grid md:grid-cols-2">
       {/* Lado da marca: faixa no topo no celular, coluna inteira a partir de md. */}
       <div className="relative isolate overflow-hidden bg-linear-to-br from-marca-preto via-marca-cinza-900 to-marca-cinza-800 text-marca-branco">
         <div
@@ -85,16 +86,20 @@ export default async function LoginPage({ params, searchParams }: Props) {
           </p>
         </div>
 
-        <Link
-          href={`/${locale}`}
-          className="group mt-6 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-marca-cinza-600 transition-colors hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
-        >
-          <ArrowLeft
-            aria-hidden
-            className="size-4 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-          />
-          {t("back")}
-        </Link>
+        {/* Sem a navbar aqui: o idioma troca ao lado do "Voltar ao site" (mantém o ?next=). */}
+        <div className="mt-6 flex items-center gap-3">
+          <Link
+            href={`/${locale}`}
+            className="group inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-marca-cinza-600 transition-colors hover:text-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:outline-none"
+          >
+            <ArrowLeft
+              aria-hidden
+              className="size-4 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+            />
+            {t("back")}
+          </Link>
+          <LanguageSwitcher acima />
+        </div>
       </div>
     </section>
   );

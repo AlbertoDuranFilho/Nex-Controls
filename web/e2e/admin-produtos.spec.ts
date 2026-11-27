@@ -66,7 +66,7 @@ test("admin cria produto com preço, especificação e manual; aparece na lista 
   await page.getByLabel("Nome", { exact: true }).fill(`Placa Editada ${sufixo}`);
   await page.getByLabel("Preço de tabela (R$)").fill("300,00");
   await page.getByRole("button", { name: "Salvar produto" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Produto salvo." })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Produto salvo." })).toBeVisible();
 
   await p.goto("/pt/catalogo");
   await expect(p.getByText(`Placa Editada ${sufixo}`)).toBeVisible();

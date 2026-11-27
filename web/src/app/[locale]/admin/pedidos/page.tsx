@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Clock, Mail, Receipt } from "lucide-react";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
+import { CelulaAdmin, LinhaAdmin, TabelaAdmin, VazioAdmin } from "@/components/admin/TabelaAdmin";
+import { VISUAL_STATUS } from "@/components/pedidos/StatusPedido";
+import Botao from "@/components/ui/Botao";
+import Selo from "@/components/ui/Selo";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { formatarMoeda } from "@/lib/formatar";
 import { STATUS_PEDIDO, TODOS_STATUS, ehStatus } from "@/lib/pedidos/transicoes";
@@ -21,70 +27,77 @@ export default async function ListaPedidosPage({ params, searchParams }: Props) 
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-bold text-marca-preto">Pedidos</h1>
-        <form method="get" className="flex items-end gap-2">
-          <div className="text-sm font-medium text-marca-preto">
-            <label htmlFor="filtro-status" className="block">Status</label>
-            <select
-              id="filtro-status"
-              name="status"
-              defaultValue={status ?? ""}
-              className="mt-1 block border border-marca-cinza-200 bg-marca-branco px-3 py-2 text-sm"
-            >
-              <option value="">Todos</option>
-              {TODOS_STATUS.map((s) => (
-                <option key={s} value={s}>
-                  {STATUS_PEDIDO[s]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="bg-marca-preto px-4 py-2 text-sm font-semibold text-marca-branco transition-colors hover:bg-marca-cinza-800"
+      <CabecalhoAdmin titulo="Pedidos" descricao="Acompanhe pagamentos, notas e envios." />
+
+      <form
+        method="get"
+        className="mb-6 flex flex-col gap-2 rounded-2xl border border-marca-cinza-200 bg-marca-branco p-3 shadow-suave sm:flex-row sm:items-end"
+      >
+        <div className="text-sm font-medium text-marca-preto sm:w-64">
+          <label htmlFor="filtro-status" className="block">Status</label>
+          <select
+            id="filtro-status"
+            name="status"
+            defaultValue={status ?? ""}
+            className="mt-1 block h-11 w-full rounded-xl border border-marca-cinza-300 bg-marca-branco px-3 text-sm font-normal text-marca-preto outline-none transition-colors focus-visible:border-marca-preto focus-visible:ring-2 focus-visible:ring-marca-preto motion-reduce:transition-none"
           >
-            Filtrar
-          </button>
-        </form>
-      </div>
+            <option value="">Todos</option>
+            {TODOS_STATUS.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_PEDIDO[s]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Botao type="submit">Filtrar</Botao>
+      </form>
 
       {pedidos.length === 0 ? (
-        <p className="text-marca-cinza-600">Nenhum pedido encontrado.</p>
+        <VazioAdmin icone={Receipt}>Nenhum pedido encontrado.</VazioAdmin>
       ) : (
-        <div className="overflow-x-auto border border-marca-cinza-200">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-marca-cinza-50 text-marca-cinza-600">
-              <tr>
-                <th scope="col" className="px-4 py-3 font-medium">Pedido</th>
-                <th scope="col" className="px-4 py-3 font-medium">Data</th>
-                <th scope="col" className="px-4 py-3 font-medium">Cliente</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Total</th>
-                <th scope="col" className="px-4 py-3 font-medium">Status</th>
-                <th scope="col" className="px-4 py-3 font-medium">E-mails</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pedidos.map((p) => (
-                <tr key={p.numero} className="border-t border-marca-cinza-200">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <Link
-                      href={`/${locale}/admin/pedidos/${p.numero}`}
-                      className="font-medium text-marca-preto underline underline-offset-2"
-                    >
-                      #{p.numero}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-marca-cinza-800">{data.format(new Date(p.created_at))}</td>
-                  <td className="px-4 py-3 text-marca-preto">{p.cliente_nome}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">{formatarMoeda(p.total, "pt-BR")}</td>
-                  <td className="px-4 py-3 text-marca-preto">{STATUS_PEDIDO[p.status]}</td>
-                  <td className="px-4 py-3 text-marca-cinza-800">{p.notificado ? "Enviados" : "Pendentes"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TabelaAdmin
+          colunas={[
+            "Pedido",
+            "Data",
+            "Cliente",
+            <span key="t" className="block text-right">Total</span>,
+            "Status",
+            "E-mails",
+          ]}
+        >
+          {pedidos.map((p) => {
+            const { tom, icone } = VISUAL_STATUS[p.status];
+            return (
+              <LinhaAdmin key={p.numero}>
+                <CelulaAdmin className="whitespace-nowrap">
+                  <Link
+                    href={`/${locale}/admin/pedidos/${p.numero}`}
+                    className="rounded font-semibold text-marca-preto underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-marca-preto focus-visible:ring-offset-2 focus-visible:outline-none"
+                  >
+                    #{p.numero}
+                  </Link>
+                </CelulaAdmin>
+                <CelulaAdmin rotulo="Data" className="whitespace-nowrap text-marca-cinza-800">
+                  {data.format(new Date(p.created_at))}
+                </CelulaAdmin>
+                <CelulaAdmin rotulo="Cliente" className="text-marca-preto">
+                  <span className="break-words">{p.cliente_nome}</span>
+                </CelulaAdmin>
+                <CelulaAdmin rotulo="Total" alinhar="direita" className="whitespace-nowrap">
+                  {formatarMoeda(p.total, "pt-BR")}
+                </CelulaAdmin>
+                <CelulaAdmin rotulo="Status">
+                  <Selo tom={tom} icone={icone}>
+                    {STATUS_PEDIDO[p.status]}
+                  </Selo>
+                </CelulaAdmin>
+                <CelulaAdmin rotulo="E-mails">
+                  <Selo icone={p.notificado ? Mail : Clock}>{p.notificado ? "Enviados" : "Pendentes"}</Selo>
+                </CelulaAdmin>
+              </LinhaAdmin>
+            );
+          })}
+        </TabelaAdmin>
       )}
     </div>
   );

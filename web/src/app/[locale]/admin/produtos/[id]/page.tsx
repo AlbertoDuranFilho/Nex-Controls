@@ -1,6 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { ExternalLink } from "lucide-react";
+import CabecalhoAdmin from "@/components/admin/CabecalhoAdmin";
 import FormProduto from "@/components/admin/FormProduto";
+import VoltarAdmin from "@/components/admin/VoltarAdmin";
+import Botao from "@/components/ui/Botao";
+import Selo from "@/components/ui/Selo";
 import { ehAdmin } from "@/lib/auth/exigir-admin";
 import { obterProdutoAdmin } from "@/services/produtos-admin";
 
@@ -13,24 +17,18 @@ export default async function EditarProdutoPage({ params }: Props) {
   if (!produto) notFound();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          href={`/${locale}/admin/produtos`}
-          className="text-sm text-marca-cinza-600 hover:text-marca-preto"
-        >
-          ← Produtos
-        </Link>
-        <h1 className="mt-3 text-2xl font-bold text-marca-preto">{produto.nome}</h1>
+    <div>
+      <VoltarAdmin href={`/${locale}/admin/produtos`}>Voltar para produtos</VoltarAdmin>
+      <CabecalhoAdmin titulo={produto.nome} descricao={`Código ${produto.codigo}`}>
+        <Selo tom={produto.ativo ? "verde" : "neutro"} className="self-center">
+          {produto.ativo ? "Ativo" : "Inativo"}
+        </Selo>
         {produto.ativo ? (
-          <Link
-            href={`/${locale}/catalogo/${produto.slug}`}
-            className="mt-1 inline-block text-sm text-marca-cinza-600 underline underline-offset-2 hover:text-marca-preto"
-          >
+          <Botao href={`/${locale}/catalogo/${produto.slug}`} variante="secundario" tamanho="sm" icone={ExternalLink}>
             Ver no catálogo
-          </Link>
+          </Botao>
         ) : null}
-      </div>
+      </CabecalhoAdmin>
       <FormProduto key={produto.id} produto={produto} locale={locale} />
     </div>
   );

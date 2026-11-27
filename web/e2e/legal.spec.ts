@@ -37,6 +37,8 @@ const exclusoes = [
 
 for (const e of exclusoes) {
   test(`pagina de exclusao de conta (${e.locale}) pelo rodape e pela politica`, async ({ page }) => {
+    // O aviso de cookies fica fixo embaixo e cobre os links do rodapé até ser aceito.
+    await page.addInitScript(() => localStorage.setItem("cookie-consent", "accepted"));
     await page.goto(`/${e.locale}`);
     await page.locator("footer").getByRole("link", { name: e.rodape }).click();
     await expect(page).toHaveURL(new RegExp(`/${e.locale}/excluir-conta$`));
